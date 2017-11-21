@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.inidus.platform</groupId>
@@ -45,6 +46,17 @@
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-structures-dstu3</artifactId>
             <version>3.0.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openehr.java-libs</groupId>
+            <artifactId>adl-parser</artifactId>
+            <version>1.0.71</version>
         </dependency>
     </dependencies>
     <build>
@@ -125,8 +137,8 @@
                         <configuration>
                             <target>
                                 <zip destfile="${project.build.directory}/app.zip">
-                                    <zipfileset dir="${project.build.directory}/docker" />
-                                    <zipfileset dir="${project.build.directory}" includes="${project.artifactId}.jar" />
+                                    <zipfileset dir="${project.build.directory}/docker"/>
+                                    <zipfileset dir="${project.build.directory}" includes="${project.artifactId}.jar"/>
                                 </zip>
                             </target>
                         </configuration>
