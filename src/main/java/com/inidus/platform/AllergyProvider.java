@@ -7,6 +7,7 @@ import ca.uhn.fhir.rest.server.IResourceProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.hl7.fhir.dstu3.model.*;
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.openehr.rm.datatypes.text.DvCodedText;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,10 +77,13 @@ public class AllergyProvider implements IResourceProvider {
         }
 
 
-        String terminologySystem = ehrJson.get("Causative_agent").get("defining_code").get("terminology_id").get("value").textValue();
-        CodeableConcept code = new CodeableConcept();
-        code.setText(ehrJson.get("Causative_agent").get("value").textValue());
-        retVal.setCode(code);
+        String value = ehrJson.get("Causative_agent").get("value").textValue();
+        String terminology = ehrJson.get("Causative_agent").get("defining_code").get("terminology_id").get("value").textValue();
+        String code = ehrJson.get("Causative_agent").get("defining_code").get("code_string").textValue();
+        DvCodedText causativeAgent = new DvCodedText(value, terminology, code);
+
+        CodeableConcept concept = DfText.convertToCodeableConcept(causativeAgent);
+        retVal.setCode(concept);
 
 
         Reference patient = new Reference();
