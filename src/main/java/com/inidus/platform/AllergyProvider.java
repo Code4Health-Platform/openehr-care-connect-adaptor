@@ -32,24 +32,33 @@ public class AllergyProvider implements IResourceProvider {
     }
 
     @Read()
-    public AllergyIntolerance getResourceById(@IdParam IdType id) throws ParseException {
+    public AllergyIntolerance getResourceById(@IdParam IdType id) throws ParseException, IOException {
         log.trace("getResourceById: " + id.getIdPart() + " " + id.getValue() + " " + id.getIdPartAsLong());
-        AllergyIntolerance retVal = new AllergyIntolerance();
 
-        JsonNode ehrJson = null;
-        try {
-            ehrJson = openEhrService.getAllergyById(id.getIdPart());
-        } catch (IOException e) {
-            return null;
-        }
+        JsonNode ehrJson = openEhrService.getAllergyById(id.getIdPart());
+
+        AllergyIntolerance retVal = convertToAllergyIntolerance(ehrJson);
 
         retVal.addIdentifier().setValue(id.getIdPart());
+
+        return retVal;
+    }
+
+    private AllergyIntolerance convertToAllergyIntolerance(JsonNode ehrJson) throws ParseException {
+        AllergyIntolerance retVal = new AllergyIntolerance();
+
         retVal.setId(ehrJson.get("compositionId").textValue() + "_" + ehrJson.get("entryId").textValue());
         retVal.setClinicalStatus(AllergyIntolerance.AllergyIntoleranceClinicalStatus.ACTIVE);
 
-        retVal.setVerificationStatus("at0065".equals(ehrJson.get("Status_code").textValue())
-                ? AllergyIntolerance.AllergyIntoleranceVerificationStatus.CONFIRMED
-                : AllergyIntolerance.AllergyIntoleranceVerificationStatus.UNCONFIRMED);
+        String statusCode = ehrJson.get("Status_code").textValue();
+        if ("at0065".equals(statusCode)) {
+            retVal.setVerificationStatus(AllergyIntolerance.AllergyIntoleranceVerificationStatus.CONFIRMED);
+        } else if ("at0127".equals(statusCode)) {
+            retVal.setVerificationStatus(AllergyIntolerance.AllergyIntoleranceVerificationStatus.UNCONFIRMED);
+        } else {
+            retVal.setVerificationStatus(AllergyIntolerance.AllergyIntoleranceVerificationStatus.UNCONFIRMED);
+        }
+
 
         String mechanism_code = ehrJson.get("Reaction_mechanism_code").textValue();
         if ("at0059".equals(mechanism_code)) {
@@ -132,12 +141,11 @@ public class AllergyProvider implements IResourceProvider {
         reaction.addNote().setText(ehrJson.get("Adverse_reaction_risk_Comment").textValue());
 
         retVal.addReaction(reaction);
-
         return retVal;
     }
 
     @Search()
-    public List<AllergyIntolerance> getAllResources() throws ParseException {
+    public List<AllergyIntolerance> getAllResources() throws ParseException, IOException {
         ArrayList<AllergyIntolerance> all = new ArrayList<>();
         all.add(getResourceById(new IdType(0)));
         return all;

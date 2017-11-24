@@ -12,6 +12,9 @@ import javax.servlet.annotation.WebServlet;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The RESTful server responding to FHIR requests
+ */
 @WebServlet(urlPatterns = {"/fhir/**"}, displayName = "FHIR Adaptor")
 public class FhirServlet extends RestfulServer {
     @Autowired
