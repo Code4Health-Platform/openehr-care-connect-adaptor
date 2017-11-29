@@ -5,14 +5,23 @@ import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.RestfulServer;
 import ca.uhn.fhir.rest.server.interceptor.ResponseHighlighterInterceptor;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The RESTful server responding to FHIR requests
+ */
 @WebServlet(urlPatterns = {"/fhir/**"}, displayName = "FHIR Adaptor")
+@Component
 public class FhirServlet extends RestfulServer {
+    @Autowired
+    AllergyProvider allergyProvider;
+
     public FhirServlet() {
         super(FhirContext.forDstu3());
     }
@@ -24,7 +33,7 @@ public class FhirServlet extends RestfulServer {
         LoggerFactory.getLogger(getClass()).info("Initialising FHIR Servlet");
 
         List<IResourceProvider> providers = new ArrayList<>();
-        providers.add(new AllergyProvider());
+        providers.add(this.allergyProvider);
         setResourceProviders(providers);
 
         registerInterceptor(new ResponseHighlighterInterceptor());
