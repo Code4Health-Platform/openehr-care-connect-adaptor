@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Component("AllergyProvider")
@@ -37,6 +38,7 @@ public class AllergyProvider implements IResourceProvider {
 
         JsonNode ehrJson = openEhrService.getAllergyById(id.getIdPart());
 
+
         AllergyIntolerance retVal = convertToAllergyIntolerance(ehrJson);
 
         retVal.addIdentifier().setValue(id.getIdPart());
@@ -44,7 +46,19 @@ public class AllergyProvider implements IResourceProvider {
         return retVal;
     }
 
-    private AllergyIntolerance convertToAllergyIntolerance(JsonNode ehrJson) throws ParseException {
+    @Search()
+    public List<AllergyIntolerance> getAllResources() throws ParseException, IOException {
+        JsonNode ehrJsonList = openEhrService.getAllAllergies();
+
+        List<AllergyIntolerance> all = new ArrayList<>();
+        Iterator<JsonNode> it = ehrJsonList.elements();
+        while (it.hasNext()) {
+            all.add(convertToAllergyIntolerance(it.next()));
+        }
+        return all;
+    }
+
+    private AllergyIntolerance convertToAllergyIntolerance(JsonNode ehrJson) {
         AllergyIntolerance retVal = new AllergyIntolerance();
 
         retVal.setId(ehrJson.get("compositionId").textValue() + "_" + ehrJson.get("entryId").textValue());
@@ -105,9 +119,17 @@ public class AllergyProvider implements IResourceProvider {
         retVal.setPatient(patient);
 
         SimpleDateFormat ehrDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
-        retVal.setLastOccurrence(ehrDateFormat.parse(ehrJson.get("Onset_of_last_reaction").textValue()));
 
-        retVal.setAssertedDate(ehrDateFormat.parse(ehrJson.get("Adverse_reaction_risk_Last_updated").asText()));
+        try {
+            String onset_of_last_reaction = ehrJson.get("Onset_of_last_reaction").asText();
+            retVal.setLastOccurrence(ehrDateFormat.parse(onset_of_last_reaction));
+        } catch (ParseException e) {
+        }
+
+        try {
+            retVal.setAssertedDate(ehrDateFormat.parse(ehrJson.get("Adverse_reaction_risk_Last_updated").asText()));
+        } catch (ParseException e) {
+        }
 
         JsonNode comment = ehrJson.get("Comment");
         Annotation note = new Annotation();
@@ -118,14 +140,21 @@ public class AllergyProvider implements IResourceProvider {
         }
         retVal.addNote(note);
 
-        String substance = ehrJson.get("Specific_substance").get("value").textValue();
         AllergyIntolerance.AllergyIntoleranceReactionComponent reaction = new AllergyIntolerance.AllergyIntoleranceReactionComponent();
-        CodeableConcept codeableSubstance = new CodeableConcept();
-        codeableSubstance.setText(substance);
-        reaction.setSubstance(codeableSubstance);
-        reaction.addManifestation(new CodeableConcept().setText("Manifestation_value"));
-        reaction.setDescription(ehrJson.get("Reaction_description").textValue());
-        reaction.setOnset(ehrDateFormat.parse(ehrJson.get("Onset_of_reaction").asText()));
+
+        if (ehrJson.has("Specific_substance") && ehrJson.get("Specific_substance").has("value")) {
+            String substance = ehrJson.get("Specific_substance").get("value").textValue();
+            CodeableConcept codeableSubstance = new CodeableConcept();
+            codeableSubstance.setText(substance);
+            reaction.setSubstance(codeableSubstance);
+            reaction.addManifestation(new CodeableConcept().setText("Manifestation_value"));
+            reaction.setDescription(ehrJson.get("Reaction_description").textValue());
+        }
+
+        try {
+            reaction.setOnset(ehrDateFormat.parse(ehrJson.get("Onset_of_reaction").asText()));
+        } catch (ParseException e) {
+        }
 
         String severity_code = ehrJson.get("Severity_code").textValue();
         if ("at0093".equals(severity_code)) {
@@ -135,8 +164,9 @@ public class AllergyProvider implements IResourceProvider {
         } else if ("at0090".equals(severity_code)) {
             reaction.setSeverity(AllergyIntolerance.AllergyIntoleranceSeverity.SEVERE);
         }
-
-        reaction.setExposureRoute(new CodeableConcept().setText(ehrJson.get("Route_of_exposure").get("value").textValue()));
+        if (ehrJson.has("Route_of_exposure") && ehrJson.get("Route_of_exposure").has("value")) {
+            reaction.setExposureRoute(new CodeableConcept().setText(ehrJson.get("Route_of_exposure").get("value").textValue()));
+        }
 
         reaction.addNote().setText(ehrJson.get("Adverse_reaction_risk_Comment").textValue());
 
@@ -144,10 +174,5 @@ public class AllergyProvider implements IResourceProvider {
         return retVal;
     }
 
-    @Search()
-    public List<AllergyIntolerance> getAllResources() throws ParseException, IOException {
-        ArrayList<AllergyIntolerance> all = new ArrayList<>();
-        all.add(getResourceById(new IdType(0)));
-        return all;
-    }
+
 }

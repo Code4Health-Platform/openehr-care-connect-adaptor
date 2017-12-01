@@ -40,9 +40,7 @@ public class FhirServletTest {
             testImpl.init(new MockServletConfig());
             testImpl.initialize();
         }
-
         request = new MockHttpServletRequest();
-
         response = new MockHttpServletResponse();
     }
 

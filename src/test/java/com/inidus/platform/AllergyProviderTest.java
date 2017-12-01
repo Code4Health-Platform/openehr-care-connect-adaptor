@@ -12,8 +12,10 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.*;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 
@@ -25,7 +27,6 @@ public class AllergyProviderTest {
     @Autowired
     @Qualifier("AllergyProvider")
     private AllergyProvider testProvider;
-
     @MockBean
     private OpenEhrService ehrService;
 
@@ -71,9 +72,59 @@ public class AllergyProviderTest {
                 "    ]}\n").get("resultSet").get(0);
     }
 
+    private static JsonNode queryOpenEhr() throws IOException {
+        // create Map of data to be posted for domain creation
+//        Map<String, String> data = new HashMap<>();
+//        data.put(OperinoService.USERNAME, "oprn_hcbox");
+//        data.put(OperinoService.PASSWORD, "XioTAJoO479");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("Authorization", "Basic b3Bybl9oY2JveDpYaW9UQUpvTzQ3OQ==");
+//        headers.add("Ehr-Session-disabled", "0ce5ec82-3954-4388-bfd7-e48f6db613e8");
+
+        String url = "https://cdr.code4health.org/rest/v1/query";
+        String aql = "select " +
+                "e/ehr_id/value as ehrId, " +
+                "e/ehr_status/subject/external_ref/id/value as subjectId, " +
+                "e/ehr_status/subject/external_ref/namespace as subjectNamespace, " +
+                "a/uid/value as compositionId, " +
+                "b_a/uid/value as entryId, " +
+                "b_a/data[at0001]/items[at0002]/value as Causative_agent, " +
+                "b_a/data[at0001]/items[at0063]/value/defining_code/code_string as Status_code, " +
+                "b_a/data[at0001]/items[at0101]/value/defining_code/code_string as Criticality_code, " +
+                "b_a/data[at0001]/items[at0120]/value/defining_code/code_string as Category_code, " +
+                "b_a/data[at0001]/items[at0117]/value/value as Onset_of_last_reaction, " +
+                "b_a/data[at0001]/items[at0058]/valuedefining_code/code_string as Reaction_mechanism_code, " +
+                "b_a/data[at0001]/items[at0006]/value/value as Comment, " +
+                "b_a/protocol[at0042]/items[at0062]/value/value as Adverse_reaction_risk_Last_updated, " +
+                "b_a/data[at0001]/items[at0009]/items[at0010]/value as Specific_substance, " +
+                "b_a/data[at0001]/items[at0009]/items[at0021]/value/defining_code/code_string as Certainty_code, " +
+                "b_a/data[at0001]/items[at0009]/items[at0011]/value as Manifestation, " +
+                "b_a/data[at0001]/items[at0009]/items[at0012]/value/value as Reaction_description, " +
+                "b_a/data[at0001]/items[at0009]/items[at0027]/value/value as Onset_of_reaction, " +
+                "b_a/data[at0001]/items[at0009]/items[at0089]/value/defining_code/code_string as Severity_code, " +
+                "b_a/data[at0001]/items[at0009]/items[at0106]/value as Route_of_exposure, " +
+                "b_a/data[at0001]/items[at0009]/items[at0032]/value/value as Adverse_reaction_risk_Comment " +
+                "from EHR e " +
+                "contains COMPOSITION a[openEHR-EHR-COMPOSITION.adverse_reaction_list.v1] " +
+                "contains EVALUATION b_a[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1] " +
+                "where a/name/value='Adverse reaction list'";
+        String aqlRequest = "{\"aql\" : \"" + aql + "\"}";
+
+
+        HttpEntity<String> postEntity = new HttpEntity<>(aqlRequest, headers);
+        ResponseEntity<String> result = new RestTemplate().exchange(url, HttpMethod.POST, postEntity, String.class);
+
+        return new ObjectMapper().readTree(result.getBody());
+    }
+
     @Before
     public void setUp() throws Exception {
         given(ehrService.getAllergyById(Mockito.anyString())).willReturn(AllergyProviderTest.getDummyJson());
+        given(ehrService.getAllAllergies()).willReturn(new OpenEhrService().getAllAllergies());
+//        given(ehrService.getAllergyById(Mockito.anyString())).willReturn(AllergyProviderTest.queryOpenEhr());
+
     }
 
     @Test
@@ -117,5 +168,10 @@ public class AllergyProviderTest {
         Assert.assertNotNull("reaction severity missing", resource.getReaction().get(0).getSeverity());
         Assert.assertNotNull("reaction exposure route missing", resource.getReaction().get(0).getExposureRoute());
         Assert.assertNotNull("reaction note missing", resource.getReaction().get(0).getNote());
+    }
+
+    @Test
+    public void getAllResources() throws Exception {
+        Assert.assertNotNull(testProvider.getAllResources());
     }
 }
