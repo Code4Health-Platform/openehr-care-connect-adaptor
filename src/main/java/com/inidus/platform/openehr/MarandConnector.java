@@ -1,5 +1,4 @@
-package com.inidus.platform;
-
+package com.inidus.platform.openehr;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,11 +8,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 
-/**
- * Connects to an openEHR backend and returns selected data
- */
 @Service
-public class OpenEhrService {
+public class MarandConnector implements OpenEhrService {
     private static final String AQL = "select " +
             "e/ehr_id/value as ehrId, " +
             "e/ehr_status/subject/external_ref/id/value as subjectId, " +
@@ -44,6 +40,7 @@ public class OpenEhrService {
     private static final String URL = "https://cdr.code4health.org/rest/v1/query";
     private static final String AUTH = "Basic b3Bybl9oY2JveDpYaW9UQUpvTzQ3OQ==";
 
+    @Override
     public JsonNode getAllergyById(String id) throws IOException {
         if (null == id || id.isEmpty() || id.contains(" ")) {
             return null;
@@ -57,7 +54,7 @@ public class OpenEhrService {
         return resultJson.get("resultSet");
     }
 
-
+    @Override
     public JsonNode getAllAllergies() throws IOException {
         String body = "{\"aql\" : \"" + AQL + "\"}";
 

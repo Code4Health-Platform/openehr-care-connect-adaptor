@@ -2,6 +2,8 @@ package com.inidus.platform;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.inidus.platform.openehr.MarandConnector;
+import com.inidus.platform.openehr.OpenEhrService;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.junit.Assert;
@@ -22,7 +24,7 @@ import java.io.IOException;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {AllergyProvider.class, OpenEhrService.class})
+@ContextConfiguration(classes = {AllergyProvider.class, MarandConnector.class})
 public class AllergyProviderTest {
     @Autowired
     @Qualifier("AllergyProvider")
@@ -122,7 +124,7 @@ public class AllergyProviderTest {
     @Before
     public void setUp() throws Exception {
         given(ehrService.getAllergyById(Mockito.anyString())).willReturn(AllergyProviderTest.getDummyJson());
-        given(ehrService.getAllAllergies()).willReturn(new OpenEhrService().getAllAllergies());
+        given(ehrService.getAllAllergies()).willReturn(new MarandConnector().getAllAllergies());
 //        given(ehrService.getAllergyById(Mockito.anyString())).willReturn(AllergyProviderTest.queryOpenEhr());
 
     }

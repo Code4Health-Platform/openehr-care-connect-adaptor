@@ -2,6 +2,8 @@ package com.inidus.platform;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.inidus.platform.openehr.MarandConnector;
+import com.inidus.platform.openehr.OpenEhrService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,7 +22,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {FhirServlet.class, OpenEhrService.class, AllergyProvider.class})
+@ContextConfiguration(classes = {FhirServlet.class, AllergyProvider.class, MarandConnector.class})
 public class FhirServletTest {
 
     private MockHttpServletRequest request;

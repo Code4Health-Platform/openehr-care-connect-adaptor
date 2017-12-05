@@ -5,12 +5,14 @@ import ca.uhn.fhir.rest.annotation.Read;
 import ca.uhn.fhir.rest.annotation.Search;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.inidus.platform.openehr.OpenEhrService;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -22,6 +24,7 @@ public class AllergyProvider implements IResourceProvider {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired
+    @Qualifier("marandConnector")
     private OpenEhrService openEhrService;
 
     @Override
