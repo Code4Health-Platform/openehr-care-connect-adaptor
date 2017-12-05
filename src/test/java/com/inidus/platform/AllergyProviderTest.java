@@ -69,7 +69,7 @@ public class AllergyProviderTest {
                 "            \"Onset_of_last_reaction\": \"2017-11-13T22:41:52.643+01:00\",\n" +
                 "            \"Status_code\": \"at0064\"\n" +
                 "        }\n" +
-                "    ]}\n").get("resultSet").get(0);
+                "    ]}\n").get("resultSet");
     }
 
     private static JsonNode queryOpenEhr() throws IOException {

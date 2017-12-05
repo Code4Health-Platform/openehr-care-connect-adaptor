@@ -1,6 +1,7 @@
 package com.inidus.platform;
 
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.rest.api.EncodingEnum;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.RestfulServer;
 import ca.uhn.fhir.rest.server.interceptor.ResponseHighlighterInterceptor;
@@ -38,5 +39,6 @@ public class FhirServlet extends RestfulServer {
 
         registerInterceptor(new ResponseHighlighterInterceptor());
         setDefaultPrettyPrint(true);
+        setDefaultResponseEncoding(EncodingEnum.JSON);
     }
 }
