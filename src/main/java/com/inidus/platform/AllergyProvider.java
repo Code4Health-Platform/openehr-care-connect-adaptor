@@ -1,13 +1,13 @@
 package com.inidus.platform;
 
-import ca.uhn.fhir.rest.annotation.IdParam;
-import ca.uhn.fhir.rest.annotation.Read;
-import ca.uhn.fhir.rest.annotation.Search;
+import ca.uhn.fhir.rest.annotation.*;
+import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inidus.platform.openehr.OpenEhrService;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.IdType;
+import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +43,14 @@ public class AllergyProvider implements IResourceProvider {
     public List<AllergyIntolerance> getAllResources() throws ParseException, IOException {
         JsonNode ehrJsonList = openEhrService.getAllAllergies();
 
+        return new OpenEhrConverter().convertToAllergyIntoleranceList(ehrJsonList);
+    }
+
+    @Search()
+    public List<AllergyIntolerance> getResourceByPatientIdentifier(@RequiredParam(name = Patient.SP_IDENTIFIER) StringParam id,
+                                                                   @OptionalParam(name = "namespace") StringParam namespace) throws IOException {
+        if (null == namespace) namespace = new StringParam("uk.nhs.nhs_number");
+        JsonNode ehrJsonList = openEhrService.getAllergyByPatientIdentifier(id.getValue(), namespace.getValue());
         return new OpenEhrConverter().convertToAllergyIntoleranceList(ehrJsonList);
     }
 }

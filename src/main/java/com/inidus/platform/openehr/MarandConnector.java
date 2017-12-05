@@ -2,6 +2,7 @@ package com.inidus.platform.openehr;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.BaseJsonNode;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -52,6 +53,27 @@ public class MarandConnector implements OpenEhrService {
         ResponseEntity<String> result = new RestTemplate().exchange(URL, HttpMethod.POST, postEntity, String.class);
         JsonNode resultJson = new ObjectMapper().readTree(result.getBody());
         return resultJson.get("resultSet");
+    }
+
+    @Override
+    public JsonNode getAllergyByPatientIdentifier(String patientId, String idNamespace) throws IOException {
+        if (null == patientId || patientId.isEmpty() || patientId.contains(" ")) {
+            return null;
+        }
+
+        String idFilter = " and e/ehr_status/subject/external_ref/id/value='" + patientId +
+                "' and e/ehr_status/subject/external_ref/namespace='" + idNamespace + "'";
+
+        String body = "{\"aql\" : \"" + AQL + idFilter + "\"}";
+
+        HttpEntity<String> postEntity = new HttpEntity<>(body, createHttpHeaders());
+        ResponseEntity<String> result = new RestTemplate().exchange(URL, HttpMethod.POST, postEntity, String.class);
+        if (result.getStatusCode() == HttpStatus.OK) {
+            JsonNode resultJson = new ObjectMapper().readTree(result.getBody());
+            return resultJson.get("resultSet");
+        } else {
+            return null;
+        }
     }
 
     @Override
