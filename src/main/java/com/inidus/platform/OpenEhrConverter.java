@@ -141,7 +141,7 @@ public class OpenEhrConverter {
         } else if ("at0090".equals(severity_code)) {
             reaction.setSeverity(AllergyIntolerance.AllergyIntoleranceSeverity.SEVERE);
         }
-        
+
         if (ehrJson.has("Route_of_exposure") && ehrJson.get("Route_of_exposure").has("value")) {
             reaction.setExposureRoute(new CodeableConcept().setText(ehrJson.get("Route_of_exposure").get("value").textValue()));
         }

@@ -81,6 +81,11 @@ public class EthercisConnector implements OpenEhrService {
         return null;
     }
 
+    @Override
+    public JsonNode getAllergyByPatientId(String id) throws IOException {
+        return null;
+    }
+
     public String getSessionToken(String userName, String userPassword) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

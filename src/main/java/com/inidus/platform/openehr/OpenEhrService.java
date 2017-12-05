@@ -14,4 +14,7 @@ public interface OpenEhrService {
     JsonNode getAllergyById(String id) throws IOException;
 
     JsonNode getAllergyByPatientIdentifier(String patientId, String idNamespace) throws IOException;
+
+    JsonNode getAllergyByPatientId(String id) throws IOException;
+
 }

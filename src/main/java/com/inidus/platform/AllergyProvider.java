@@ -53,4 +53,10 @@ public class AllergyProvider implements IResourceProvider {
         JsonNode ehrJsonList = openEhrService.getAllergyByPatientIdentifier(id.getValue(), namespace.getValue());
         return new OpenEhrConverter().convertToAllergyIntoleranceList(ehrJsonList);
     }
+
+    @Search()
+    public List<AllergyIntolerance> getResourceByPatientId(@RequiredParam(name = "id") StringParam id) throws IOException {
+        JsonNode ehrJsonList = openEhrService.getAllergyByPatientId(id.getValue());
+        return new OpenEhrConverter().convertToAllergyIntoleranceList(ehrJsonList);
+    }
 }

@@ -2,7 +2,6 @@ package com.inidus.platform.openehr;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.BaseJsonNode;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -63,7 +62,25 @@ public class MarandConnector implements OpenEhrService {
 
         String idFilter = " and e/ehr_status/subject/external_ref/id/value='" + patientId +
                 "' and e/ehr_status/subject/external_ref/namespace='" + idNamespace + "'";
+        String body = "{\"aql\" : \"" + AQL + idFilter + "\"}";
 
+        HttpEntity<String> postEntity = new HttpEntity<>(body, createHttpHeaders());
+        ResponseEntity<String> result = new RestTemplate().exchange(URL, HttpMethod.POST, postEntity, String.class);
+        if (result.getStatusCode() == HttpStatus.OK) {
+            JsonNode resultJson = new ObjectMapper().readTree(result.getBody());
+            return resultJson.get("resultSet");
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public JsonNode getAllergyByPatientId(String id) throws IOException {
+        if (null == id || id.isEmpty() || id.contains(" ")) {
+            return null;
+        }
+
+        String idFilter = " and e/ehr_id/value='" + id + "'";
         String body = "{\"aql\" : \"" + AQL + idFilter + "\"}";
 
         HttpEntity<String> postEntity = new HttpEntity<>(body, createHttpHeaders());
