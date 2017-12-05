@@ -54,18 +54,21 @@ public class OpenEhrConverter {
             retVal.setVerificationStatus(AllergyIntolerance.AllergyIntoleranceVerificationStatus.UNCONFIRMED);
         }
 
+
         String mechanism_code = ehrJson.get("Reaction_mechanism_code").textValue();
         if ("at0059".equals(mechanism_code)) {
             retVal.setType(AllergyIntolerance.AllergyIntoleranceType.ALLERGY);
         } else if ("at0060".equals(mechanism_code)) {
             retVal.setType(AllergyIntolerance.AllergyIntoleranceType.INTOLERANCE);
-        } else if ("at0121".equals(mechanism_code)) {
+        }
+
+
+        String category_code = ehrJson.get("Category_code").textValue();
+        if ("at0121".equals(category_code)) {
             retVal.addCategory(AllergyIntolerance.AllergyIntoleranceCategory.FOOD);
-        } else if ("at0122".equals(mechanism_code)) {
+        } else if ("at0122".equals(category_code)) {
             retVal.addCategory(AllergyIntolerance.AllergyIntoleranceCategory.MEDICATION);
-        } else if ("at0123".equals(mechanism_code)) {
-            retVal.addCategory(AllergyIntolerance.AllergyIntoleranceCategory.ENVIRONMENT);
-        } else {
+        } else if ("at0123".equals(category_code)) {
             retVal.addCategory(AllergyIntolerance.AllergyIntoleranceCategory.ENVIRONMENT);
         }
 
@@ -111,24 +114,19 @@ public class OpenEhrConverter {
         }
 
         JsonNode comment = ehrJson.get("Comment");
-        Annotation note = new Annotation();
         if (null != comment) {
-            note.setText(comment.textValue());
-        } else {
-            note.setText("n/a");
+            retVal.addNote(new Annotation().setText(comment.textValue()));
         }
-        retVal.addNote(note);
 
         AllergyIntolerance.AllergyIntoleranceReactionComponent reaction = new AllergyIntolerance.AllergyIntoleranceReactionComponent();
 
         if (ehrJson.has("Specific_substance") && ehrJson.get("Specific_substance").has("value")) {
             String substance = ehrJson.get("Specific_substance").get("value").textValue();
-            CodeableConcept codeableSubstance = new CodeableConcept();
-            codeableSubstance.setText(substance);
-            reaction.setSubstance(codeableSubstance);
-            reaction.addManifestation(new CodeableConcept().setText("Manifestation_value"));
-            reaction.setDescription(ehrJson.get("Reaction_description").textValue());
+            reaction.setSubstance(new CodeableConcept().setText(substance));
         }
+
+        reaction.addManifestation(new CodeableConcept().setText("Manifestation_value"));
+        reaction.setDescription(ehrJson.get("Reaction_description").textValue());
 
         try {
             reaction.setOnset(ehrDateFormat.parse(ehrJson.get("Onset_of_reaction").asText()));
@@ -143,6 +141,7 @@ public class OpenEhrConverter {
         } else if ("at0090".equals(severity_code)) {
             reaction.setSeverity(AllergyIntolerance.AllergyIntoleranceSeverity.SEVERE);
         }
+        
         if (ehrJson.has("Route_of_exposure") && ehrJson.get("Route_of_exposure").has("value")) {
             reaction.setExposureRoute(new CodeableConcept().setText(ehrJson.get("Route_of_exposure").get("value").textValue()));
         }
