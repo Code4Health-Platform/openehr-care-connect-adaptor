@@ -2,6 +2,7 @@ package com.inidus.platform;
 
 import ca.uhn.fhir.rest.annotation.*;
 import ca.uhn.fhir.rest.param.StringParam;
+import ca.uhn.fhir.rest.param.TokenParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inidus.platform.openehr.OpenEhrService;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component("AllergyProvider")
@@ -47,10 +49,12 @@ public class AllergyProvider implements IResourceProvider {
     }
 
     @Search()
-    public List<AllergyIntolerance> getResourceByPatientIdentifier(@RequiredParam(name = Patient.SP_IDENTIFIER) StringParam id,
-                                                                   @OptionalParam(name = "namespace") StringParam namespace) throws IOException {
-        if (null == namespace) namespace = new StringParam("uk.nhs.nhs_number");
-        JsonNode ehrJsonList = openEhrService.getAllergyByPatientIdentifier(id.getValue(), namespace.getValue());
+    public List<AllergyIntolerance> getResourceByPatientIdentifier(@RequiredParam(name = "patient.identifier") TokenParam id) throws IOException {
+        String system = id.getSystem();
+        if (system.isEmpty() || "https://fhir.nhs.uk/Id/nhs-number".equals(system)) {
+            system = "uk.nhs.nhs_number";
+        }
+        JsonNode ehrJsonList = openEhrService.getAllergyByPatientIdentifier(id.getValue(), system);
         return new OpenEhrConverter().convertToAllergyIntoleranceList(ehrJsonList);
     }
 

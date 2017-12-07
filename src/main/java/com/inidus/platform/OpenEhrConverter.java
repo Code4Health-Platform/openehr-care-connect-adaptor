@@ -88,10 +88,7 @@ public class OpenEhrConverter {
         Reference patient = new Reference();
         patient.setDisplay("Dummy Patient");
         patient.setReference(ehrJson.get("ehrId").textValue());
-        Identifier identifier = new Identifier();
-        identifier.setValue(ehrJson.get("subjectId").textValue());
-        identifier.setSystem(ehrJson.get("subjectNamespace").textValue());
-        patient.setIdentifier(identifier);
+        patient.setIdentifier(convertPatientIdentifier(ehrJson));
         retVal.setPatient(patient);
 
         SimpleDateFormat ehrDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
@@ -138,6 +135,22 @@ public class OpenEhrConverter {
         reaction.addNote().setText(ehrJson.get("Adverse_reaction_risk_Comment").textValue());
 
         retVal.addReaction(reaction);
+    }
+
+    private Identifier convertPatientIdentifier(JsonNode ehrJson) {
+        Identifier identifier = new Identifier();
+        identifier.setValue(ehrJson.get("subjectId").textValue());
+        identifier.setSystem(convertPatientIdentifierSystem(ehrJson));
+        return identifier;
+    }
+
+    private String convertPatientIdentifierSystem(JsonNode ehrJson) {
+        String subjectIdNamespace = ehrJson.get("subjectNamespace").textValue();
+        if ("uk.nhs.nhs_number".equals(subjectIdNamespace)) {
+            return "https://fhir.nhs.uk/Id/nhs-number";
+        } else {
+            return subjectIdNamespace;
+        }
     }
 
     private CodeableConcept convertCausativeAgent(JsonNode ehrJson) {
