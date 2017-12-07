@@ -45,7 +45,8 @@ public class MarandConnector implements OpenEhrService {
             " contains EVALUATION b_a[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1]" +
             " where a/name/value='Adverse reaction list'";
 
-    private static final String URL = "https://cdr.code4health.org/rest/v1/query";
+    //    private static final String URL = "https://cdr.code4health.org/rest/v1/query";
+    private static final String URL = "https://test.operon.systems/rest/v1/query";
     private static final String AUTH = "Basic b3Bybl9oY2JveDpYaW9UQUpvTzQ3OQ==";
 
     @Override
@@ -64,10 +65,6 @@ public class MarandConnector implements OpenEhrService {
 
     @Override
     public JsonNode getAllergyByPatientIdentifier(String patientId, String idNamespace) throws IOException {
-        if (null == patientId || patientId.isEmpty() || patientId.contains(" ")) {
-            return null;
-        }
-
         String idFilter = " and e/ehr_status/subject/external_ref/id/value='" + patientId +
                 "' and e/ehr_status/subject/external_ref/namespace='" + idNamespace + "'";
         String body = "{\"aql\" : \"" + AQL + idFilter + "\"}";
