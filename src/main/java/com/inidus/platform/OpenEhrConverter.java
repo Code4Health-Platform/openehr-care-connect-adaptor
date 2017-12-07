@@ -6,10 +6,11 @@ import org.openehr.rm.datatypes.text.DvCodedText;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class OpenEhrConverter {
-    Map<String, AllergyIntolerance> items;
 
     /**
      * Converts the given json coming from openEHR into 1 {@link AllergyIntolerance} resource.
@@ -82,14 +83,7 @@ public class OpenEhrConverter {
             retVal.setCriticality(AllergyIntolerance.AllergyIntoleranceCriticality.UNABLETOASSESS);
         }
 
-        JsonNode causative_agent = ehrJson.get("Causative_agent");
-        String value = causative_agent.get("value").textValue();
-        String terminology = causative_agent.get("defining_code").get("terminology_id").get("value").textValue();
-        String code = causative_agent.get("defining_code").get("code_string").textValue();
-        DvCodedText causativeAgent = new DvCodedText(value, terminology, code);
-
-        CodeableConcept concept = DfText.convertToCodeableConcept(causativeAgent);
-        retVal.setCode(concept);
+        retVal.setCode(convertCausativeAgent(ehrJson));
 
         Reference patient = new Reference();
         patient.setDisplay("Dummy Patient");
@@ -120,10 +114,7 @@ public class OpenEhrConverter {
 
         AllergyIntolerance.AllergyIntoleranceReactionComponent reaction = new AllergyIntolerance.AllergyIntoleranceReactionComponent();
 
-        if (ehrJson.has("Specific_substance") && ehrJson.get("Specific_substance").has("value")) {
-            String substance = ehrJson.get("Specific_substance").get("value").textValue();
-            reaction.setSubstance(new CodeableConcept().setText(substance));
-        }
+        reaction.setSubstance(convertSpecificSubstance(ehrJson));
 
         reaction.addManifestation(new CodeableConcept().setText("Manifestation_value"));
         reaction.setDescription(ehrJson.get("Reaction_description").textValue());
@@ -142,12 +133,49 @@ public class OpenEhrConverter {
             reaction.setSeverity(AllergyIntolerance.AllergyIntoleranceSeverity.SEVERE);
         }
 
-        if (ehrJson.has("Route_of_exposure") && ehrJson.get("Route_of_exposure").has("value")) {
-            reaction.setExposureRoute(new CodeableConcept().setText(ehrJson.get("Route_of_exposure").get("value").textValue()));
-        }
+        reaction.setExposureRoute(convertExposureRoute(ehrJson));
 
         reaction.addNote().setText(ehrJson.get("Adverse_reaction_risk_Comment").textValue());
 
         retVal.addReaction(reaction);
+    }
+
+    private CodeableConcept convertCausativeAgent(JsonNode ehrJson) {
+        String value = ehrJson.get("Causative_agent_value").textValue();
+        String terminology = ehrJson.get("Causative_agent_terminology").textValue();
+        String code = ehrJson.get("Causative_agent_code").textValue();
+
+        if (null != terminology && null != code) {
+            DvCodedText causativeAgent = new DvCodedText(value, terminology, code);
+            return DfText.convertToCodeableConcept(causativeAgent);
+        } else {
+            return new CodeableConcept().setText(value);
+        }
+    }
+
+    private CodeableConcept convertSpecificSubstance(JsonNode ehrJson) {
+        String value = ehrJson.get("Specific_substance_value").textValue();
+        String terminology = ehrJson.get("Specific_substance_terminology").textValue();
+        String code = ehrJson.get("Specific_substance_code").textValue();
+
+        if (null != terminology && null != code) {
+            DvCodedText substance = new DvCodedText(value, terminology, code);
+            return DfText.convertToCodeableConcept(substance);
+        } else {
+            return new CodeableConcept().setText(value);
+        }
+    }
+
+    private CodeableConcept convertExposureRoute(JsonNode ehrJson) {
+        String value = ehrJson.get("Route_of_exposure_value").textValue();
+        String terminology = ehrJson.get("Route_of_exposure_terminology").textValue();
+        String code = ehrJson.get("Route_of_exposure_code").textValue();
+
+        if (null != terminology && null != code) {
+            DvCodedText routeOfExposure = new DvCodedText(value, terminology, code);
+            return DfText.convertToCodeableConcept(routeOfExposure);
+        } else {
+            return new CodeableConcept().setText(value);
+        }
     }
 }
