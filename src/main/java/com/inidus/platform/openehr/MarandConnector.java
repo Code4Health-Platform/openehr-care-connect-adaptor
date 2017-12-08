@@ -1,12 +1,16 @@
 package com.inidus.platform.openehr;
 
+import ca.uhn.fhir.rest.param.DateRangeParam;
+import ca.uhn.fhir.rest.param.TokenParam;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.inidus.platform.OpenEhrConverter;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.util.Date;
 
 @Service
 public class MarandConnector implements OpenEhrService {
@@ -50,25 +54,39 @@ public class MarandConnector implements OpenEhrService {
     private static final String AUTH = "Basic b3Bybl9oY2JveDpYaW9UQUpvTzQ3OQ==";
 
     @Override
+    public JsonNode getAllAllergies() throws IOException {
+        return getEhrJson(AQL);
+    }
+
+    @Override
     public JsonNode getAllergyById(String id) throws IOException {
         if (null == id || id.isEmpty() || id.contains(" ")) {
             return null;
         }
         String idFilter = " and b_a/uid/value='" + id + "'";
-        String body = "{\"aql\" : \"" + AQL + idFilter + "\"}";
+        return getEhrJson(AQL + idFilter);
 
-        HttpEntity<String> postEntity = new HttpEntity<>(body, createHttpHeaders());
-        ResponseEntity<String> result = new RestTemplate().exchange(URL, HttpMethod.POST, postEntity, String.class);
-        JsonNode resultJson = new ObjectMapper().readTree(result.getBody());
-        return resultJson.get("resultSet");
     }
 
     @Override
-    public JsonNode getAllergyByPatientIdentifier(String patientId, String idNamespace) throws IOException {
-        String idFilter = " and e/ehr_status/subject/external_ref/id/value='" + patientId +
-                "' and e/ehr_status/subject/external_ref/namespace='" + idNamespace + "'";
-        String body = "{\"aql\" : \"" + AQL + idFilter + "\"}";
+    public JsonNode getFilteredAllergy(TokenParam patientIdentifier, DateRangeParam adverseReactionRiskLastUpdated) throws IOException {
+        String filter = "";
 
+        // patient identifier provided
+        if (null != patientIdentifier) {
+            filter += getPatientIdentifierFilterAql(patientIdentifier);
+        }
+
+        // date filter provided
+        if (null != adverseReactionRiskLastUpdated) {
+            filter += getLastUpdatedFilterAql(adverseReactionRiskLastUpdated);
+        }
+
+        return getEhrJson(AQL + filter);
+    }
+
+    private JsonNode getEhrJson(String aql) throws IOException {
+        String body = "{\"aql\" : \"" + aql + "\"}";
         HttpEntity<String> postEntity = new HttpEntity<>(body, createHttpHeaders());
         ResponseEntity<String> result = new RestTemplate().exchange(URL, HttpMethod.POST, postEntity, String.class);
         if (result.getStatusCode() == HttpStatus.OK) {
@@ -79,34 +97,32 @@ public class MarandConnector implements OpenEhrService {
         }
     }
 
-    @Override
-    public JsonNode getAllergyByPatientId(String id) throws IOException {
-        if (null == id || id.isEmpty() || id.contains(" ")) {
-            return null;
+    private String getLastUpdatedFilterAql(DateRangeParam adverseReactionRiskLastUpdated) {
+        String filter = "";
+        Date fromDate = adverseReactionRiskLastUpdated.getLowerBoundAsInstant();
+        if (null != fromDate) {
+            String from = OpenEhrConverter.MARAND_DATE_FORMAT.format(fromDate);
+            filter += String.format(" and b_a/protocol[at0042]/items[at0062]/value/value >= '%s'", from);
         }
 
-        String idFilter = " and e/ehr_id/value='" + id + "'";
-        String body = "{\"aql\" : \"" + AQL + idFilter + "\"}";
-
-        HttpEntity<String> postEntity = new HttpEntity<>(body, createHttpHeaders());
-        ResponseEntity<String> result = new RestTemplate().exchange(URL, HttpMethod.POST, postEntity, String.class);
-        if (result.getStatusCode() == HttpStatus.OK) {
-            JsonNode resultJson = new ObjectMapper().readTree(result.getBody());
-            return resultJson.get("resultSet");
-        } else {
-            return null;
+        Date toDate = adverseReactionRiskLastUpdated.getUpperBoundAsInstant();
+        if (null != toDate) {
+            String to = OpenEhrConverter.MARAND_DATE_FORMAT.format(toDate);
+            filter += String.format(" and b_a/protocol[at0042]/items[at0062]/value/value <= '%s'", to);
         }
+        return filter;
     }
 
-    @Override
-    public JsonNode getAllAllergies() throws IOException {
-        String body = "{\"aql\" : \"" + AQL + "\"}";
-
-        HttpEntity<String> postEntity = new HttpEntity<>(body, createHttpHeaders());
-        ResponseEntity<String> result = new RestTemplate().exchange(URL, HttpMethod.POST, postEntity, String.class);
-        JsonNode resultJson = new ObjectMapper().readTree(result.getBody());
-        return resultJson.get("resultSet");
+    private String getPatientIdentifierFilterAql(TokenParam patientIdentifier) {
+        String system = patientIdentifier.getSystem();
+        if (system.isEmpty() || "https://fhir.nhs.uk/Id/nhs-number".equals(system)) {
+            system = "uk.nhs.nhs_number";
+        }
+        String idFilter = " and e/ehr_status/subject/external_ref/id/value='" + patientIdentifier.getValue() +
+                "' and e/ehr_status/subject/external_ref/namespace='" + system + "'";
+        return idFilter;
     }
+
 
     private HttpHeaders createHttpHeaders() {
         HttpHeaders headers = new HttpHeaders();

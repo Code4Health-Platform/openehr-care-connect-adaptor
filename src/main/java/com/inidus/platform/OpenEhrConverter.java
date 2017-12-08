@@ -3,6 +3,7 @@ package com.inidus.platform;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.hl7.fhir.dstu3.model.*;
 import org.openehr.rm.datatypes.text.DvCodedText;
+import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,6 +12,10 @@ import java.util.Iterator;
 import java.util.List;
 
 public class OpenEhrConverter {
+    // 2017-12-07 T 00:00:00+01:00
+    public static final SimpleDateFormat MARAND_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+    // 2017-12-07T15:47:43.072+01:00
+    public static final SimpleDateFormat MARAND_DATE_FORMAT_MS = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
 
     /**
      * Converts the given json coming from openEHR into 1 {@link AllergyIntolerance} resource.
@@ -91,17 +96,31 @@ public class OpenEhrConverter {
         patient.setIdentifier(convertPatientIdentifier(ehrJson));
         retVal.setPatient(patient);
 
-        SimpleDateFormat ehrDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
 
-        try {
-            String onset_of_last_reaction = ehrJson.get("Onset_of_last_reaction").asText();
-            retVal.setLastOccurrence(ehrDateFormat.parse(onset_of_last_reaction));
-        } catch (ParseException e) {
+        String onset_of_last_reaction = ehrJson.get("Onset_of_last_reaction").textValue();
+        if (null != onset_of_last_reaction) {
+            try {
+                retVal.setLastOccurrence(MARAND_DATE_FORMAT.parse(onset_of_last_reaction));
+            } catch (ParseException e) {
+                try {
+                    retVal.setLastOccurrence(MARAND_DATE_FORMAT_MS.parse(onset_of_last_reaction));
+                } catch (ParseException e1) {
+                    LoggerFactory.getLogger(getClass()).warn("Onset_of_last_reaction: " + e.getMessage());
+                }
+            }
         }
 
-        try {
-            retVal.setAssertedDate(ehrDateFormat.parse(ehrJson.get("Adverse_reaction_risk_Last_updated").asText()));
-        } catch (ParseException e) {
+        String adverse_reaction_risk_last_updated = ehrJson.get("Adverse_reaction_risk_Last_updated").textValue();
+        if (null != adverse_reaction_risk_last_updated) {
+            try {
+                retVal.setAssertedDate(MARAND_DATE_FORMAT.parse(adverse_reaction_risk_last_updated));
+            } catch (ParseException e) {
+                try {
+                    retVal.setAssertedDate(MARAND_DATE_FORMAT_MS.parse(adverse_reaction_risk_last_updated));
+                } catch (ParseException e1) {
+                    LoggerFactory.getLogger(getClass()).warn("Adverse_reaction_risk_Last_updated: " + e.getMessage());
+                }
+            }
         }
 
         JsonNode comment = ehrJson.get("Comment");
@@ -116,9 +135,17 @@ public class OpenEhrConverter {
         reaction.addManifestation(new CodeableConcept().setText("Manifestation_value"));
         reaction.setDescription(ehrJson.get("Reaction_description").textValue());
 
-        try {
-            reaction.setOnset(ehrDateFormat.parse(ehrJson.get("Onset_of_reaction").asText()));
-        } catch (ParseException e) {
+        String onset_of_reaction = ehrJson.get("Onset_of_reaction").textValue();
+        if (null != onset_of_last_reaction) {
+            try {
+                reaction.setOnset(MARAND_DATE_FORMAT.parse(onset_of_reaction));
+            } catch (ParseException e) {
+                try {
+                    reaction.setOnset(MARAND_DATE_FORMAT_MS.parse(onset_of_reaction));
+                } catch (ParseException e1) {
+                    LoggerFactory.getLogger(getClass()).warn("Onset_of_reaction: " + e.getMessage());
+                }
+            }
         }
 
         String severity_code = ehrJson.get("Severity_code").textValue();

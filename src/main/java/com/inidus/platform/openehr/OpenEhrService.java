@@ -1,6 +1,8 @@
 package com.inidus.platform.openehr;
 
 
+import ca.uhn.fhir.rest.param.DateRangeParam;
+import ca.uhn.fhir.rest.param.TokenParam;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
@@ -13,7 +15,5 @@ public interface OpenEhrService {
 
     JsonNode getAllergyById(String id) throws IOException;
 
-    JsonNode getAllergyByPatientIdentifier(String patientId, String idNamespace) throws IOException;
-
-    JsonNode getAllergyByPatientId(String id) throws IOException;
+    JsonNode getFilteredAllergy(TokenParam patientIdentifier, DateRangeParam adverseReactionRiskLastUpdated) throws IOException;
 }

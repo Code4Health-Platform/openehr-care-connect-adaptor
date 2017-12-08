@@ -1,5 +1,6 @@
 package com.inidus.platform;
 
+import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import com.inidus.platform.openehr.MarandConnector;
 import com.inidus.platform.openehr.OpenEhrService;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Date;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
@@ -37,7 +39,7 @@ public class AllergyProviderTest {
     @Test
     public void getResourceByPatientIdentifier_ehrNamespace() throws Exception {
         TokenParam identifier = new TokenParam("uk.nhs.nhs_number", "9999999000");
-        List<AllergyIntolerance> result = testProvider.getResourceByPatientIdentifier(identifier);
+        List<AllergyIntolerance> result = testProvider.getFilteredResources(identifier, null);
         Assert.assertNotNull(result);
         Assert.assertEquals("https://fhir.nhs.uk/Id/nhs-number", result.get(0).getPatient().getIdentifier().getSystem());
     }
@@ -45,14 +47,39 @@ public class AllergyProviderTest {
     @Test
     public void getResourceByPatientIdentifier_FhirNamespace() throws Exception {
         TokenParam identifier = new TokenParam("https://fhir.nhs.uk/Id/nhs-number", "9999999000");
-        List<AllergyIntolerance> result = testProvider.getResourceByPatientIdentifier(identifier);
+        List<AllergyIntolerance> result = testProvider.getFilteredResources(identifier, null);
         Assert.assertNotNull(result);
         Assert.assertEquals("https://fhir.nhs.uk/Id/nhs-number", result.get(0).getPatient().getIdentifier().getSystem());
     }
 
-//    @Test
-//    public void getResourceByPatientId() throws Exception {
-//        StringParam id = new StringParam("1");
-//        Assert.assertNotNull(testProvider.getResourceByPatientId(id));
-//    }
+    @Test
+    public void getResourceByDate() throws Exception {
+        Date from = OpenEhrConverter.MARAND_DATE_FORMAT.parse("2016-12-07T15:47:43+01:00");
+        Date to = OpenEhrConverter.MARAND_DATE_FORMAT.parse("2018-12-07T15:47:43+01:00");
+        DateRangeParam dateRange = new DateRangeParam(from, to);
+
+        List<AllergyIntolerance> result = testProvider.getFilteredResources(null, dateRange);
+
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void getResourceByDate_withouth_from() throws Exception {
+        Date to = OpenEhrConverter.MARAND_DATE_FORMAT.parse("2018-12-07T15:47:43+01:00");
+        DateRangeParam dateRange = new DateRangeParam(null, to);
+
+        List<AllergyIntolerance> result = testProvider.getFilteredResources(null, dateRange);
+
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void getResourceByDate_withouth_to() throws Exception {
+        Date from = OpenEhrConverter.MARAND_DATE_FORMAT.parse("2016-12-07T15:47:43+01:00");
+        DateRangeParam dateRange = new DateRangeParam(from, null);
+
+        List<AllergyIntolerance> result = testProvider.getFilteredResources(null, dateRange);
+
+        Assert.assertNotNull(result);
+    }
 }
