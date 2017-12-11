@@ -91,7 +91,6 @@ public class OpenEhrConverter {
         retVal.setCode(convertCausativeAgent(ehrJson));
 
         Reference patient = new Reference();
-        patient.setDisplay("Dummy Patient");
         patient.setReference(ehrJson.get("ehrId").textValue());
         patient.setIdentifier(convertPatientIdentifier(ehrJson));
         retVal.setPatient(patient);
@@ -132,7 +131,8 @@ public class OpenEhrConverter {
 
         reaction.setSubstance(convertSpecificSubstance(ehrJson));
 
-        reaction.addManifestation(new CodeableConcept().setText("Manifestation_value"));
+        reaction.addManifestation(convertManifestation(ehrJson));
+
         reaction.setDescription(ehrJson.get("Reaction_description").textValue());
 
         String onset_of_reaction = ehrJson.get("Onset_of_reaction").textValue();
@@ -164,6 +164,8 @@ public class OpenEhrConverter {
         retVal.addReaction(reaction);
     }
 
+
+
     private Identifier convertPatientIdentifier(JsonNode ehrJson) {
         Identifier identifier = new Identifier();
         identifier.setValue(ehrJson.get("subjectId").textValue());
@@ -184,6 +186,19 @@ public class OpenEhrConverter {
         String value = ehrJson.get("Causative_agent_value").textValue();
         String terminology = ehrJson.get("Causative_agent_terminology").textValue();
         String code = ehrJson.get("Causative_agent_code").textValue();
+
+        if (null != terminology && null != code) {
+            DvCodedText causativeAgent = new DvCodedText(value, terminology, code);
+            return DfText.convertToCodeableConcept(causativeAgent);
+        } else {
+            return new CodeableConcept().setText(value);
+        }
+    }
+
+    private CodeableConcept convertManifestation(JsonNode ehrJson) {
+        String value = ehrJson.get("Manifestation_value").textValue();
+        String terminology = ehrJson.get("Manifestation_terminology").textValue();
+        String code = ehrJson.get("Manifestation_code").textValue();
 
         if (null != terminology && null != code) {
             DvCodedText causativeAgent = new DvCodedText(value, terminology, code);
