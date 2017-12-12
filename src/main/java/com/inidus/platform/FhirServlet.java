@@ -1,6 +1,7 @@
 package com.inidus.platform;
 
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.narrative.DefaultThymeleafNarrativeGenerator;
 import ca.uhn.fhir.rest.api.EncodingEnum;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.RestfulServer;
@@ -30,6 +31,8 @@ public class FhirServlet extends RestfulServer {
     @Override
     protected void initialize() throws ServletException {
         super.initialize();
+
+        getFhirContext().setNarrativeGenerator(new DefaultThymeleafNarrativeGenerator());
 
         LoggerFactory.getLogger(getClass()).info("Initialising FHIR Servlet");
 
