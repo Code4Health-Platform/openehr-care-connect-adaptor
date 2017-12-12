@@ -6,15 +6,15 @@ import ca.uhn.fhir.rest.param.TokenParam;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inidus.platform.conversion.AllergyIntoleranceCategory;
-import com.inidus.platform.conversion.OpenEhrConverter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 @Service
 public class MarandConnector implements OpenEhrService {
@@ -55,7 +55,13 @@ public class MarandConnector implements OpenEhrService {
     //    private static final String URL = "https://cdr.code4health.org/rest/v1/query";
     private static final String URL = "https://test.operon.systems/rest/v1/query";
     private static final String AUTH = "Basic b3Bybl9oY2JveDpYaW9UQUpvTzQ3OQ==";
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    DateFormat isoDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+
+    {
+        isoDate.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
+
 
     @Override
     public JsonNode getAllAllergies() throws IOException {
@@ -113,13 +119,13 @@ public class MarandConnector implements OpenEhrService {
         String filter = "";
         Date fromDate = adverseReactionRiskLastUpdated.getLowerBoundAsInstant();
         if (null != fromDate) {
-            String from = OpenEhrConverter.MARAND_DATE_FORMAT.format(fromDate);
+            String from = isoDate.format(fromDate);
             filter += String.format(" and b_a/protocol[at0042]/items[at0062]/value/value >= '%s'", from);
         }
 
         Date toDate = adverseReactionRiskLastUpdated.getUpperBoundAsInstant();
         if (null != toDate) {
-            String to = OpenEhrConverter.MARAND_DATE_FORMAT.format(toDate);
+            String to = isoDate.format(toDate);
             filter += String.format(" and b_a/protocol[at0042]/items[at0062]/value/value <= '%s'", to);
         }
         return filter;

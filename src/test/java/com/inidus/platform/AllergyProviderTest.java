@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.xml.bind.DatatypeConverter;
 import java.util.Date;
 import java.util.List;
 
@@ -56,8 +57,8 @@ public class AllergyProviderTest {
 
     @Test
     public void getResourceByDate() throws Exception {
-        Date from = OpenEhrConverter.MARAND_DATE_FORMAT.parse("2016-12-07T15:47:43+01:00");
-        Date to = OpenEhrConverter.MARAND_DATE_FORMAT.parse("2018-12-07T15:47:43+01:00");
+        Date from = DatatypeConverter.parseDateTime("2016-12-07T15:47:43+01:00").getTime();
+        Date to = DatatypeConverter.parseDateTime("2018-12-07T15:47:43+01:00").getTime();
         DateRangeParam dateRange = new DateRangeParam(from, to);
 
         List<AllergyIntolerance> result = testProvider.getFilteredResources(null, null, dateRange);
@@ -67,7 +68,7 @@ public class AllergyProviderTest {
 
     @Test
     public void getResourceByDate_withouth_from() throws Exception {
-        Date to = OpenEhrConverter.MARAND_DATE_FORMAT.parse("2018-12-07T15:47:43+01:00");
+        Date to = DatatypeConverter.parseDateTime("2018-12-07T15:47:43+01:00").getTime();
         DateRangeParam dateRange = new DateRangeParam(null, to);
 
         List<AllergyIntolerance> result = testProvider.getFilteredResources(null, null, dateRange);
@@ -77,7 +78,7 @@ public class AllergyProviderTest {
 
     @Test
     public void getResourceByDate_withouth_to() throws Exception {
-        Date from = OpenEhrConverter.MARAND_DATE_FORMAT.parse("2016-12-07T15:47:43+01:00");
+        Date from = DatatypeConverter.parseDateTime("2016-12-07T15:47:43+01:00").getTime();
         DateRangeParam dateRange = new DateRangeParam(from, null);
 
         List<AllergyIntolerance> result = testProvider.getFilteredResources(null, null, dateRange);
