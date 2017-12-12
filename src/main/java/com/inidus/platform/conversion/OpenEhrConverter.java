@@ -1,8 +1,10 @@
-package com.inidus.platform;
+package com.inidus.platform.conversion;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.inidus.platform.DfText;
 import org.hl7.fhir.dstu3.model.*;
 import org.openehr.rm.datatypes.text.DvCodedText;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
@@ -16,6 +18,8 @@ public class OpenEhrConverter {
     public static final SimpleDateFormat MARAND_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
     // 2017-12-07T15:47:43.072+01:00
     public static final SimpleDateFormat MARAND_DATE_FORMAT_MS = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * Converts the given json coming from openEHR into 1 {@link AllergyIntolerance} resource.
@@ -68,16 +72,11 @@ public class OpenEhrConverter {
             retVal.setType(AllergyIntolerance.AllergyIntoleranceType.INTOLERANCE);
         }
 
-
         String category_code = ehrJson.get("Category_code").textValue();
-        if ("at0121".equals(category_code)) {
-            retVal.addCategory(AllergyIntolerance.AllergyIntoleranceCategory.FOOD);
-        } else if ("at0122".equals(category_code)) {
-            retVal.addCategory(AllergyIntolerance.AllergyIntoleranceCategory.MEDICATION);
-        } else if ("at0123".equals(category_code)) {
-            retVal.addCategory(AllergyIntolerance.AllergyIntoleranceCategory.ENVIRONMENT);
+        AllergyIntolerance.AllergyIntoleranceCategory category = AllergyIntoleranceCategory.convertToFhir(category_code);
+        if (null != category) {
+            retVal.addCategory(category);
         }
-
 
         String criticality_code = ehrJson.get("Criticality_code").textValue();
         if ("at0102".equals(criticality_code)) {
@@ -104,7 +103,7 @@ public class OpenEhrConverter {
                 try {
                     retVal.setLastOccurrence(MARAND_DATE_FORMAT_MS.parse(onset_of_last_reaction));
                 } catch (ParseException e1) {
-                    LoggerFactory.getLogger(getClass()).warn("Onset_of_last_reaction: " + e.getMessage());
+                    logger.warn("Onset_of_last_reaction: " + e.getMessage());
                 }
             }
         }
@@ -117,7 +116,7 @@ public class OpenEhrConverter {
                 try {
                     retVal.setAssertedDate(MARAND_DATE_FORMAT_MS.parse(adverse_reaction_risk_last_updated));
                 } catch (ParseException e1) {
-                    LoggerFactory.getLogger(getClass()).warn("Adverse_reaction_risk_Last_updated: " + e.getMessage());
+                    logger.warn("Adverse_reaction_risk_Last_updated: " + e.getMessage());
                 }
             }
         }
@@ -143,7 +142,7 @@ public class OpenEhrConverter {
                 try {
                     reaction.setOnset(MARAND_DATE_FORMAT_MS.parse(onset_of_reaction));
                 } catch (ParseException e1) {
-                    LoggerFactory.getLogger(getClass()).warn("Onset_of_reaction: " + e.getMessage());
+                    logger.warn("Onset_of_reaction: " + e.getMessage());
                 }
             }
         }
@@ -163,7 +162,6 @@ public class OpenEhrConverter {
 
         retVal.addReaction(reaction);
     }
-
 
 
     private Identifier convertPatientIdentifier(JsonNode ehrJson) {

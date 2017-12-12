@@ -1,6 +1,7 @@
 package com.inidus.platform.openehr;
 
 import ca.uhn.fhir.rest.param.DateRangeParam;
+import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -79,7 +80,7 @@ public class EthercisConnector implements OpenEhrService {
     }
 
     @Override
-    public JsonNode getFilteredAllergy(TokenParam patientIdentifier, DateRangeParam adverseReactionRiskLastUpdated) throws IOException {
+    public JsonNode getFilteredAllergy(TokenParam patientIdentifier, StringParam category, DateRangeParam adverseReactionRiskLastUpdated) throws IOException {
         return null;
     }
 

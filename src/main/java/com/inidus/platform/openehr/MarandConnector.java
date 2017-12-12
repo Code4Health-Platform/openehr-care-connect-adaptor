@@ -1,10 +1,14 @@
 package com.inidus.platform.openehr;
 
 import ca.uhn.fhir.rest.param.DateRangeParam;
+import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.inidus.platform.OpenEhrConverter;
+import com.inidus.platform.conversion.AllergyIntoleranceCategory;
+import com.inidus.platform.conversion.OpenEhrConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -48,10 +52,10 @@ public class MarandConnector implements OpenEhrService {
             " contains COMPOSITION a[openEHR-EHR-COMPOSITION.adverse_reaction_list.v1]" +
             " contains EVALUATION b_a[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1]" +
             " where a/name/value='Adverse reaction list'";
-
     //    private static final String URL = "https://cdr.code4health.org/rest/v1/query";
     private static final String URL = "https://test.operon.systems/rest/v1/query";
     private static final String AUTH = "Basic b3Bybl9oY2JveDpYaW9UQUpvTzQ3OQ==";
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
     public JsonNode getAllAllergies() throws IOException {
@@ -69,12 +73,20 @@ public class MarandConnector implements OpenEhrService {
     }
 
     @Override
-    public JsonNode getFilteredAllergy(TokenParam patientIdentifier, DateRangeParam adverseReactionRiskLastUpdated) throws IOException {
+    public JsonNode getFilteredAllergy(
+            TokenParam patientIdentifier,
+            StringParam category,
+            DateRangeParam adverseReactionRiskLastUpdated) throws IOException {
         String filter = "";
 
         // patient identifier provided
         if (null != patientIdentifier) {
             filter += getPatientIdentifierFilterAql(patientIdentifier);
+        }
+
+        // category provided
+        if (null != category) {
+            filter += getCategoryFilterAql(category);
         }
 
         // date filter provided
@@ -111,6 +123,11 @@ public class MarandConnector implements OpenEhrService {
             filter += String.format(" and b_a/protocol[at0042]/items[at0062]/value/value <= '%s'", to);
         }
         return filter;
+    }
+
+    private String getCategoryFilterAql(StringParam categoryParam) {
+        String code = AllergyIntoleranceCategory.convertToEhr(categoryParam.getValue());
+        return String.format(" and b_a/data[at0001]/items[at0120]/value/defining_code/code_string = '%s'", code);
     }
 
     private String getPatientIdentifierFilterAql(TokenParam patientIdentifier) {
