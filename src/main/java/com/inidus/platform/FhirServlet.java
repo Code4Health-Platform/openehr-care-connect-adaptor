@@ -34,8 +34,6 @@ public class FhirServlet extends RestfulServer {
 
         getFhirContext().setNarrativeGenerator(new DefaultThymeleafNarrativeGenerator());
 
-        LoggerFactory.getLogger(getClass()).info("Initialising FHIR Servlet");
-
         List<IResourceProvider> providers = new ArrayList<>();
         providers.add(this.allergyProvider);
         setResourceProviders(providers);

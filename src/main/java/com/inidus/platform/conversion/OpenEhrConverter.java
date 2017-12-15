@@ -1,7 +1,7 @@
 package com.inidus.platform.conversion;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inidus.platform.DfText;
+import com.inidus.platform.CCAllergyIntolerance;
 import org.hl7.fhir.dstu3.model.*;
 import org.openehr.rm.datatypes.text.DvCodedText;
 import org.slf4j.Logger;
@@ -21,8 +21,8 @@ public class OpenEhrConverter {
      *
      * @param ehrJson is the array contained inside the "resultSet" section
      */
-    public AllergyIntolerance convertToAllergyIntolerance(JsonNode ehrJson) {
-        List<AllergyIntolerance> list = convertToAllergyIntoleranceList(ehrJson);
+    public CCAllergyIntolerance convertToAllergyIntolerance(JsonNode ehrJson) {
+        List<CCAllergyIntolerance> list = convertToAllergyIntoleranceList(ehrJson);
         return list.get(0);
     }
 
@@ -32,20 +32,19 @@ public class OpenEhrConverter {
      *
      * @param ehrJson is the array contained inside the "resultSet" section
      */
-    public List<AllergyIntolerance> convertToAllergyIntoleranceList(JsonNode ehrJson) {
-        List<AllergyIntolerance> profiles = new ArrayList<>();
+    public List<CCAllergyIntolerance> convertToAllergyIntoleranceList(JsonNode ehrJson) {
+        List<CCAllergyIntolerance> profiles = new ArrayList<>();
         Iterator<JsonNode> it = ehrJson.elements();
         while (it.hasNext()) {
-            JsonNode jsonNode = it.next();
-            AllergyIntolerance allergyIntolerance = new AllergyIntolerance();
-            populateAllergyResource(allergyIntolerance, jsonNode);
-            profiles.add(allergyIntolerance);
+            CCAllergyIntolerance allergyResource = createAllergyResource(it.next());
+            profiles.add(allergyResource);
         }
-
         return profiles;
     }
 
-    private void populateAllergyResource(AllergyIntolerance retVal, JsonNode ehrJson) {
+    private CCAllergyIntolerance createAllergyResource(JsonNode ehrJson) {
+        CCAllergyIntolerance retVal = new CCAllergyIntolerance();
+
         retVal.setId(ehrJson.get("compositionId").textValue() + "_" + ehrJson.get("entryId").textValue());
         retVal.setClinicalStatus(AllergyIntolerance.AllergyIntoleranceClinicalStatus.ACTIVE);
 
@@ -131,6 +130,8 @@ public class OpenEhrConverter {
         reaction.addNote().setText(ehrJson.get("Adverse_reaction_risk_Comment").textValue());
 
         retVal.addReaction(reaction);
+
+        return retVal;
     }
 
 

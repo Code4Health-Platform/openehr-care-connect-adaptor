@@ -1,4 +1,4 @@
-package com.inidus.platform;
+package com.inidus.platform.conversion;
 
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;

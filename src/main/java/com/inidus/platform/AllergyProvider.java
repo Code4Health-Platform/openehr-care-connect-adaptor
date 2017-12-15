@@ -27,6 +27,7 @@ import java.util.List;
 @Component("AllergyProvider")
 public class AllergyProvider implements IResourceProvider {
     private final Logger log = LoggerFactory.getLogger(getClass());
+    private final OpenEhrConverter openEhrConverter = new OpenEhrConverter();
 
     @Autowired
     @Qualifier("marandConnector")
@@ -38,26 +39,39 @@ public class AllergyProvider implements IResourceProvider {
     }
 
     @Read()
-    public AllergyIntolerance getResourceById(@IdParam IdType id) throws ParseException, IOException {
+    public CCAllergyIntolerance getResourceById(@IdParam IdType id) throws ParseException, IOException {
         JsonNode ehrJsonList = openEhrService.getAllergyById(id.getIdPart());
 
-        return new OpenEhrConverter().convertToAllergyIntolerance(ehrJsonList);
+        if (null != ehrJsonList) {
+            return openEhrConverter.convertToAllergyIntolerance(ehrJsonList);
+        } else {
+            return null;
+        }
     }
 
     @Search()
-    public List<AllergyIntolerance> getAllResources() throws ParseException, IOException {
+    public List<CCAllergyIntolerance> getAllResources() throws ParseException, IOException {
         JsonNode ehrJsonList = openEhrService.getAllAllergies();
 
-        return new OpenEhrConverter().convertToAllergyIntoleranceList(ehrJsonList);
+        if (null != ehrJsonList) {
+            return openEhrConverter.convertToAllergyIntoleranceList(ehrJsonList);
+        } else {
+            return null;
+        }
     }
 
     @Search()
-    public List<AllergyIntolerance> getFilteredResources(
+    public List<CCAllergyIntolerance> getFilteredResources(
             @OptionalParam(name = "patient.identifier") TokenParam id,
             @OptionalParam(name = "category") StringParam category,
             @OptionalParam(name = "date") DateRangeParam dateRange) throws IOException {
 
         JsonNode ehrJsonList = openEhrService.getFilteredAllergy(id, category, dateRange);
-        return new OpenEhrConverter().convertToAllergyIntoleranceList(ehrJsonList);
+
+        if (null != ehrJsonList) {
+            return openEhrConverter.convertToAllergyIntoleranceList(ehrJsonList);
+        } else {
+            return null;
+        }
     }
 }
