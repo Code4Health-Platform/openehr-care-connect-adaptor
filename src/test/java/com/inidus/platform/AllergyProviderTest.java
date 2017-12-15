@@ -42,7 +42,7 @@ public class AllergyProviderTest {
     @Test
     public void getResourceByPatientIdentifier_ehrNamespace() throws Exception {
         TokenParam identifier = new TokenParam("uk.nhs.nhs_number", "9999999000");
-        List<AllergyIntolerance> result = testProvider.getFilteredResources(identifier, null, null);
+        List<CCAllergyIntolerance> result = testProvider.getFilteredResources(identifier, null, null);
         Assert.assertNotNull(result);
         Assert.assertEquals("https://fhir.nhs.uk/Id/nhs-number", result.get(0).getPatient().getIdentifier().getSystem());
     }
@@ -50,7 +50,7 @@ public class AllergyProviderTest {
     @Test
     public void getResourceByPatientIdentifier_FhirNamespace() throws Exception {
         TokenParam identifier = new TokenParam("https://fhir.nhs.uk/Id/nhs-number", "9999999000");
-        List<AllergyIntolerance> result = testProvider.getFilteredResources(identifier, null, null);
+        List<CCAllergyIntolerance> result = testProvider.getFilteredResources(identifier, null, null);
         Assert.assertNotNull(result);
         Assert.assertEquals("https://fhir.nhs.uk/Id/nhs-number", result.get(0).getPatient().getIdentifier().getSystem());
     }
@@ -61,7 +61,7 @@ public class AllergyProviderTest {
         Date to = DatatypeConverter.parseDateTime("2018-12-07T15:47:43+01:00").getTime();
         DateRangeParam dateRange = new DateRangeParam(from, to);
 
-        List<AllergyIntolerance> result = testProvider.getFilteredResources(null, null, dateRange);
+        List<CCAllergyIntolerance> result = testProvider.getFilteredResources(null, null, dateRange);
 
         Assert.assertNotNull(result);
     }
@@ -71,7 +71,7 @@ public class AllergyProviderTest {
         Date to = DatatypeConverter.parseDateTime("2018-12-07T15:47:43+01:00").getTime();
         DateRangeParam dateRange = new DateRangeParam(null, to);
 
-        List<AllergyIntolerance> result = testProvider.getFilteredResources(null, null, dateRange);
+        List<CCAllergyIntolerance> result = testProvider.getFilteredResources(null, null, dateRange);
 
         Assert.assertNotNull(result);
     }
@@ -81,7 +81,7 @@ public class AllergyProviderTest {
         Date from = DatatypeConverter.parseDateTime("2016-12-07T15:47:43+01:00").getTime();
         DateRangeParam dateRange = new DateRangeParam(from, null);
 
-        List<AllergyIntolerance> result = testProvider.getFilteredResources(null, null, dateRange);
+        List<CCAllergyIntolerance> result = testProvider.getFilteredResources(null, null, dateRange);
 
         Assert.assertNotNull(result);
     }
@@ -90,7 +90,7 @@ public class AllergyProviderTest {
     public void getResourceByCategory_medication() throws Exception {
         StringParam food = new StringParam("medication");
 
-        List<AllergyIntolerance> result = testProvider.getFilteredResources(null, food, null);
+        List<CCAllergyIntolerance> result = testProvider.getFilteredResources(null, food, null);
 
         Assert.assertNotNull(result);
     }
