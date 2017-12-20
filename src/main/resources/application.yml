@@ -1,10 +1,30 @@
 # See http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+cdr-connector:
+  url: 'http://178.62.71.220:8080'
+  username: guest
+  password: guest
+  isTokenAuth: true
 spring:
   thymeleaf.cache: false
-  main.show-banner: false
 logging:
   level:
-    org.springframework.web: INFO
-    guru.springframework.controllers: INFO
-    org.hibernate: INFO
+#    org.springframework: TRACE
+#    org.springframework.web: INFO
+#    guru.springframework.controllers: INFO
+#    org.hibernate: INFO
     com.inidus.platform: TRACE
+#---
+#spring:
+#  profiles: marand
+#  thymeleaf.cache: false
+#logging:
+#  level:
+#    org.springframework.web: INFO
+#    guru.springframework.controllers: INFO
+#    org.hibernate: INFO
+#    com.inidus.platform: INFO
+#cdr:
+#  isTokenAuth: false
+#  url: https://test.operon.systems/rest/v1/query
+#  username: oprn_hcbox
+#  password: XioTAJoO479

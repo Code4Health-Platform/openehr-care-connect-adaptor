@@ -6,9 +6,15 @@ import ca.uhn.fhir.rest.param.TokenParam;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inidus.platform.conversion.AllergyIntoleranceCategory;
+import org.apache.commons.codec.binary.Base64;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.*;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -16,8 +22,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+/**
+ * Connects to an openEHR backend and returns selected data
+ */
 @Service
-public class MarandConnector implements OpenEhrService {
+@Component
+@Configuration
+@ConfigurationProperties("cdr-connector")
+public class OpenEhrConnector {
     private static final String AQL = "select" +
             " e/ehr_id/value as ehrId," +
             " e/ehr_status/subject/external_ref/id/value as subjectId," +
@@ -52,34 +64,39 @@ public class MarandConnector implements OpenEhrService {
             " contains COMPOSITION a[openEHR-EHR-COMPOSITION.adverse_reaction_list.v1]" +
             " contains EVALUATION b_a[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1]" +
             " where a/name/value='Adverse reaction list'";
-    //    private static final String URL = "https://cdr.code4health.org/rest/v1/query";
-    private static final String URL = "https://test.operon.systems/rest/v1/query";
-    private static final String AUTH = "Basic b3Bybl9oY2JveDpYaW9UQUpvTzQ3OQ==";
 
-    DateFormat isoDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+    private static final DateFormat ISO_DATE = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+
+    // private static final String URL = "https://cdr.code4health.org/rest/v1/query";
+    // private static final String URL = "https://test.operon.systems/rest/v1/query";
+    // private static final String AUTH = "Basic b3Bybl9oY2JveDpYaW9UQUpvTzQ3OQ==";
+
+    private String url;
+    private String username;
+    private String password;
+    private boolean isTokenAuth = true;
+
 
     {
-        isoDate.setTimeZone(TimeZone.getTimeZone("UTC"));
+        ISO_DATE.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
+    public OpenEhrConnector() throws IOException {
+    }
 
-    @Override
     public JsonNode getAllAllergies() throws IOException {
         return getEhrJson(AQL);
     }
 
-    @Override
     public JsonNode getAllergyById(String id) throws IOException {
         if (null == id || id.isEmpty() || id.contains(" ")) {
             return null;
         }
         String idFilter = " and b_a/uid/value='" + id + "'";
         return getEhrJson(AQL + idFilter);
-
     }
 
-    @Override
-    public JsonNode getFilteredAllergy(
+    public JsonNode getFilteredAllergies(
             TokenParam patientIdentifier,
             StringParam category,
             DateRangeParam adverseReactionRiskLastUpdated) throws IOException {
@@ -104,9 +121,23 @@ public class MarandConnector implements OpenEhrService {
     }
 
     private JsonNode getEhrJson(String aql) throws IOException {
+        MultiValueMap<String, String> headers;
+        if (isTokenAuth) {
+            headers = createTokenHeaders();
+        } else {
+            headers = createAuthHeaders();
+        }
+
         String body = "{\"aql\" : \"" + aql + "\"}";
-        HttpEntity<String> postEntity = new HttpEntity<>(body, createHttpHeaders());
-        ResponseEntity<String> result = new RestTemplate().exchange(URL, HttpMethod.POST, postEntity, String.class);
+        HttpEntity<String> request = new HttpEntity<>(body, headers);
+        String url = this.url + "/rest/v1/query";
+        ResponseEntity<String> result = new RestTemplate().exchange(url, HttpMethod.POST, request, String.class);
+
+
+        if (isTokenAuth) {
+            deleteSessionToken(headers);
+        }
+
         if (result.getStatusCode() == HttpStatus.OK) {
             JsonNode resultJson = new ObjectMapper().readTree(result.getBody());
             return resultJson.get("resultSet");
@@ -119,13 +150,13 @@ public class MarandConnector implements OpenEhrService {
         String filter = "";
         Date fromDate = adverseReactionRiskLastUpdated.getLowerBoundAsInstant();
         if (null != fromDate) {
-            String from = isoDate.format(fromDate);
+            String from = ISO_DATE.format(fromDate);
             filter += String.format(" and b_a/protocol[at0042]/items[at0062]/value/value >= '%s'", from);
         }
 
         Date toDate = adverseReactionRiskLastUpdated.getUpperBoundAsInstant();
         if (null != toDate) {
-            String to = isoDate.format(toDate);
+            String to = ISO_DATE.format(toDate);
             filter += String.format(" and b_a/protocol[at0042]/items[at0062]/value/value <= '%s'", to);
         }
         return filter;
@@ -146,11 +177,58 @@ public class MarandConnector implements OpenEhrService {
         return idFilter;
     }
 
+    private HttpHeaders createAuthHeaders() {
+        String plainCredits = username + ":" + password;
+        String auth = new String(Base64.encodeBase64(plainCredits.getBytes()));
 
-    private HttpHeaders createHttpHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.add("Authorization", AUTH);
+        headers.add("Authorization", auth);
         return headers;
+    }
+
+    private HttpHeaders createTokenHeaders() throws IOException {
+        String sessionToken = getSessionToken(username, password, url + "/rest/v1/session");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("Ehr-Session", sessionToken);
+        return headers;
+    }
+
+    private String getSessionToken(String userName, String userPassword, String url) throws IOException {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> request = new HttpEntity<>("", headers);
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
+                .queryParam("username", userName)
+                .queryParam("password", userPassword);
+
+        ResponseEntity<String> result = new RestTemplate().exchange(
+                builder.build().encode().toUri(),
+                HttpMethod.POST,
+                request,
+                String.class);
+
+        JsonNode resultJson = new ObjectMapper().readTree(result.getBody());
+        return resultJson.get("sessionId").asText();
+    }
+
+    private void deleteSessionToken(MultiValueMap<String, String> headers) {
+        HttpEntity<String> request = new HttpEntity<>("", headers);
+
+        String url = this.url + "/rest/v1/session";
+        ResponseEntity<String> result = new RestTemplate().exchange(url, HttpMethod.DELETE, request, String.class);
+
+        JsonNode resultJson = null;
+        try {
+            resultJson = new ObjectMapper().readTree(result.getBody());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Should return "DELETE"
+        String action = resultJson.asText("action");
     }
 }
