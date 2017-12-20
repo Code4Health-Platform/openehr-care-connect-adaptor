@@ -8,9 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inidus.platform.conversion.AllergyIntoleranceCategory;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.*;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -25,10 +23,8 @@ import java.util.TimeZone;
 /**
  * Connects to an openEHR backend and returns selected data
  */
+@ConfigurationProperties(prefix = "cdr-connector", ignoreUnknownFields = false)
 @Service
-@Component
-@Configuration
-@ConfigurationProperties("cdr-connector")
 public class OpenEhrConnector {
     private static final String AQL = "select" +
             " e/ehr_id/value as ehrId," +
@@ -74,7 +70,7 @@ public class OpenEhrConnector {
     private String url;
     private String username;
     private String password;
-    private boolean isTokenAuth = true;
+    private boolean isTokenAuth;
 
 
     {
@@ -131,8 +127,8 @@ public class OpenEhrConnector {
         String body = "{\"aql\" : \"" + aql + "\"}";
         HttpEntity<String> request = new HttpEntity<>(body, headers);
         String url = this.url + "/rest/v1/query";
-        ResponseEntity<String> result = new RestTemplate().exchange(url, HttpMethod.POST, request, String.class);
 
+        ResponseEntity<String> result = new RestTemplate().exchange(url, HttpMethod.POST, request, String.class);
 
         if (isTokenAuth) {
             deleteSessionToken(headers);
@@ -179,7 +175,7 @@ public class OpenEhrConnector {
 
     private HttpHeaders createAuthHeaders() {
         String plainCredits = username + ":" + password;
-        String auth = new String(Base64.encodeBase64(plainCredits.getBytes()));
+        String auth = "Basic " + new String(Base64.encodeBase64(plainCredits.getBytes()));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -230,5 +226,21 @@ public class OpenEhrConnector {
 
         // Should return "DELETE"
         String action = resultJson.asText("action");
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setIsTokenAuth(boolean tokenAuth) {
+        isTokenAuth = tokenAuth;
     }
 }
