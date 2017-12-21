@@ -93,9 +93,14 @@ public class OpenEhrConverter {
             retVal.setLastOccurrence(DatatypeConverter.parseDateTime(onset_of_last_reaction).getTime());
         }
 
-        String adverse_reaction_risk_last_updated = ehrJson.get("Adverse_reaction_risk_Last_updated").textValue();
-        if (null != adverse_reaction_risk_last_updated) {
-            retVal.setAssertedDate(DatatypeConverter.parseDateTime(adverse_reaction_risk_last_updated).getTime());
+        String dateString = ehrJson.get("Adverse_reaction_risk_Last_updated").textValue();
+        if (null != dateString) {
+            retVal.setAssertedDate(DatatypeConverter.parseDateTime(dateString).getTime());
+        } else {
+            dateString = ehrJson.get("compositionStartTime").textValue();
+            if (null != dateString) {
+                retVal.setAssertedDate(DatatypeConverter.parseDateTime(dateString).getTime());
+            }
         }
 
         JsonNode comment = ehrJson.get("Comment");
@@ -133,7 +138,6 @@ public class OpenEhrConverter {
 
         return retVal;
     }
-
 
     private Identifier convertPatientIdentifier(JsonNode ehrJson) {
         Identifier identifier = new Identifier();
