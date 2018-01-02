@@ -1,4 +1,4 @@
-package com.inidus.fhir.condition;
+package com.inidus.platform.fhir.condition;
 
 import ca.uhn.fhir.rest.annotation.IdParam;
 import ca.uhn.fhir.rest.annotation.OptionalParam;
@@ -9,10 +9,8 @@ import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inidus.platform.CCAllergyIntolerance;
-import com.inidus.platform.conversion.OpenEhrConverter;
+import com.inidus.platform.openehr.OpenEhrConditionConnector;
 import com.inidus.platform.openehr.OpenEhrConnector;
-import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -28,10 +26,11 @@ import java.util.List;
 @Component("ConditionProvider")
 public class ConditionProvider implements IResourceProvider {
     private final Logger log = LoggerFactory.getLogger(getClass());
+
     private final ConditionConverter openehrConverter = new ConditionConverter();
 
     @Autowired
-    private OpenEhrConnector openEhrService;
+    private OpenEhrConditionConnector openEhrService;
 
     @Override
     public Class<? extends IBaseResource> getResourceType() {

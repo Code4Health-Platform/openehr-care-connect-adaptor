@@ -6,6 +6,7 @@ import ca.uhn.fhir.rest.api.EncodingEnum;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.RestfulServer;
 import ca.uhn.fhir.rest.server.interceptor.ResponseHighlighterInterceptor;
+import com.inidus.platform.fhir.condition.ConditionProvider;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,11 +19,13 @@ import java.util.List;
 /**
  * The RESTful server responding to FHIR requests
  */
-@WebServlet(urlPatterns = {"/fhir/**"}, displayName = "FHIR Adaptor")
+@WebServlet(urlPatterns = {"/fhir/**"}, displayName = "inidus FHIR Adaptor")
 @Component
 public class FhirServlet extends RestfulServer {
+//    @Autowired
+//    AllergyProvider allergyProvider;
     @Autowired
-    AllergyProvider allergyProvider;
+    ConditionProvider conditionProvider;
 
     public FhirServlet() {
         super(FhirContext.forDstu3());
@@ -35,7 +38,8 @@ public class FhirServlet extends RestfulServer {
         getFhirContext().setNarrativeGenerator(new DefaultThymeleafNarrativeGenerator());
 
         List<IResourceProvider> providers = new ArrayList<>();
-        providers.add(this.allergyProvider);
+  //      providers.add(this.allergyProvider);
+        providers.add(this.conditionProvider);
         setResourceProviders(providers);
 
         registerInterceptor(new ResponseHighlighterInterceptor());

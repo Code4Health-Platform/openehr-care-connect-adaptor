@@ -9,7 +9,8 @@ import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inidus.platform.conversion.OpenEhrConverter;
+import com.inidus.platform.conversion.AllergyConverter;
+import com.inidus.platform.openehr.OpenEhrAllergyConnector;
 import com.inidus.platform.openehr.OpenEhrConnector;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.IdType;
@@ -26,10 +27,10 @@ import java.util.List;
 @Component("AllergyProvider")
 public class AllergyProvider implements IResourceProvider {
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private final OpenEhrConverter openEhrConverter = new OpenEhrConverter();
+    private final AllergyConverter openEhrConverter = new AllergyConverter();
 
     @Autowired
-    private OpenEhrConnector openEhrService;
+    private OpenEhrAllergyConnector openEhrService;
 
     @Override
     public Class<? extends IBaseResource> getResourceType() {
@@ -49,7 +50,8 @@ public class AllergyProvider implements IResourceProvider {
 
     @Search()
     public List<CCAllergyIntolerance> getAllResources() throws ParseException, IOException {
-        JsonNode ehrJsonList = openEhrService.getAllAllergies();
+
+        JsonNode ehrJsonList = openEhrService.getAllResources();
 
         if (null != ehrJsonList) {
             return openEhrConverter.convertToAllergyIntoleranceList(ehrJsonList);

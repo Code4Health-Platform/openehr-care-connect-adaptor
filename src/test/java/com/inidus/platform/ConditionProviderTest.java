@@ -3,7 +3,9 @@ package com.inidus.platform;
 import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
-import com.inidus.platform.openehr.OpenEhrConnector;
+import com.inidus.platform.fhir.condition.ConditionCC;
+import com.inidus.platform.fhir.condition.ConditionProvider;
+import com.inidus.platform.openehr.OpenEhrConditionConnector;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,13 +20,13 @@ import java.util.Date;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {AllergyProvider.class, OpenEhrConnector.class})
-public class AllergyProviderTest {
+@ContextConfiguration(classes = {ConditionProvider.class, OpenEhrConditionConnector.class})
+public class ConditionProviderTest {
     @Autowired
-    @Qualifier("AllergyProvider")
-    private AllergyProvider testProvider;
+    @Qualifier("ConditionProvider")
+    private ConditionProvider testProvider;
     @Autowired
-    private OpenEhrConnector ehrConnector;
+    private OpenEhrConditionConnector ehrConnector;
 
     @Before
     public void setUp() throws Exception {
@@ -40,18 +42,18 @@ public class AllergyProviderTest {
     public void getResourceByPatientIdentifier_ehrNamespace() throws Exception {
         configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
         TokenParam identifier = new TokenParam("uk.nhs.nhs_number", "9999999000");
-        List<CCAllergyIntolerance> result = testProvider.getFilteredResources(identifier, null, null);
+        List<ConditionCC> result = testProvider.getFilteredResources(identifier, null, null);
         Assert.assertNotNull(result);
-        Assert.assertEquals("https://fhir.nhs.uk/Id/nhs-number", result.get(0).getPatient().getIdentifier().getSystem());
+        Assert.assertEquals("https://fhir.nhs.uk/Id/nhs-number", result.get(0).getSubject().getIdentifier().getSystem());
     }
 
     @Test
     public void getResourceByPatientIdentifier_FhirNamespace() throws Exception {
         configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
         TokenParam identifier = new TokenParam("https://fhir.nhs.uk/Id/nhs-number", "9999999000");
-        List<CCAllergyIntolerance> result = testProvider.getFilteredResources(identifier, null, null);
+        List<ConditionCC> result = testProvider.getFilteredResources(identifier, null, null);
         Assert.assertNotNull(result);
-        Assert.assertEquals("https://fhir.nhs.uk/Id/nhs-number", result.get(0).getPatient().getIdentifier().getSystem());
+        Assert.assertEquals("https://fhir.nhs.uk/Id/nhs-number", result.get(0).getSubject().getIdentifier().getSystem());
     }
 
     @Test
@@ -62,7 +64,7 @@ public class AllergyProviderTest {
         Date to = DatatypeConverter.parseDateTime("2018-12-07T15:47:43+01:00").getTime();
         DateRangeParam dateRange = new DateRangeParam(from, to);
 
-        List<CCAllergyIntolerance> result = testProvider.getFilteredResources(null, null, dateRange);
+        List<ConditionCC> result = testProvider.getFilteredResources(null, null, dateRange);
 
         Assert.assertNotNull(result);
     }
@@ -74,7 +76,7 @@ public class AllergyProviderTest {
         Date to = DatatypeConverter.parseDateTime("2018-12-07T15:47:43+01:00").getTime();
         DateRangeParam dateRange = new DateRangeParam(null, to);
 
-        List<CCAllergyIntolerance> result = testProvider.getFilteredResources(null, null, dateRange);
+        List<ConditionCC> result = testProvider.getFilteredResources(null, null, dateRange);
 
         Assert.assertNotNull(result);
     }
@@ -86,7 +88,7 @@ public class AllergyProviderTest {
         Date from = DatatypeConverter.parseDateTime("2016-12-07T15:47:43+01:00").getTime();
         DateRangeParam dateRange = new DateRangeParam(from, null);
 
-        List<CCAllergyIntolerance> result = testProvider.getFilteredResources(null, null, dateRange);
+        List<ConditionCC> result = testProvider.getFilteredResources(null, null, dateRange);
 
         Assert.assertNotNull(result);
     }
@@ -96,7 +98,7 @@ public class AllergyProviderTest {
         configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
         StringParam food = new StringParam("medication");
 
-        List<CCAllergyIntolerance> result = testProvider.getFilteredResources(null, food, null);
+        List<ConditionCC> result = testProvider.getFilteredResources(null, food, null);
 
         Assert.assertNotNull(result);
     }

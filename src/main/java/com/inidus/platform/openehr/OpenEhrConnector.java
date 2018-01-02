@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inidus.platform.conversion.AllergyIntoleranceCategory;
 import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -26,43 +28,52 @@ import java.util.TimeZone;
 @ConfigurationProperties(prefix = "cdr-connector", ignoreUnknownFields = false)
 @Service
 public class OpenEhrConnector {
-    private static final String AQL = "select" +
-            " e/ehr_id/value as ehrId," +
-            " e/ehr_status/subject/external_ref/id/value as subjectId," +
-            " e/ehr_status/subject/external_ref/namespace as subjectNamespace," +
-            " a/uid/value as compositionId," +
-            " a/context/start_time/value as compositionStartTime," +
-            " b_a/uid/value as entryId," +
-            " b_a/data[at0001]/items[at0002]/value/value as Causative_agent_value," +
-            " b_a/data[at0001]/items[at0002]/value/defining_code/code_string as Causative_agent_code," +
-            " b_a/data[at0001]/items[at0002]/value/defining_code/terminology_id/value as Causative_agent_terminology," +
-            " b_a/data[at0001]/items[at0063]/value/defining_code/code_string as Status_code," +
-            " b_a/data[at0001]/items[at0101]/value/defining_code/code_string as Criticality_code," +
-            " b_a/data[at0001]/items[at0120]/value/defining_code/code_string as Category_code," +
-            " b_a/data[at0001]/items[at0117]/value/value as Onset_of_last_reaction," +
-            " b_a/data[at0001]/items[at0058]/value/defining_code/code_string as Reaction_mechanism_code," +
-            " b_a/data[at0001]/items[at0006]/value/value as Comment," +
-            " b_a/protocol[at0042]/items[at0062]/value/value as Adverse_reaction_risk_Last_updated," +
-            " b_a/data[at0001]/items[at0009]/items[at0010]/value/value as Specific_substance_value," +
-            " b_a/data[at0001]/items[at0009]/items[at0010]/value/defining_code/code_string as Specific_substance_code," +
-            " b_a/data[at0001]/items[at0009]/items[at0010]/value/defining_code/terminology_id/value as Specific_substance_terminology," +
-            " b_a/data[at0001]/items[at0009]/items[at0021]/value/defining_code/code_string as Certainty_code," +
-            " b_a/data[at0001]/items[at0009]/items[at0011]/value/value as Manifestation_value,    " +
-            " b_a/data[at0001]/items[at0009]/items[at0011]/value/defining_code/code_string as Manifestation_code," +
-            " b_a/data[at0001]/items[at0009]/items[at0011]/value/defining_code/terminology_id/value as Manifestation_terminology," +
-            " b_a/data[at0001]/items[at0009]/items[at0012]/value/value as Reaction_description," +
-            " b_a/data[at0001]/items[at0009]/items[at0027]/value/value as Onset_of_reaction," +
-            " b_a/data[at0001]/items[at0009]/items[at0089]/value/defining_code/code_string as Severity_code," +
-            " b_a/data[at0001]/items[at0009]/items[at0106]/value/value as Route_of_exposure_value," +
-            " b_a/data[at0001]/items[at0009]/items[at0106]/value/defining_code/code_string as Route_of_exposure_code," +
-            " b_a/data[at0001]/items[at0009]/items[at0106]/value/defining_code/terminology_id/value as Route_of_exposure_terminology," +
-            " b_a/data[at0001]/items[at0009]/items[at0032]/value/value as Adverse_reaction_risk_Comment" +
-            " from EHR e" +
-            " contains COMPOSITION a[openEHR-EHR-COMPOSITION.adverse_reaction_list.v1]" +
-            " contains EVALUATION b_a[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1]" +
-            " where a/name/value='Adverse reaction list'";
 
-    private static final DateFormat ISO_DATE = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+    protected String getAQL(){
+        return "";
+    };
+
+//    private static String AQL = "select" +
+//            " e/ehr_id/value as ehrId," +
+//            " e/ehr_status/subject/external_ref/id/value as subjectId," +
+//            " e/ehr_status/subject/external_ref/namespace as subjectNamespace," +
+//            " a/uid/value as compositionId," +
+//            " a/composer/external_ref/id/value as composerId," +
+//            " a/composer/external_ref/namespace as composerNamespace,"+
+//            " a/uid/value as compositionId,"+
+//            " a/context/start_time/value as compositionStartTime," +
+//            " b_a/uid/value as entryId," +
+//            " b_a/data[at0001]/items[at0002]/value/value as Causative_agent_value," +
+//            " b_a/data[at0001]/items[at0002]/value/defining_code/code_string as Causative_agent_code," +
+//            " b_a/data[at0001]/items[at0002]/value/defining_code/terminology_id/value as Causative_agent_terminology," +
+//            " b_a/data[at0001]/items[at0063]/value/defining_code/code_string as Status_code," +
+//            " b_a/data[at0001]/items[at0101]/value/defining_code/code_string as Criticality_code," +
+//            " b_a/data[at0001]/items[at0120]/value/defining_code/code_string as Category_code," +
+//            " b_a/data[at0001]/items[at0117]/value/value as Onset_of_last_reaction," +
+//            " b_a/data[at0001]/items[at0058]/value/defining_code/code_string as Reaction_mechanism_code," +
+//            " b_a/data[at0001]/items[at0006]/value/value as Comment," +
+//            " b_a/protocol[at0042]/items[at0062]/value/value as Adverse_reaction_risk_Last_updated," +
+//            " b_a/data[at0001]/items[at0009]/items[at0010]/value/value as Specific_substance_value," +
+//            " b_a/data[at0001]/items[at0009]/items[at0010]/value/defining_code/code_string as Specific_substance_code," +
+//            " b_a/data[at0001]/items[at0009]/items[at0010]/value/defining_code/terminology_id/value as Specific_substance_terminology," +
+//            " b_a/data[at0001]/items[at0009]/items[at0021]/value/defining_code/code_string as Certainty_code," +
+//            " b_a/data[at0001]/items[at0009]/items[at0011]/value/value as Manifestation_value,    " +
+//            " b_a/data[at0001]/items[at0009]/items[at0011]/value/defining_code/code_string as Manifestation_code," +
+//            " b_a/data[at0001]/items[at0009]/items[at0011]/value/defining_code/terminology_id/value as Manifestation_terminology," +
+//            " b_a/data[at0001]/items[at0009]/items[at0012]/value/value as Reaction_description," +
+//            " b_a/data[at0001]/items[at0009]/items[at0027]/value/value as Onset_of_reaction," +
+//            " b_a/data[at0001]/items[at0009]/items[at0089]/value/defining_code/code_string as Severity_code," +
+//            " b_a/data[at0001]/items[at0009]/items[at0106]/value/value as Route_of_exposure_value," +
+//            " b_a/data[at0001]/items[at0009]/items[at0106]/value/defining_code/code_string as Route_of_exposure_code," +
+//            " b_a/data[at0001]/items[at0009]/items[at0106]/value/defining_code/terminology_id/value as Route_of_exposure_terminology," +
+//            " b_a/data[at0001]/items[at0009]/items[at0032]/value/value as Adverse_reaction_risk_Comment" +
+//            " from EHR e" +
+//            " contains COMPOSITION a[openEHR-EHR-COMPOSITION.adverse_reaction_list.v1]" +
+//            " contains EVALUATION b_a[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1]" +
+//            " where a/name/value='Adverse reaction list'";
+
+    protected static final DateFormat ISO_DATE = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
 
     // private static final String URL = "https://cdr.code4health.org/rest/v1/query";
     // private static final String URL = "https://test.operon.systems/rest/v1/query";
@@ -73,7 +84,6 @@ public class OpenEhrConnector {
     private String password;
     private boolean isTokenAuth;
 
-
     {
         ISO_DATE.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
@@ -81,49 +91,43 @@ public class OpenEhrConnector {
     public OpenEhrConnector() throws IOException {
     }
 
-    public JsonNode getAllAllergies() throws IOException {
-        return getEhrJson(AQL);
+    public JsonNode getAllResources() throws IOException {
+        return getEhrJson(getAQL());
     }
 
-    public JsonNode getAllergyById(String id) throws IOException {
+    public JsonNode getResourceById(String id) throws IOException {
         if (null == id || id.isEmpty() || id.contains(" ")) {
             return null;
         }
-        String idFilter = " and b_a/uid/value='" + id + "'";
-        return getEhrJson(AQL + idFilter);
+
+        // Test for presence of entryId as well as compositionId
+        // delineated by '_' character
+        // If entryID exists query on compositionId and entryId.
+
+        String[] openEHRIds;
+
+        openEHRIds = id.split("\\|");
+        String compositionId = openEHRIds[0];
+
+        String idFilter = " and a/uid/value='" + compositionId + "'";
+
+        if (openEHRIds.length > 1)
+        {
+            String entryId = openEHRIds[1];
+            idFilter.concat(" and b_a/uid/value='" + entryId + "'");
+        }
+        return getEhrJson(getAQL() + idFilter);
     }
 
-    public JsonNode getFilteredAllergies(
-            TokenParam patientIdentifier,
-            StringParam category,
-            DateRangeParam adverseReactionRiskLastUpdated) throws IOException {
-        String filter = "";
-
-        // patient identifier provided
-        if (null != patientIdentifier) {
-            filter += getPatientIdentifierFilterAql(patientIdentifier);
-        }
-
-        // category provided
-        if (null != category) {
-            filter += getCategoryFilterAql(category);
-        }
-
-        // date filter provided
-        if (null != adverseReactionRiskLastUpdated) {
-            filter += getLastUpdatedFilterAql(adverseReactionRiskLastUpdated);
-        }
-
-        return getEhrJson(AQL + filter);
-    }
-
-    private JsonNode getEhrJson(String aql) throws IOException {
+    protected JsonNode getEhrJson(String aql) throws IOException {
         MultiValueMap<String, String> headers;
         if (isTokenAuth) {
             headers = createTokenHeaders();
         } else {
             headers = createAuthHeaders();
         }
+
+        logger.info("AQL:  " +aql);
 
         String body = "{\"aql\" : \"" + aql + "\"}";
         HttpEntity<String> request = new HttpEntity<>(body, headers);
@@ -143,28 +147,7 @@ public class OpenEhrConnector {
         }
     }
 
-    private String getLastUpdatedFilterAql(DateRangeParam adverseReactionRiskLastUpdated) {
-        String filter = "";
-        Date fromDate = adverseReactionRiskLastUpdated.getLowerBoundAsInstant();
-        if (null != fromDate) {
-            String from = ISO_DATE.format(fromDate);
-            filter += String.format(" and b_a/protocol[at0042]/items[at0062]/value/value >= '%s'", from);
-        }
-
-        Date toDate = adverseReactionRiskLastUpdated.getUpperBoundAsInstant();
-        if (null != toDate) {
-            String to = ISO_DATE.format(toDate);
-            filter += String.format(" and b_a/protocol[at0042]/items[at0062]/value/value <= '%s'", to);
-        }
-        return filter;
-    }
-
-    private String getCategoryFilterAql(StringParam categoryParam) {
-        String code = AllergyIntoleranceCategory.convertToEhr(categoryParam.getValue());
-        return String.format(" and b_a/data[at0001]/items[at0120]/value/defining_code/code_string = '%s'", code);
-    }
-
-    private String getPatientIdentifierFilterAql(TokenParam patientIdentifier) {
+    protected String getPatientIdentifierFilterAql(TokenParam patientIdentifier) {
         String system = patientIdentifier.getSystem();
         if (system.isEmpty() || "https://fhir.nhs.uk/Id/nhs-number".equals(system)) {
             system = "uk.nhs.nhs_number";

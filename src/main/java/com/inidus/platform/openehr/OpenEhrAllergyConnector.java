@@ -23,9 +23,8 @@ import java.util.TimeZone;
 /**
  * Connects to an openEHR backend and returns selected data
  */
-@ConfigurationProperties(prefix = "cdr-connector", ignoreUnknownFields = false)
 @Service
-public class OpenEhrConnector {
+public class OpenEhrAllergyConnector extends OpenEhrConnector {
     private static final String AQL = "select" +
             " e/ehr_id/value as ehrId," +
             " e/ehr_status/subject/external_ref/id/value as subjectId," +
@@ -62,23 +61,8 @@ public class OpenEhrConnector {
             " contains EVALUATION b_a[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1]" +
             " where a/name/value='Adverse reaction list'";
 
-    protected static final DateFormat ISO_DATE = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
 
-    // private static final String URL = "https://cdr.code4health.org/rest/v1/query";
-    // private static final String URL = "https://test.operon.systems/rest/v1/query";
-    // private static final String AUTH = "Basic b3Bybl9oY2JveDpYaW9UQUpvTzQ3OQ==";
-
-    private String url;
-    private String username;
-    private String password;
-    private boolean isTokenAuth;
-
-
-    {
-        ISO_DATE.setTimeZone(TimeZone.getTimeZone("UTC"));
-    }
-
-    public OpenEhrConnector() throws IOException {
+    public OpenEhrAllergyConnector() throws IOException {
     }
 
     public JsonNode getAllAllergies() throws IOException {
@@ -86,11 +70,7 @@ public class OpenEhrConnector {
     }
 
     public JsonNode getAllergyById(String id) throws IOException {
-        if (null == id || id.isEmpty() || id.contains(" ")) {
-            return null;
-        }
-        String idFilter = " and b_a/uid/value='" + id + "'";
-        return getEhrJson(AQL + idFilter);
+        return getResourceById(id);
     }
 
     public JsonNode getFilteredAllergies(
@@ -117,32 +97,6 @@ public class OpenEhrConnector {
         return getEhrJson(AQL + filter);
     }
 
-    protected JsonNode getEhrJson(String aql) throws IOException {
-        MultiValueMap<String, String> headers;
-        if (isTokenAuth) {
-            headers = createTokenHeaders();
-        } else {
-            headers = createAuthHeaders();
-        }
-
-        String body = "{\"aql\" : \"" + aql + "\"}";
-        HttpEntity<String> request = new HttpEntity<>(body, headers);
-        String url = this.url + "/rest/v1/query";
-
-        ResponseEntity<String> result = new RestTemplate().exchange(url, HttpMethod.POST, request, String.class);
-
-        if (isTokenAuth) {
-            deleteSessionToken(headers);
-        }
-
-        if (result.getStatusCode() == HttpStatus.OK) {
-            JsonNode resultJson = new ObjectMapper().readTree(result.getBody());
-            return resultJson.get("resultSet");
-        } else {
-            return null;
-        }
-    }
-
     private String getLastUpdatedFilterAql(DateRangeParam adverseReactionRiskLastUpdated) {
         String filter = "";
         Date fromDate = adverseReactionRiskLastUpdated.getLowerBoundAsInstant();
@@ -162,86 +116,5 @@ public class OpenEhrConnector {
     private String getCategoryFilterAql(StringParam categoryParam) {
         String code = AllergyIntoleranceCategory.convertToEhr(categoryParam.getValue());
         return String.format(" and b_a/data[at0001]/items[at0120]/value/defining_code/code_string = '%s'", code);
-    }
-
-    private String getPatientIdentifierFilterAql(TokenParam patientIdentifier) {
-        String system = patientIdentifier.getSystem();
-        if (system.isEmpty() || "https://fhir.nhs.uk/Id/nhs-number".equals(system)) {
-            system = "uk.nhs.nhs_number";
-        }
-        String idFilter = " and e/ehr_status/subject/external_ref/id/value='" + patientIdentifier.getValue() +
-                "' and e/ehr_status/subject/external_ref/namespace='" + system + "'";
-        return idFilter;
-    }
-
-    private HttpHeaders createAuthHeaders() {
-        String plainCredits = username + ":" + password;
-        String auth = "Basic " + new String(Base64.encodeBase64(plainCredits.getBytes()));
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.add("Authorization", auth);
-        return headers;
-    }
-
-    private HttpHeaders createTokenHeaders() throws IOException {
-        String sessionToken = getSessionToken(username, password, url + "/rest/v1/session");
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.add("Ehr-Session", sessionToken);
-        return headers;
-    }
-
-    private String getSessionToken(String userName, String userPassword, String url) throws IOException {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> request = new HttpEntity<>("", headers);
-
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url)
-                .queryParam("username", userName)
-                .queryParam("password", userPassword);
-
-        ResponseEntity<String> result = new RestTemplate().exchange(
-                builder.build().encode().toUri(),
-                HttpMethod.POST,
-                request,
-                String.class);
-
-        JsonNode resultJson = new ObjectMapper().readTree(result.getBody());
-        return resultJson.get("sessionId").asText();
-    }
-
-    private void deleteSessionToken(MultiValueMap<String, String> headers) {
-        HttpEntity<String> request = new HttpEntity<>("", headers);
-
-        String url = this.url + "/rest/v1/session";
-        ResponseEntity<String> result = new RestTemplate().exchange(url, HttpMethod.DELETE, request, String.class);
-
-        JsonNode resultJson = null;
-        try {
-            resultJson = new ObjectMapper().readTree(result.getBody());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // Should return "DELETE"
-        String action = resultJson.asText("action");
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setIsTokenAuth(boolean tokenAuth) {
-        isTokenAuth = tokenAuth;
     }
 }

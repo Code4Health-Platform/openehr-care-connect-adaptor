@@ -3,20 +3,6 @@ spring:
   thymeleaf.cache: false
 logging:
   level:
-    com.inidus.platform: TRACE
-cdr-connector:
-  url: 'http://178.62.71.220:8080'
-  username: guest
-  password: guest
-  is-token-auth: true
-
----
-
-spring:
-  profiles: marand
-  thymeleaf.cache: false
-logging:
-  level:
     org.springframework.web: INFO
     guru.springframework.controllers: INFO
     org.hibernate: INFO
@@ -26,3 +12,21 @@ cdr-connector:
   username: oprn_hcbox
   password: XioTAJoO479
   is-token-auth: false
+
+---
+spring:
+  profiles: marand
+cdr-connector:
+  url: 'https://test.operon.systems'
+  username: oprn_hcbox
+  password: XioTAJoO479
+  is-token-auth: false
+
+---
+spring:
+  profiles: ethercis
+cdr-connector:
+  url: 'http://178.62.71.220:8080'
+  username: guest
+  password: guest
+  is-token-auth: true

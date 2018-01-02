@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class OpenEhrConverter {
+public class AllergyConverter {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**

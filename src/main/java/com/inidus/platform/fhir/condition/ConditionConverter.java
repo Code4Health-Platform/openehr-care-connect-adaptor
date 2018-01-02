@@ -1,4 +1,4 @@
-package com.inidus.fhir.condition;
+package com.inidus.platform.fhir.condition;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inidus.platform.conversion.DfText;
@@ -53,62 +53,133 @@ public class ConditionConverter {
         retVal.setAssertedDate(convertAssertedDate(ehrJson));
         retVal.setAsserter(convertAsserterReference(ehrJson));
 
-        retVal.setCode(convertScalarCodableConcept(ehrJson,"ProblemDiagnosis"));
-        CodeableConcept bodySite = convertScalarCodableConcept(ehrJson,"BodySite");
-        retVal.addBodySite(bodySite);
+        retVal.setCode(convertScalarCodableConcept(ehrJson,"Problem_Diagnosis"));
 
-        retVal.setClinicalStatus(Condition.ConditionClinicalStatus.ACTIVE);
+        retVal.addBodySite(convertScalarCodableConcept(ehrJson,"Body_site"));
 
-        retVal.setVerificationStatus(Condition.ConditionVerificationStatus.CONFIRMED);
+        //retVal.setOnset(Condition.ONSET_DATE);
 
-//        retVal.setOnset(Condition.ONSET_DATE);
+//        CodeableConcept category = new CodeableConcept();
+//        category.addCoding();
+
+//        retVal.addCategory(new CodeableConcept());
+
+        //retVal.setAbatement();
 
 
-//        String onset_of_last_reaction = ehrJson.get("Onset_of_last_reaction").textValue();
-//        if (null != onset_of_last_reaction) {
-//            retVal.setLastOccurrence(DatatypeConverter.parseDateTime(onset_of_last_reaction).getTime());
-//        }
+        //retVal.setSeverity();
+
+        retVal.setClinicalStatus(convertConditionClinicalStatus(ehrJson));
+
+        retVal.setVerificationStatus(convertConditionVerificationStatus(ehrJson));
+
+//      retVal.setOnset(Condition.ONSET_DATE);
 
 
         JsonNode comment = ehrJson.get("Comment");
         if (null != comment) {
             retVal.addNote(new Annotation().setText(comment.textValue()));
         }
-
-
-//        String severity_code = ehrJson.get("Severity_code").textValue();
-//        if ("at0093".equals(severity_code)) {
-//            reaction.setSeverity(Condition.ConditionSeverity.MILD);
-//        } else if ("at0092".equals(severity_code)) {
-//            reaction.setSeverity(Condition.ConditionSeverity.MODERATE);
-//        } else if ("at0090".equals(severity_code)) {
-//            reaction.setSeverity(Condition.ConditionSeverity.SEVERE);
-//        }
-
-
         return retVal;
+    }
+
+    private Condition.ConditionVerificationStatus convertConditionVerificationStatus(JsonNode ehrJson) {
+
+        Condition.ConditionVerificationStatus verificationStatus;
+        String diagnostic_certainty_code = null;
+
+        JsonNode diagnosticCertainty = ehrJson.get("Diagnostic_certainty_code");
+        if (diagnosticCertainty != null)
+            diagnostic_certainty_code = diagnosticCertainty.textValue();
+
+       if ("at0026".equals(diagnostic_certainty_code)) {
+            verificationStatus = Condition.ConditionVerificationStatus.PROVISIONAL;
+        }
+        else if ("at0026".equals(diagnostic_certainty_code)) {
+            verificationStatus = Condition.ConditionVerificationStatus.CONFIRMED;
+        }
+        else if ("at0026".equals(diagnostic_certainty_code)) {
+                verificationStatus = Condition.ConditionVerificationStatus.REFUTED;
+            }
+        else
+            verificationStatus = null;
+
+        return verificationStatus;
+    }
+
+    private Condition.ConditionClinicalStatus convertConditionClinicalStatus(JsonNode ehrJson) {
+
+        Condition.ConditionClinicalStatus ClinicalStatus;
+        String clinical_status_code = null;
+        String resolution_code = null;
+
+        JsonNode active_inactive = ehrJson.get("Active_Inactive_code");
+        if (active_inactive != null)
+            clinical_status_code = active_inactive.textValue();
+
+        JsonNode resolution_node = ehrJson.get("Resolution_status_code");
+        if (resolution_node != null)
+            resolution_code = resolution_node.textValue();
+
+        if (resolution_code != null && "at0084".equals(resolution_code)){
+            ClinicalStatus = Condition.ConditionClinicalStatus.RESOLVED;
+        }else if (clinical_status_code != null && "at0026".equals(clinical_status_code)) {
+            ClinicalStatus = Condition.ConditionClinicalStatus.ACTIVE;
+        }
+        else if (clinical_status_code != null && "at0027".equals(clinical_status_code)) {
+            ClinicalStatus = Condition.ConditionClinicalStatus.INACTIVE;
+        }
+        else
+            ClinicalStatus = null;
+
+        return ClinicalStatus;
     }
 
 
     private Date convertAssertedDate(JsonNode ehrJson) {
         String dateString = ehrJson.get("AssertedDate").textValue();
-        if (null != dateString) {
+        if (null == dateString) {
             dateString = ehrJson.get("compositionStartTime").textValue();
         }
         return (DatatypeConverter.parseDateTime(dateString).getTime());
     }
 
-
     private Reference convertAsserterReference(JsonNode ehrJson) {
         Reference reference = new Reference();
- //       reference.setReference(ehrJson.get("ehrId").textValue());
- //       reference.setIdentifier(convertIdentifier(ehrJson));
+        String composerName = ehrJson.get("composerName").textValue();
+        String composerId = ehrJson.get("composerId").textValue();
+        String composerNamespace = ehrJson.get("composerNamespace").textValue();
+        String displayString = "";
+
+        //Convert Composer name and ID.
+
+        Practitioner asserter = new Practitioner();
+        asserter.setId("#composer");
+
+        String asserterName = ehrJson.get("composerName").textValue();
+        if (null != asserterName) {
+            asserter.addName().setText(asserterName);
+            displayString.concat(asserterName);
+        }
+
+        String asserterID = ehrJson.get("composerId").textValue();
+        if (null != asserterID) {
+
+            Identifier id = asserter.addIdentifier();
+            id.setValue(asserterID);
+            displayString.concat(" : " + asserterName);
+
+            String asserterNamespace = ehrJson.get("composerNamespace").textValue();
+            if (null != asserterNamespace) {
+                id.setSystem(asserterNamespace);
+                displayString.concat(" : " + asserterNamespace);
+
+            }
+        }
+
+        reference.setDisplay(displayString);
+
         return reference;
-//        String composerName = ehrJson.get("composerName").textValue();
-//        if (null != composerName) {
-//            composerName = ehrJson.get("compositionStartTime").textValue();
-//        }
-//        return (DatatypeConverter.parseDateTime(dateString).getTime());
     }
 
     private Reference convertPatientReference(JsonNode ehrJson) {
@@ -124,7 +195,7 @@ public class ConditionConverter {
         if (entryId == null)
             return compositionId;
         else {
-             return compositionId + "_" + entryId;
+             return compositionId + "|" + entryId;
         }
     }
 
@@ -145,6 +216,9 @@ public class ConditionConverter {
     }
 
     private CodeableConcept convertScalarCodableConcept(JsonNode ehrJson, String scalarElementName) {
+
+  //      logger.debug("Scalar Name" + scalarElementName);
+
         String value = ehrJson.get(scalarElementName+"_value").textValue();
         String terminology = ehrJson.get(scalarElementName+"_terminology").textValue();
         String code = ehrJson.get(scalarElementName+"_code").textValue();
