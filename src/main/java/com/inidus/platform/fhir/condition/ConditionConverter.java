@@ -8,7 +8,6 @@ import org.hl7.fhir.dstu3.model.*;
 import org.hl7.fhir.dstu3.model.DateTimeType;
 
 import org.openehr.rm.datatypes.text.DvCodedText;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,13 +54,12 @@ public class ConditionConverter {
         retVal.setId(convertResourceId(ehrJson));
         retVal.setSubject(convertPatientReference(ehrJson));
         retVal.setAssertedDate(convertAssertedDate(ehrJson));
-        retVal.setAsserter(convertAsserterReference(ehrJson));
+        retVal.getAsserter().setResource(convertAsserter(ehrJson));
 
         retVal.setCode(convertScalarCodableConcept(ehrJson,"Problem_Diagnosis"));
 
         retVal.addBodySite(convertScalarCodableConcept(ehrJson,"Body_site"));
 
-       // retVal.setOnset()
 
         // Hardwire Category to Problem-List-Item in this case
         Coding categoryCoding = new Coding("http://hl7.org/fhir/condition-category","problem-list-item","Problem List Item");
@@ -77,6 +75,7 @@ public class ConditionConverter {
 
         retVal.setVerificationStatus(convertConditionVerificationStatus(ehrJson));
 
+        retVal.setEpisodeExtension(convertConditionEpisode(ehrJson));
 
         JsonNode onsetDate =  ehrJson.get("Date_time_of_onset");
         retVal.setOnset(new DateTimeType(onsetDate.asText(null)));
@@ -86,12 +85,14 @@ public class ConditionConverter {
             retVal.setAbatement(new DateTimeType(resolutionDate.textValue()));
         }
 
+
         JsonNode comment = ehrJson.get("Comment");
         if (null != comment) {
             retVal.addNote(new Annotation().setText(comment.textValue()));
         }
         return retVal;
     }
+
 
     private CodeableConcept convertSeverity(JsonNode ehrJson) {
 
@@ -178,6 +179,36 @@ public class ConditionConverter {
         return ClinicalStatus;
     }
 
+    private ConditionCC.EpisodeExtension convertConditionEpisode(JsonNode ehrJson) {
+
+        ConditionCC.EpisodeExtension episode = new ConditionCC.EpisodeExtension();
+
+        CodeType episodeCode = new CodeType();
+
+        String episodicity_code = ehrJson.get("Episodicity_code").asText(null);
+        Boolean firstOccurence = ehrJson.get("First_occurrence").asBoolean(false);
+
+//`local::at0035::Ongoing episode` => `Review`
+//`local::at0070::Indeterminate` => **null**
+
+        if ("at0034".equals(episodicity_code)){
+            if (firstOccurence)
+                episodeCode.setValue("First");
+            else
+                episodeCode.setValue("New");
+        }
+        else if ("at0035".equals(episodicity_code)) {
+                episodeCode.setValue("Review");
+        }
+        else
+            episodeCode = null;
+
+        if (episodeCode != null) {
+            episode.setValueCode(episodeCode);
+        }
+
+        return episode;
+    }
 
     private Date convertAssertedDate(JsonNode ehrJson) {
         String dateString = ehrJson.get("AssertedDate").textValue();
@@ -187,9 +218,7 @@ public class ConditionConverter {
         return (DatatypeConverter.parseDateTime(dateString).getTime());
     }
 
-    private Reference convertAsserterReference(JsonNode ehrJson) {
-        Reference reference = new Reference();
-        String displayString = "";
+    private Practitioner convertAsserter(JsonNode ehrJson) {
 
         //Convert Composer name and ID.
 
@@ -199,7 +228,6 @@ public class ConditionConverter {
         String asserterName = ehrJson.get("composerName").textValue();
         if (null != asserterName) {
             asserter.addName().setText(asserterName);
-            displayString.concat(asserterName);
         }
 
         String asserterID = ehrJson.get("composerId").textValue();
@@ -207,18 +235,15 @@ public class ConditionConverter {
 
             Identifier id = asserter.addIdentifier();
             id.setValue(asserterID);
-            displayString.concat(" : " + asserterName);
 
             String asserterNamespace = ehrJson.get("composerNamespace").textValue();
             if (null != asserterNamespace) {
                 id.setSystem(asserterNamespace);
-                displayString.concat(" : " + asserterNamespace);
 
             }
         }
 
-        reference.setDisplay(displayString);
-        return reference;
+        return asserter;
     }
 
     private Reference convertPatientReference(JsonNode ehrJson) {
