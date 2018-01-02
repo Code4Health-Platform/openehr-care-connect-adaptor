@@ -3,6 +3,7 @@ package com.inidus.platform;
 import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
+import com.inidus.platform.openehr.OpenEhrAllergyConnector;
 import com.inidus.platform.openehr.OpenEhrConnector;
 import org.junit.Assert;
 import org.junit.Before;
@@ -24,7 +25,7 @@ public class AllergyProviderTest {
     @Qualifier("AllergyProvider")
     private AllergyProvider testProvider;
     @Autowired
-    private OpenEhrConnector ehrConnector;
+    private OpenEhrAllergyConnector ehrConnector;
 
     @Before
     public void setUp() throws Exception {

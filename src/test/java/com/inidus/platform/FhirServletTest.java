@@ -1,5 +1,7 @@
 package com.inidus.platform;
 
+import com.inidus.platform.fhir.condition.ConditionProvider;
+import com.inidus.platform.openehr.OpenEhrAllergyConnector;
 import com.inidus.platform.openehr.OpenEhrConnector;
 import org.junit.After;
 import org.junit.Assert;
@@ -15,7 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {FhirServlet.class, AllergyProvider.class, OpenEhrConnector.class})
+@ContextConfiguration(classes = {FhirServlet.class, AllergyProvider.class, OpenEhrAllergyConnector.class})
 public class FhirServletTest {
 
     private MockHttpServletRequest request;
@@ -25,7 +27,7 @@ public class FhirServletTest {
     private FhirServlet testImpl;
 
     @Autowired
-    private OpenEhrConnector ehrService;
+    private OpenEhrAllergyConnector ehrService;
 
     @Before
     public void setUp() throws Exception {

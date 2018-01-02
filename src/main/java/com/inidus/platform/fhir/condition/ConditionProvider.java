@@ -50,7 +50,7 @@ public class ConditionProvider implements IResourceProvider {
 
     @Search()
     public List<ConditionCC> getAllResources() throws ParseException, IOException {
-        JsonNode ehrJsonList = openEhrService.getAllConditions();
+        JsonNode ehrJsonList = openEhrService.getAllResources();
 
         if (null != ehrJsonList) {
             return openehrConverter.convertToConditionList(ehrJsonList);

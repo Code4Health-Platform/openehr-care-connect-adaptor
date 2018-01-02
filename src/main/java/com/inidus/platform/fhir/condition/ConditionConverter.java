@@ -1,8 +1,12 @@
 package com.inidus.platform.fhir.condition;
 
+import ca.uhn.fhir.model.primitive.DateDt;
+import ca.uhn.fhir.model.primitive.DateTimeDt;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inidus.platform.conversion.DfText;
 import org.hl7.fhir.dstu3.model.*;
+import org.hl7.fhir.dstu3.model.DateTimeType;
+
 import org.openehr.rm.datatypes.text.DvCodedText;
 
 import org.slf4j.Logger;
@@ -57,30 +61,69 @@ public class ConditionConverter {
 
         retVal.addBodySite(convertScalarCodableConcept(ehrJson,"Body_site"));
 
-        //retVal.setOnset(Condition.ONSET_DATE);
+       // retVal.setOnset()
 
-//        CodeableConcept category = new CodeableConcept();
-//        category.addCoding();
+        // Hardwire Category to Problem-List-Item in this case
+        Coding categoryCoding = new Coding("http://hl7.org/fhir/condition-category","problem-list-item","Problem List Item");
+        categoryCoding.setUserSelected(true);
+        retVal.addCategory(new CodeableConcept()
+                .addCoding(categoryCoding)
+                .setText("Problem List Item")
+        );
 
-//        retVal.addCategory(new CodeableConcept());
 
-        //retVal.setAbatement();
-
-
-        //retVal.setSeverity();
-
+        retVal.setSeverity(convertSeverity(ehrJson));
         retVal.setClinicalStatus(convertConditionClinicalStatus(ehrJson));
 
         retVal.setVerificationStatus(convertConditionVerificationStatus(ehrJson));
 
-//      retVal.setOnset(Condition.ONSET_DATE);
 
+        JsonNode onsetDate =  ehrJson.get("Date_time_of_onset");
+        retVal.setOnset(new DateTimeType(onsetDate.asText(null)));
+
+        JsonNode resolutionDate =  ehrJson.get("Date_time_of_resolution");
+        if (null != resolutionDate){
+            retVal.setAbatement(new DateTimeType(resolutionDate.textValue()));
+        }
 
         JsonNode comment = ehrJson.get("Comment");
         if (null != comment) {
             retVal.addNote(new Annotation().setText(comment.textValue()));
         }
         return retVal;
+    }
+
+    private CodeableConcept convertSeverity(JsonNode ehrJson) {
+
+        CodeableConcept severity = new CodeableConcept();
+        JsonNode severity_element =  ehrJson.get("Severity_code");
+        String code = null;
+        String display = null;
+
+        String severityCode = severity_element.asText(null);
+        if (severityCode != null)
+        {
+            if ("at0047".equals(severity_element.textValue())) {
+                code = "255604002";
+                display = "Mild";
+            }
+            else if ("at0048".equals(severity_element)) {
+                code = "6736007";
+                display = "Moderate";
+            }
+            else if ("at0049".equals(severity_element)) {
+                code = "24484000";
+                display = "Severe";
+            }
+
+            if (code != null)
+            {
+                Coding severityCoding = new Coding("http://snomed.info/sct ", code,display).setUserSelected(true);
+                severity.addCoding(severityCoding).setText(display);
+            }
+        }
+
+        return severity;
     }
 
     private Condition.ConditionVerificationStatus convertConditionVerificationStatus(JsonNode ehrJson) {
@@ -146,9 +189,6 @@ public class ConditionConverter {
 
     private Reference convertAsserterReference(JsonNode ehrJson) {
         Reference reference = new Reference();
-        String composerName = ehrJson.get("composerName").textValue();
-        String composerId = ehrJson.get("composerId").textValue();
-        String composerNamespace = ehrJson.get("composerNamespace").textValue();
         String displayString = "";
 
         //Convert Composer name and ID.
@@ -178,7 +218,6 @@ public class ConditionConverter {
         }
 
         reference.setDisplay(displayString);
-
         return reference;
     }
 

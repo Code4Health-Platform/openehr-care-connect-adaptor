@@ -22,8 +22,8 @@ import java.util.List;
 @WebServlet(urlPatterns = {"/fhir/**"}, displayName = "inidus FHIR Adaptor")
 @Component
 public class FhirServlet extends RestfulServer {
-//    @Autowired
-//    AllergyProvider allergyProvider;
+    @Autowired
+    AllergyProvider allergyProvider;
     @Autowired
     ConditionProvider conditionProvider;
 
@@ -38,7 +38,7 @@ public class FhirServlet extends RestfulServer {
         getFhirContext().setNarrativeGenerator(new DefaultThymeleafNarrativeGenerator());
 
         List<IResourceProvider> providers = new ArrayList<>();
-  //      providers.add(this.allergyProvider);
+        providers.add(this.allergyProvider);
         providers.add(this.conditionProvider);
         setResourceProviders(providers);
 
