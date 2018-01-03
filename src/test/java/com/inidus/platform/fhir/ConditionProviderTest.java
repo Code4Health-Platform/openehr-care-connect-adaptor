@@ -5,7 +5,7 @@ import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import com.inidus.platform.fhir.condition.ConditionCC;
 import com.inidus.platform.fhir.condition.ConditionProvider;
-import com.inidus.platform.fhir.condition.OpenEhrConditionConnector;
+import com.inidus.platform.fhir.condition.ConditionConnector;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,13 +20,13 @@ import java.util.Date;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {ConditionProvider.class, OpenEhrConditionConnector.class})
+@ContextConfiguration(classes = {ConditionProvider.class, ConditionConnector.class})
 public class ConditionProviderTest {
     @Autowired
     @Qualifier("ConditionProvider")
     private ConditionProvider testProvider;
     @Autowired
-    private OpenEhrConditionConnector ehrConnector;
+    private ConditionConnector ehrConnector;
 
     @Before
     public void setUp() throws Exception {

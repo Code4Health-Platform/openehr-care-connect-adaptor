@@ -25,7 +25,7 @@ public class ConditionProvider implements IResourceProvider {
     private final ConditionConverter openehrConverter = new ConditionConverter();
 
     @Autowired
-    private OpenEhrConditionConnector openEhrService;
+    private ConditionConnector openEhrService;
 
     @Override
     public Class<? extends IBaseResource> getResourceType() {

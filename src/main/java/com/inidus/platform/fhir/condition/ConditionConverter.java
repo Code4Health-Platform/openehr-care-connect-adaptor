@@ -2,6 +2,7 @@ package com.inidus.platform.fhir.condition;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inidus.platform.fhir.openehr.DfText;
+import com.inidus.platform.fhir.openehr.OpenEHRConverter;
 import org.hl7.fhir.dstu3.model.*;
 import org.hl7.fhir.dstu3.model.DateTimeType;
 
@@ -12,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import javax.xml.bind.DatatypeConverter;
 import java.util.*;
 
-public class ConditionConverter {
+public class ConditionConverter extends OpenEHRConverter{
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**

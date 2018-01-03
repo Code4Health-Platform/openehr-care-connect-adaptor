@@ -17,7 +17,7 @@ import java.util.Date;
  * Connects to an openEHR backend and returns selected ProblemDiagnosis data
  */
 @ConfigurationProperties(prefix = "cdr-connector", ignoreUnknownFields = false)@Service
-public class OpenEhrConditionConnector extends OpenEhrConnector {
+public class ConditionConnector extends OpenEhrConnector {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     protected String getAQL() {
 
@@ -56,7 +56,7 @@ public class OpenEhrConditionConnector extends OpenEhrConnector {
                 " where a/name/value='Problem list'";
     }
 
-    public OpenEhrConditionConnector() throws IOException {
+    public ConditionConnector() throws IOException {
 
     }
 
