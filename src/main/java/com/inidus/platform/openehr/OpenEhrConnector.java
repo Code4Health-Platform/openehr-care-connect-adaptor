@@ -127,7 +127,7 @@ public class OpenEhrConnector {
             headers = createAuthHeaders();
         }
 
-        logger.info("AQL:  " +aql);
+        logger.info("AQL:  " + aql);
 
         String body = "{\"aql\" : \"" + aql + "\"}";
         HttpEntity<String> request = new HttpEntity<>(body, headers);
@@ -157,6 +157,12 @@ public class OpenEhrConnector {
         return idFilter;
     }
 
+    protected String getPatientIdFilterAql(StringParam patientId) {
+
+        String idFilter = " and e/ehr_id/value='" + patientId.getValue() + "'";
+
+        return idFilter;
+    }
     private HttpHeaders createAuthHeaders() {
         String plainCredits = username + ":" + password;
         String auth = "Basic " + new String(Base64.encodeBase64(plainCredits.getBytes()));

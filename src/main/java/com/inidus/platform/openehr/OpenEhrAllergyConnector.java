@@ -4,26 +4,19 @@ import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inidus.platform.conversion.AllergyIntoleranceCategory;
-import org.apache.commons.codec.binary.Base64;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * Connects to an openEHR backend and returns selected data
  */
-@Service
+@ConfigurationProperties(prefix = "cdr-connector", ignoreUnknownFields = false)
+
+@Service()
 public class OpenEhrAllergyConnector extends OpenEhrConnector {
     protected String getAQL() {
         return "select" +

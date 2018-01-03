@@ -1,16 +1,12 @@
 package com.inidus.platform.fhir.condition;
 
-import ca.uhn.fhir.rest.annotation.IdParam;
-import ca.uhn.fhir.rest.annotation.OptionalParam;
-import ca.uhn.fhir.rest.annotation.Read;
-import ca.uhn.fhir.rest.annotation.Search;
+import ca.uhn.fhir.rest.annotation.*;
 import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inidus.platform.openehr.OpenEhrConditionConnector;
-import com.inidus.platform.openehr.OpenEhrConnector;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -61,11 +57,14 @@ public class ConditionProvider implements IResourceProvider {
 
     @Search()
     public List<ConditionCC> getFilteredResources(
-            @OptionalParam(name = "patient.identifier") TokenParam id,
+       //     @OptionalParam(name="_list") StringParam listParam,
+            @OptionalParam(name = "patient.id") StringParam id,
+            @OptionalParam(name = "patient.identifier") TokenParam identifier,
             @OptionalParam(name = "category") StringParam category,
-            @OptionalParam(name = "date") DateRangeParam dateRange) throws IOException {
+            @OptionalParam(name = "clinical-status") StringParam clinicalStatus,
+            @OptionalParam(name = "asserted-date") DateRangeParam dateRange) throws IOException {
 
-        JsonNode ehrJsonList = openEhrService.getFilteredConditions(id, category, dateRange);
+        JsonNode ehrJsonList = openEhrService.getFilteredConditions(id, identifier, category, clinicalStatus,dateRange);
 
         if (null != ehrJsonList) {
             return openehrConverter.convertToConditionList(ehrJsonList);

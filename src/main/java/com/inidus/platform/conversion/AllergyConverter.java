@@ -2,6 +2,7 @@ package com.inidus.platform.conversion;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inidus.platform.CCAllergyIntolerance;
+import com.inidus.platform.openehr.DfText;
 import org.hl7.fhir.dstu3.model.*;
 import org.openehr.rm.datatypes.text.DvCodedText;
 import org.slf4j.Logger;

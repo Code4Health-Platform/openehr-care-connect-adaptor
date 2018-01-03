@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {AllergyProvider.class, OpenEhrConnector.class})
+@ContextConfiguration(classes = {AllergyProvider.class, OpenEhrAllergyConnector.class})
 public class AllergyProviderTest {
     @Autowired
     @Qualifier("AllergyProvider")
@@ -33,12 +33,14 @@ public class AllergyProviderTest {
 
     @Test
     public void getAllResources() throws Exception {
-        configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
+        configureCdrConnector("https://test.operon.systems", "oprn_hcbox", "XioTAJoO479", true);
+    //    configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
         Assert.assertNotNull(testProvider.getAllResources());
     }
 
     @Test
     public void getResourceByPatientIdentifier_ehrNamespace() throws Exception {
+  //      configureCdrConnector("https://test.operon.systems", "oprn_hcbox", "XioTAJoO479", true);
         configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
         TokenParam identifier = new TokenParam("uk.nhs.nhs_number", "9999999000");
         List<CCAllergyIntolerance> result = testProvider.getFilteredResources(identifier, null, null);
@@ -48,7 +50,8 @@ public class AllergyProviderTest {
 
     @Test
     public void getResourceByPatientIdentifier_FhirNamespace() throws Exception {
-        configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
+        configureCdrConnector("https://test.operon.systems", "oprn_hcbox", "XioTAJoO479", true);
+  //      configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
         TokenParam identifier = new TokenParam("https://fhir.nhs.uk/Id/nhs-number", "9999999000");
         List<CCAllergyIntolerance> result = testProvider.getFilteredResources(identifier, null, null);
         Assert.assertNotNull(result);
@@ -94,7 +97,8 @@ public class AllergyProviderTest {
 
     @Test
     public void getResourceByCategory_medication() throws Exception {
-        configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
+        configureCdrConnector("https://test.operon.systems", "oprn_hcbox", "XioTAJoO479", true);
+    //    configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
         StringParam food = new StringParam("medication");
 
         List<CCAllergyIntolerance> result = testProvider.getFilteredResources(null, food, null);

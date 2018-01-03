@@ -1,9 +1,7 @@
 package com.inidus.platform.fhir.condition;
 
-import ca.uhn.fhir.model.primitive.DateDt;
-import ca.uhn.fhir.model.primitive.DateTimeDt;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inidus.platform.conversion.DfText;
+import com.inidus.platform.openehr.DfText;
 import org.hl7.fhir.dstu3.model.*;
 import org.hl7.fhir.dstu3.model.DateTimeType;
 
@@ -12,10 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.DatatypeConverter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Date;
+import java.util.*;
 
 public class ConditionConverter {
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -59,16 +54,7 @@ public class ConditionConverter {
         retVal.setCode(convertScalarCodableConcept(ehrJson,"Problem_Diagnosis"));
 
         retVal.addBodySite(convertScalarCodableConcept(ehrJson,"Body_site"));
-
-
-        // Hardwire Category to Problem-List-Item in this case
-        Coding categoryCoding = new Coding("http://hl7.org/fhir/condition-category","problem-list-item","Problem List Item");
-        categoryCoding.setUserSelected(true);
-        retVal.addCategory(new CodeableConcept()
-                .addCoding(categoryCoding)
-                .setText("Problem List Item")
-        );
-
+        retVal.addCategory(convertCategory(ehrJson));
 
         retVal.setSeverity(convertSeverity(ehrJson));
         retVal.setClinicalStatus(convertConditionClinicalStatus(ehrJson));
@@ -78,19 +64,27 @@ public class ConditionConverter {
         retVal.setEpisodeExtension(convertConditionEpisode(ehrJson));
 
         JsonNode onsetDate =  ehrJson.get("Date_time_of_onset");
-        retVal.setOnset(new DateTimeType(onsetDate.asText(null)));
+        if (null != onsetDate) {
+            retVal.setOnset(new DateTimeType(onsetDate.asText(null)));
+        }
 
         JsonNode resolutionDate =  ehrJson.get("Date_time_of_resolution");
         if (null != resolutionDate){
             retVal.setAbatement(new DateTimeType(resolutionDate.textValue()));
         }
 
-
         JsonNode comment = ehrJson.get("Comment");
         if (null != comment) {
             retVal.addNote(new Annotation().setText(comment.textValue()));
         }
         return retVal;
+    }
+
+    private CodeableConcept convertCategory(JsonNode ehrJson) {
+        // Hardwire Category to Problem-List-Item for 5N-CDR use
+        Coding categoryCoding = new Coding("http://hl7.org/fhir/condition-category","problem-list-item","Problem List Item");
+        categoryCoding.setUserSelected(true);
+        return new CodeableConcept().addCoding(categoryCoding).setText("Problem List Item");
     }
 
 
@@ -102,6 +96,11 @@ public class ConditionConverter {
         String display = null;
 
         String severityCode = severity_element.asText(null);
+
+//       `local::at0047::Mild` => `http://snomed.info/sct|255604002|Mild`
+//       `local::at0048::Moderate` => `http://snomed.info/sct|6736007|Moderate`
+//        `local::at0049::Severe` => `http://snomed.info/sct|24484000|Severe`
+
         if (severityCode != null)
         {
             if ("at0047".equals(severity_element.textValue())) {
@@ -129,29 +128,36 @@ public class ConditionConverter {
 
     private Condition.ConditionVerificationStatus convertConditionVerificationStatus(JsonNode ehrJson) {
 
-        Condition.ConditionVerificationStatus verificationStatus;
+        Condition.ConditionVerificationStatus verificationStatus = null;
         String diagnostic_certainty_code = null;
 
         JsonNode diagnosticCertainty = ehrJson.get("Diagnostic_certainty_code");
+
         if (diagnosticCertainty != null)
             diagnostic_certainty_code = diagnosticCertainty.textValue();
 
-       if ("at0026".equals(diagnostic_certainty_code)) {
-            verificationStatus = Condition.ConditionVerificationStatus.PROVISIONAL;
-        }
-        else if ("at0026".equals(diagnostic_certainty_code)) {
-            verificationStatus = Condition.ConditionVerificationStatus.CONFIRMED;
-        }
-        else if ("at0026".equals(diagnostic_certainty_code)) {
-                verificationStatus = Condition.ConditionVerificationStatus.REFUTED;
+        //`local::at0074::Suspected` | `local::at0075::Probable` => `provisional`
+        if (null != diagnostic_certainty_code){
+            if (diagnostic_certainty_code.matches("at0074|at0075")) {
+                verificationStatus = Condition.ConditionVerificationStatus.PROVISIONAL;
             }
-        else
-            verificationStatus = null;
+            //`local::at0076::Confirmed` => `confirmed`
+            else if ("at0076".equals(diagnostic_certainty_code)) {
+                verificationStatus = Condition.ConditionVerificationStatus.CONFIRMED;
+            }
+        }
 
         return verificationStatus;
     }
 
     private Condition.ConditionClinicalStatus convertConditionClinicalStatus(JsonNode ehrJson) {
+
+//      `local::at0026::Active` => `active`
+//      `local::at0027::Inactive` => `inactive`
+//      `local::at0084::Resolved` => `resolved`
+//      `local::at0085::Resolving` => `active` No direct match - Add to Notes
+//      `local::at0086::Not resolving` => `active` No direct match - Add to Notes
+//      `local::at0087::Indeterminate` => **Null**
 
         Condition.ConditionClinicalStatus ClinicalStatus;
         String clinical_status_code = null;
@@ -167,7 +173,9 @@ public class ConditionConverter {
 
         if (resolution_code != null && "at0084".equals(resolution_code)){
             ClinicalStatus = Condition.ConditionClinicalStatus.RESOLVED;
-        }else if (clinical_status_code != null && "at0026".equals(clinical_status_code)) {
+        }
+        // Match against active, resolving and not resolving
+         else if (clinical_status_code != null && clinical_status_code.matches("at0026|at0085|at0086")) {
             ClinicalStatus = Condition.ConditionClinicalStatus.ACTIVE;
         }
         else if (clinical_status_code != null && "at0027".equals(clinical_status_code)) {
@@ -187,9 +195,6 @@ public class ConditionConverter {
 
         String episodicity_code = ehrJson.get("Episodicity_code").asText(null);
         Boolean firstOccurence = ehrJson.get("First_occurrence").asBoolean(false);
-
-//`local::at0035::Ongoing episode` => `Review`
-//`local::at0070::Indeterminate` => **null**
 
         if ("at0034".equals(episodicity_code)){
             if (firstOccurence)
@@ -223,32 +228,33 @@ public class ConditionConverter {
         //Convert Composer name and ID.
 
         Practitioner asserter = new Practitioner();
-        asserter.setId("#composer");
+        asserter.setId("Practitioner/#composer");
 
         String asserterName = ehrJson.get("composerName").textValue();
         if (null != asserterName) {
             asserter.addName().setText(asserterName);
         }
 
-        String asserterID = ehrJson.get("composerId").textValue();
-        if (null != asserterID) {
-
-            Identifier id = asserter.addIdentifier();
-            id.setValue(asserterID);
-
-            String asserterNamespace = ehrJson.get("composerNamespace").textValue();
-            if (null != asserterNamespace) {
-                id.setSystem(asserterNamespace);
-
-            }
-        }
+// Not supported by EtherCis
+//        String asserterID = ehrJson.get("composerId").textValue();
+//        if (null != asserterID) {
+//
+//            Identifier id = asserter.addIdentifier();
+//            id.setValue(asserterID);
+//
+//            String asserterNamespace = ehrJson.get("composerNamespace").textValue();
+//            if (null != asserterNamespace) {
+//                id.setSystem(asserterNamespace);
+//
+//            }
+//        }
 
         return asserter;
     }
 
     private Reference convertPatientReference(JsonNode ehrJson) {
         Reference reference = new Reference();
-        reference.setReference(ehrJson.get("ehrId").textValue());
+        reference.setReference("Patient/"+ehrJson.get("ehrId").textValue());
         reference.setIdentifier(convertPatientIdentifier(ehrJson));
         return reference;
     }

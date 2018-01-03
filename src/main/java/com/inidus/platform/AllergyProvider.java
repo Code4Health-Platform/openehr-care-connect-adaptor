@@ -11,7 +11,6 @@ import ca.uhn.fhir.rest.server.IResourceProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inidus.platform.conversion.AllergyConverter;
 import com.inidus.platform.openehr.OpenEhrAllergyConnector;
-import com.inidus.platform.openehr.OpenEhrConnector;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.instance.model.api.IBaseResource;
