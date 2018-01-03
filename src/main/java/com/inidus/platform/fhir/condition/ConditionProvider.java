@@ -6,7 +6,6 @@ import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inidus.platform.openehr.OpenEhrConditionConnector;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -35,7 +34,7 @@ public class ConditionProvider implements IResourceProvider {
 
     @Read()
     public ConditionCC getResourceById(@IdParam IdType id) throws ParseException, IOException {
-        JsonNode ehrJsonList = openEhrService.getConditionById(id.getIdPart());
+        JsonNode ehrJsonList = openEhrService.getResourceById(id.getIdPart());
 
         if (null != ehrJsonList) {
             return openehrConverter.convertToCondition(ehrJsonList);

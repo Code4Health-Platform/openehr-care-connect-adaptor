@@ -1,4 +1,4 @@
-package com.inidus.platform;
+package com.inidus.platform.fhir.allergy;
 
 import ca.uhn.fhir.rest.annotation.IdParam;
 import ca.uhn.fhir.rest.annotation.OptionalParam;
@@ -9,8 +9,6 @@ import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inidus.platform.conversion.AllergyConverter;
-import com.inidus.platform.openehr.OpenEhrAllergyConnector;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -37,7 +35,7 @@ public class AllergyProvider implements IResourceProvider {
     }
 
     @Read()
-    public CCAllergyIntolerance getResourceById(@IdParam IdType id) throws ParseException, IOException {
+    public AllergyIntoleranceCC getResourceById(@IdParam IdType id) throws ParseException, IOException {
         JsonNode ehrJsonList = openEhrService.getAllergyById(id.getIdPart());
 
         if (null != ehrJsonList) {
@@ -48,7 +46,7 @@ public class AllergyProvider implements IResourceProvider {
     }
 
     @Search()
-    public List<CCAllergyIntolerance> getAllResources() throws ParseException, IOException {
+    public List<AllergyIntoleranceCC> getAllResources() throws ParseException, IOException {
 
         JsonNode ehrJsonList = openEhrService.getAllResources();
 
@@ -60,7 +58,7 @@ public class AllergyProvider implements IResourceProvider {
     }
 
     @Search()
-    public List<CCAllergyIntolerance> getFilteredResources(
+    public List<AllergyIntoleranceCC> getFilteredResources(
             @OptionalParam(name = "patient.identifier") TokenParam id,
             @OptionalParam(name = "category") StringParam category,
             @OptionalParam(name = "date") DateRangeParam dateRange) throws IOException {

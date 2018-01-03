@@ -1,4 +1,4 @@
-package com.inidus.platform.conversion;
+package com.inidus.platform.fhir.allergy;
 
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.exceptions.FHIRException;

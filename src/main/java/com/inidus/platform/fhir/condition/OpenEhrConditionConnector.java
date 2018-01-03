@@ -1,9 +1,10 @@
-package com.inidus.platform.openehr;
+package com.inidus.platform.fhir.condition;
 
 import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.inidus.platform.fhir.openehr.OpenEhrConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;

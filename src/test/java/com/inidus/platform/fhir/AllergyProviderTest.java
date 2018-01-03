@@ -1,10 +1,11 @@
-package com.inidus.platform;
+package com.inidus.platform.fhir;
 
 import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
-import com.inidus.platform.openehr.OpenEhrAllergyConnector;
-import com.inidus.platform.openehr.OpenEhrConnector;
+import com.inidus.platform.fhir.allergy.AllergyProvider;
+import com.inidus.platform.fhir.allergy.AllergyIntoleranceCC;
+import com.inidus.platform.fhir.allergy.OpenEhrAllergyConnector;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +44,7 @@ public class AllergyProviderTest {
   //      configureCdrConnector("https://test.operon.systems", "oprn_hcbox", "XioTAJoO479", true);
         configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
         TokenParam identifier = new TokenParam("uk.nhs.nhs_number", "9999999000");
-        List<CCAllergyIntolerance> result = testProvider.getFilteredResources(identifier, null, null);
+        List<AllergyIntoleranceCC> result = testProvider.getFilteredResources(identifier, null, null);
         Assert.assertNotNull(result);
         Assert.assertEquals("https://fhir.nhs.uk/Id/nhs-number", result.get(0).getPatient().getIdentifier().getSystem());
     }
@@ -53,7 +54,7 @@ public class AllergyProviderTest {
         configureCdrConnector("https://test.operon.systems", "oprn_hcbox", "XioTAJoO479", true);
   //      configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
         TokenParam identifier = new TokenParam("https://fhir.nhs.uk/Id/nhs-number", "9999999000");
-        List<CCAllergyIntolerance> result = testProvider.getFilteredResources(identifier, null, null);
+        List<AllergyIntoleranceCC> result = testProvider.getFilteredResources(identifier, null, null);
         Assert.assertNotNull(result);
         Assert.assertEquals("https://fhir.nhs.uk/Id/nhs-number", result.get(0).getPatient().getIdentifier().getSystem());
     }
@@ -66,7 +67,7 @@ public class AllergyProviderTest {
         Date to = DatatypeConverter.parseDateTime("2018-12-07T15:47:43+01:00").getTime();
         DateRangeParam dateRange = new DateRangeParam(from, to);
 
-        List<CCAllergyIntolerance> result = testProvider.getFilteredResources(null, null, dateRange);
+        List<AllergyIntoleranceCC> result = testProvider.getFilteredResources(null, null, dateRange);
 
         Assert.assertNotNull(result);
     }
@@ -78,7 +79,7 @@ public class AllergyProviderTest {
         Date to = DatatypeConverter.parseDateTime("2018-12-07T15:47:43+01:00").getTime();
         DateRangeParam dateRange = new DateRangeParam(null, to);
 
-        List<CCAllergyIntolerance> result = testProvider.getFilteredResources(null, null, dateRange);
+        List<AllergyIntoleranceCC> result = testProvider.getFilteredResources(null, null, dateRange);
 
         Assert.assertNotNull(result);
     }
@@ -90,7 +91,7 @@ public class AllergyProviderTest {
         Date from = DatatypeConverter.parseDateTime("2016-12-07T15:47:43+01:00").getTime();
         DateRangeParam dateRange = new DateRangeParam(from, null);
 
-        List<CCAllergyIntolerance> result = testProvider.getFilteredResources(null, null, dateRange);
+        List<AllergyIntoleranceCC> result = testProvider.getFilteredResources(null, null, dateRange);
 
         Assert.assertNotNull(result);
     }
@@ -101,7 +102,7 @@ public class AllergyProviderTest {
     //    configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
         StringParam food = new StringParam("medication");
 
-        List<CCAllergyIntolerance> result = testProvider.getFilteredResources(null, food, null);
+        List<AllergyIntoleranceCC> result = testProvider.getFilteredResources(null, food, null);
 
         Assert.assertNotNull(result);
     }

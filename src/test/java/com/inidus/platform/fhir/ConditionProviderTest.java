@@ -1,18 +1,17 @@
-package com.inidus.platform;
+package com.inidus.platform.fhir;
 
 import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import com.inidus.platform.fhir.condition.ConditionCC;
 import com.inidus.platform.fhir.condition.ConditionProvider;
-import com.inidus.platform.openehr.OpenEhrConditionConnector;
+import com.inidus.platform.fhir.condition.OpenEhrConditionConnector;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 

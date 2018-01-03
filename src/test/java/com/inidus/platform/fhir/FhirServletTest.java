@@ -1,8 +1,9 @@
-package com.inidus.platform;
+package com.inidus.platform.fhir;
 
+import com.inidus.platform.fhir.allergy.AllergyProvider;
 import com.inidus.platform.fhir.condition.ConditionProvider;
-import com.inidus.platform.openehr.OpenEhrAllergyConnector;
-import com.inidus.platform.openehr.OpenEhrConditionConnector;
+import com.inidus.platform.fhir.allergy.OpenEhrAllergyConnector;
+import com.inidus.platform.fhir.condition.OpenEhrConditionConnector;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

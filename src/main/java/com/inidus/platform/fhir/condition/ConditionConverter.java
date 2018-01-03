@@ -1,7 +1,7 @@
 package com.inidus.platform.fhir.condition;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inidus.platform.openehr.DfText;
+import com.inidus.platform.fhir.openehr.DfText;
 import org.hl7.fhir.dstu3.model.*;
 import org.hl7.fhir.dstu3.model.DateTimeType;
 
@@ -52,15 +52,12 @@ public class ConditionConverter {
         retVal.getAsserter().setResource(convertAsserter(ehrJson));
 
         retVal.setCode(convertScalarCodableConcept(ehrJson,"Problem_Diagnosis"));
-
         retVal.addBodySite(convertScalarCodableConcept(ehrJson,"Body_site"));
-        retVal.addCategory(convertCategory(ehrJson));
 
+        retVal.addCategory(convertCategory(ehrJson));
         retVal.setSeverity(convertSeverity(ehrJson));
         retVal.setClinicalStatus(convertConditionClinicalStatus(ehrJson));
-
         retVal.setVerificationStatus(convertConditionVerificationStatus(ehrJson));
-
         retVal.setEpisodeExtension(convertConditionEpisode(ehrJson));
 
         JsonNode onsetDate =  ehrJson.get("Date_time_of_onset");

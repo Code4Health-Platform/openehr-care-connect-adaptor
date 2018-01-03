@@ -1,10 +1,11 @@
-package com.inidus.platform.openehr;
+package com.inidus.platform.fhir.allergy;
 
 import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inidus.platform.conversion.AllergyIntoleranceCategory;
+import com.inidus.platform.fhir.allergy.AllergyIntoleranceCategory;
+import com.inidus.platform.fhir.openehr.OpenEhrConnector;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 

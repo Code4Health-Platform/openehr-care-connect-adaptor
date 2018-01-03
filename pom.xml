@@ -18,7 +18,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <start-class>com.inidus.platform.App</start-class>
+        <start-class>com.inidus.platform.fhir.App</start-class>
         <java.version>1.8</java.version>
         <docker.image.prefix>${user.name}</docker.image.prefix>
         <thymeleaf.version>3.0.2.RELEASE</thymeleaf.version>

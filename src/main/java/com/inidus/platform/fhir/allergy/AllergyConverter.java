@@ -1,8 +1,7 @@
-package com.inidus.platform.conversion;
+package com.inidus.platform.fhir.allergy;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inidus.platform.CCAllergyIntolerance;
-import com.inidus.platform.openehr.DfText;
+import com.inidus.platform.fhir.openehr.DfText;
 import org.hl7.fhir.dstu3.model.*;
 import org.openehr.rm.datatypes.text.DvCodedText;
 import org.slf4j.Logger;
@@ -22,8 +21,8 @@ public class AllergyConverter {
      *
      * @param ehrJson is the array contained inside the "resultSet" section
      */
-    public CCAllergyIntolerance convertToAllergyIntolerance(JsonNode ehrJson) {
-        List<CCAllergyIntolerance> list = convertToAllergyIntoleranceList(ehrJson);
+    public AllergyIntoleranceCC convertToAllergyIntolerance(JsonNode ehrJson) {
+        List<AllergyIntoleranceCC> list = convertToAllergyIntoleranceList(ehrJson);
         return list.get(0);
     }
 
@@ -33,18 +32,18 @@ public class AllergyConverter {
      *
      * @param ehrJson is the array contained inside the "resultSet" section
      */
-    public List<CCAllergyIntolerance> convertToAllergyIntoleranceList(JsonNode ehrJson) {
-        List<CCAllergyIntolerance> profiles = new ArrayList<>();
+    public List<AllergyIntoleranceCC> convertToAllergyIntoleranceList(JsonNode ehrJson) {
+        List<AllergyIntoleranceCC> profiles = new ArrayList<>();
         Iterator<JsonNode> it = ehrJson.elements();
         while (it.hasNext()) {
-            CCAllergyIntolerance allergyResource = createAllergyResource(it.next());
+            AllergyIntoleranceCC allergyResource = createAllergyResource(it.next());
             profiles.add(allergyResource);
         }
         return profiles;
     }
 
-    private CCAllergyIntolerance createAllergyResource(JsonNode ehrJson) {
-        CCAllergyIntolerance retVal = new CCAllergyIntolerance();
+    private AllergyIntoleranceCC createAllergyResource(JsonNode ehrJson) {
+        AllergyIntoleranceCC retVal = new AllergyIntoleranceCC();
 
         retVal.setId(ehrJson.get("compositionId").textValue() + "_" + ehrJson.get("entryId").textValue());
         retVal.setClinicalStatus(AllergyIntolerance.AllergyIntoleranceClinicalStatus.ACTIVE);

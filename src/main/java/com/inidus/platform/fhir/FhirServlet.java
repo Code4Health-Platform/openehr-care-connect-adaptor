@@ -1,4 +1,4 @@
-package com.inidus.platform;
+package com.inidus.platform.fhir;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.narrative.DefaultThymeleafNarrativeGenerator;
@@ -6,8 +6,8 @@ import ca.uhn.fhir.rest.api.EncodingEnum;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.RestfulServer;
 import ca.uhn.fhir.rest.server.interceptor.ResponseHighlighterInterceptor;
+import com.inidus.platform.fhir.allergy.AllergyProvider;
 import com.inidus.platform.fhir.condition.ConditionProvider;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
