@@ -27,7 +27,7 @@ public class AllergyProvider implements IResourceProvider {
     private final AllergyConverter openEhrConverter = new AllergyConverter();
 
     @Autowired
-    private OpenEhrAllergyConnector openEhrService;
+    private AllergyConnector openEhrService;
 
     @Override
     public Class<? extends IBaseResource> getResourceType() {
@@ -36,7 +36,7 @@ public class AllergyProvider implements IResourceProvider {
 
     @Read()
     public AllergyIntoleranceCC getResourceById(@IdParam IdType id) throws ParseException, IOException {
-        JsonNode ehrJsonList = openEhrService.getAllergyById(id.getIdPart());
+        JsonNode ehrJsonList = openEhrService.getResourceById(id.getIdPart());
 
         if (null != ehrJsonList) {
             return openEhrConverter.convertToAllergyIntolerance(ehrJsonList);

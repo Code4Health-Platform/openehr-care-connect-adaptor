@@ -213,6 +213,7 @@ public class ConditionConverter extends OpenEHRConverter{
         return episode;
     }
 
+/*
     private Date convertAssertedDate(JsonNode ehrJson) {
         String dateString = ehrJson.get("AssertedDate").textValue();
         if (null == dateString) {
@@ -298,4 +299,6 @@ public class ConditionConverter extends OpenEHRConverter{
             return new CodeableConcept().setText(value);
         }
     }
+*/
+
 }

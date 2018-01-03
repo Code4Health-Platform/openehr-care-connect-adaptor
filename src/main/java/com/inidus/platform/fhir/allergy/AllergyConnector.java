@@ -18,15 +18,20 @@ import java.util.Date;
 @ConfigurationProperties(prefix = "cdr-connector", ignoreUnknownFields = false)
 
 @Service()
-public class OpenEhrAllergyConnector extends OpenEhrConnector {
+public class AllergyConnector extends OpenEhrConnector {
     protected String getAQL() {
         return "select" +
                 " e/ehr_id/value as ehrId," +
                 " e/ehr_status/subject/external_ref/id/value as subjectId," +
                 " e/ehr_status/subject/external_ref/namespace as subjectNamespace," +
-                " a/uid/value as compositionId," +
                 " a/context/start_time/value as compositionStartTime," +
+                " a/uid/value as compositionId," +
+                " a/composer/name as composerName,"+
+                // Not supported in EtherCis
+                //        " a/composer/external_ref/id/value as composerId," +
+                //        " a/composer/external_ref/namespace as composerNamespace," +
                 " b_a/uid/value as entryId," +
+                " b_a/protocol[at0042]/items[at0062]/value/value as AssertedDate," +
                 " b_a/data[at0001]/items[at0002]/value/value as Causative_agent_value," +
                 " b_a/data[at0001]/items[at0002]/value/defining_code/code_string as Causative_agent_code," +
                 " b_a/data[at0001]/items[at0002]/value/defining_code/terminology_id/value as Causative_agent_terminology," +
@@ -36,7 +41,6 @@ public class OpenEhrAllergyConnector extends OpenEhrConnector {
                 " b_a/data[at0001]/items[at0117]/value/value as Onset_of_last_reaction," +
                 " b_a/data[at0001]/items[at0058]/value/defining_code/code_string as Reaction_mechanism_code," +
                 " b_a/data[at0001]/items[at0006]/value/value as Comment," +
-                " b_a/protocol[at0042]/items[at0062]/value/value as Adverse_reaction_risk_Last_updated," +
                 " b_a/data[at0001]/items[at0009]/items[at0010]/value/value as Specific_substance_value," +
                 " b_a/data[at0001]/items[at0009]/items[at0010]/value/defining_code/code_string as Specific_substance_code," +
                 " b_a/data[at0001]/items[at0009]/items[at0010]/value/defining_code/terminology_id/value as Specific_substance_terminology," +
@@ -57,15 +61,7 @@ public class OpenEhrAllergyConnector extends OpenEhrConnector {
                 " where a/name/value='Adverse reaction list'";
     }
 
-    public OpenEhrAllergyConnector() throws IOException {
-    }
-
-//    public JsonNode getAllAllergies() throws IOException {
-//        return getEhrJson(AQL);
-//    }
-
-    public JsonNode getAllergyById(String id) throws IOException {
-        return getResourceById(id);
+    public AllergyConnector() throws IOException {
     }
 
     public JsonNode getFilteredAllergies(
