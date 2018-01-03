@@ -5,7 +5,7 @@ import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import com.inidus.platform.fhir.allergy.AllergyProvider;
 import com.inidus.platform.fhir.allergy.AllergyIntoleranceCC;
-import com.inidus.platform.fhir.allergy.OpenEhrAllergyConnector;
+import com.inidus.platform.fhir.allergy.AllergyConnector;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,13 +20,13 @@ import java.util.Date;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {AllergyProvider.class, OpenEhrAllergyConnector.class})
+@ContextConfiguration(classes = {AllergyProvider.class, AllergyConnector.class})
 public class AllergyProviderTest {
     @Autowired
     @Qualifier("AllergyProvider")
     private AllergyProvider testProvider;
     @Autowired
-    private OpenEhrAllergyConnector ehrConnector;
+    private AllergyConnector ehrConnector;
 
     @Before
     public void setUp() throws Exception {

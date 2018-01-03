@@ -13,7 +13,7 @@ import java.util.Date;
 public class OpenEHRConverter {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private Date convertAssertedDate(JsonNode ehrJson) {
+    protected Date convertAssertedDate(JsonNode ehrJson) {
         String dateString = ehrJson.get("AssertedDate").textValue();
         if (null == dateString) {
             dateString = ehrJson.get("compositionStartTime").textValue();
@@ -21,7 +21,7 @@ public class OpenEHRConverter {
         return (DatatypeConverter.parseDateTime(dateString).getTime());
     }
 
-    private Practitioner convertAsserter(JsonNode ehrJson) {
+    protected Practitioner convertAsserter(JsonNode ehrJson) {
 
         //Convert Composer name and ID.
 
@@ -33,7 +33,7 @@ public class OpenEHRConverter {
             asserter.addName().setText(asserterName);
         }
 
-// Not supported by EtherCis
+// Not supported by EtherCis - causes exception
 //        String asserterID = ehrJson.get("composerId").textValue();
 //        if (null != asserterID) {
 //
@@ -50,14 +50,14 @@ public class OpenEHRConverter {
         return asserter;
     }
 
-    private Reference convertPatientReference(JsonNode ehrJson) {
+    protected Reference convertPatientReference(JsonNode ehrJson) {
         Reference reference = new Reference();
         reference.setReference("Patient/"+ehrJson.get("ehrId").textValue());
         reference.setIdentifier(convertPatientIdentifier(ehrJson));
         return reference;
     }
 
-    private String convertResourceId(JsonNode ehrJson) {
+    protected String convertResourceId(JsonNode ehrJson) {
         String entryId = ehrJson.get("entryId").textValue();
         String compositionId = ehrJson.get("compositionId").textValue();
         if (entryId == null)
@@ -67,14 +67,14 @@ public class OpenEHRConverter {
         }
     }
 
-    private Identifier convertPatientIdentifier(JsonNode ehrJson) {
+    protected Identifier convertPatientIdentifier(JsonNode ehrJson) {
         Identifier identifier = new Identifier();
         identifier.setValue(ehrJson.get("subjectId").textValue());
         identifier.setSystem(convertPatientIdentifierSystem(ehrJson));
         return identifier;
     }
 
-    private String convertPatientIdentifierSystem(JsonNode ehrJson) {
+    protected String convertPatientIdentifierSystem(JsonNode ehrJson) {
         String subjectIdNamespace = ehrJson.get("subjectNamespace").textValue();
         if ("uk.nhs.nhs_number".equals(subjectIdNamespace)) {
             return "https://fhir.nhs.uk/Id/nhs-number";
@@ -83,7 +83,7 @@ public class OpenEHRConverter {
         }
     }
 
-    private CodeableConcept convertScalarCodableConcept(JsonNode ehrJson, String scalarElementName) {
+    protected CodeableConcept convertScalarCodableConcept(JsonNode ehrJson, String scalarElementName) {
 
   //      logger.debug("Scalar Name" + scalarElementName);
 
