@@ -37,7 +37,7 @@ public class AllergyProvider implements IResourceProvider {
     }
 
     @Read()
-    public CCAllergyIntolerance getResourceById(@IdParam IdType id) throws ParseException, IOException {
+    public CCAllergyIntolerance getResourceById(@IdParam IdType id) throws IOException {
         JsonNode ehrJsonList = openEhrService.getAllergyById(id.getIdPart());
 
         if (null != ehrJsonList) {
@@ -48,7 +48,7 @@ public class AllergyProvider implements IResourceProvider {
     }
 
     @Search()
-    public List<CCAllergyIntolerance> getAllResources() throws ParseException, IOException {
+    public List<CCAllergyIntolerance> getAllResources() throws IOException {
         JsonNode ehrJsonList = openEhrService.getAllAllergies();
 
         if (null != ehrJsonList) {

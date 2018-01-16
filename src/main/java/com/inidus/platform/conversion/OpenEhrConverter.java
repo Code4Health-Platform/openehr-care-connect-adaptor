@@ -83,7 +83,7 @@ public class OpenEhrConverter {
         retVal.setCode(convertCausativeAgent(ehrJson));
 
         Reference patient = new Reference();
-        patient.setReference(ehrJson.get("ehrId").textValue());
+        patient.setReference("Patient/" + ehrJson.get("ehrId").textValue());
         patient.setIdentifier(convertPatientIdentifier(ehrJson));
         retVal.setPatient(patient);
 
@@ -142,12 +142,11 @@ public class OpenEhrConverter {
     private Identifier convertPatientIdentifier(JsonNode ehrJson) {
         Identifier identifier = new Identifier();
         identifier.setValue(ehrJson.get("subjectId").textValue());
-        identifier.setSystem(convertPatientIdentifierSystem(ehrJson));
+        identifier.setSystem(convertPatientIdentifierSystem(ehrJson.get("subjectNamespace").textValue()));
         return identifier;
     }
 
-    private String convertPatientIdentifierSystem(JsonNode ehrJson) {
-        String subjectIdNamespace = ehrJson.get("subjectNamespace").textValue();
+    private String convertPatientIdentifierSystem(String subjectIdNamespace) {
         if ("uk.nhs.nhs_number".equals(subjectIdNamespace)) {
             return "https://fhir.nhs.uk/Id/nhs-number";
         } else {
