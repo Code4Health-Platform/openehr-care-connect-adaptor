@@ -3,9 +3,10 @@ package com.inidus.platform.fhir;
 import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
-import com.inidus.platform.fhir.condition.ConditionCC;
-import com.inidus.platform.fhir.condition.ConditionConnector;
-import com.inidus.platform.fhir.condition.ConditionProvider;
+import com.inidus.platform.fhir.medication.MedicationStatementCC;
+import com.inidus.platform.fhir.medication.MedicationStatementConnector;
+import com.inidus.platform.fhir.medication.MedicationStatementProvider;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,13 +21,13 @@ import java.util.Date;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {ConditionProvider.class, ConditionConnector.class})
-public class MedicationStatmentProviderTest {
+@ContextConfiguration(classes = {MedicationStatementProvider.class, MedicationStatementConnector.class})
+public class MedicationStatementProviderTest {
     @Autowired
-    @Qualifier("ConditionProvider")
-    private ConditionProvider testProvider;
+    @Qualifier("MedicationStatementProvider")
+    private MedicationStatementProvider testProvider;
     @Autowired
-    private ConditionConnector ehrConnector;
+    private MedicationStatementConnector ehrConnector;
 
     @Before
     public void setUp() throws Exception {
@@ -46,7 +47,7 @@ public class MedicationStatmentProviderTest {
  //       configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
  //       configureCdrConnector("https://test.operon.systems", "oprn_hcbox", "XioTAJoO479", true);
         TokenParam identifier = new TokenParam("uk.nhs.nhs_number", "9999999000");
-        List<ConditionCC> result = testProvider.getFilteredResources(null,identifier, null, null, null );
+        List<MedicationStatementCC> result = testProvider.getFilteredResources(null,identifier, null, null, null );
         Assert.assertNotNull(result);
         Assert.assertEquals("https://fhir.nhs.uk/Id/nhs-number", result.get(0).getSubject().getIdentifier().getSystem());
     }
@@ -56,7 +57,7 @@ public class MedicationStatmentProviderTest {
    //     configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
    //     configureCdrConnector("https://test.operon.systems", "oprn_hcbox", "XioTAJoO479", true);
         TokenParam identifier = new TokenParam("https://fhir.nhs.uk/Id/nhs-number", "9999999000");
-        List<ConditionCC> result = testProvider.getFilteredResources(null,identifier, null, null, null);
+        List<MedicationStatementCC> result = testProvider.getFilteredResources(null,identifier, null, null, null);
         Assert.assertNotNull(result);
         Assert.assertEquals("https://fhir.nhs.uk/Id/nhs-number", result.get(0).getSubject().getIdentifier().getSystem());
     }
@@ -69,7 +70,7 @@ public class MedicationStatmentProviderTest {
         Date to = DatatypeConverter.parseDateTime("2018-12-07T15:47:43+01:00").getTime();
         DateRangeParam dateRange = new DateRangeParam(from, to);
 
-        List<ConditionCC> result = testProvider.getFilteredResources(null,null, null,null, dateRange);
+        List<MedicationStatementCC> result = testProvider.getFilteredResources(null,null, null,null, dateRange);
 
         Assert.assertNotNull(result);
     }
@@ -81,7 +82,7 @@ public class MedicationStatmentProviderTest {
         Date to = DatatypeConverter.parseDateTime("2018-12-07T15:47:43+01:00").getTime();
         DateRangeParam dateRange = new DateRangeParam(null, to);
 
-        List<ConditionCC> result = testProvider.getFilteredResources(null,null, null, null,dateRange);
+        List<MedicationStatementCC> result = testProvider.getFilteredResources(null,null, null, null,dateRange);
 
         Assert.assertNotNull(result);
     }
@@ -93,47 +94,27 @@ public class MedicationStatmentProviderTest {
         Date from = DatatypeConverter.parseDateTime("2000-12-07T15:47:43+01:00").getTime();
         DateRangeParam dateRange = new DateRangeParam(from, null);
 
-        List<ConditionCC> result = testProvider.getFilteredResources(null, null, null,null, dateRange);
+        List<MedicationStatementCC> result = testProvider.getFilteredResources(null, null, null,null, dateRange);
 
         Assert.assertNotNull(result);
     }
 
-   @Test
-    public void getResourceByCategory_problemList() throws Exception {
-    //    configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
-        StringParam category = new StringParam("problem-list-item");
-
-        List<ConditionCC> result = testProvider.getFilteredResources(null, null, category, null,null);
-
-       Assert.assertNotNull(result);
-    }
-
     @Test
-    public void getResourceByCategory_diagnosis() throws Exception {
-     //   configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
-        StringParam category = new StringParam("diagnosis");
-
-        List<ConditionCC> result = testProvider.getFilteredResources(null, null, category, null,null);
-
-        Assert.assertNull(result);
-    }
-
-    @Test
-    public void getResourceByClinicalStatus_active() throws Exception {
+    public void getResourceByStatus_active() throws Exception {
         //   configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
         StringParam clinical_status = new StringParam("active");
 
-        List<ConditionCC> result = testProvider.getFilteredResources(null, null, null, clinical_status,null);
+        List<MedicationStatementCC> result = testProvider.getFilteredResources(null, null, null, clinical_status,null);
 
         Assert.assertNotNull(result);
     }
 
     @Test
-    public void getResourceByClinicalStatus_inactive() throws Exception {
+    public void getResourceByStatus_inactive() throws Exception {
         //   configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
         StringParam clinical_status = new StringParam("inactive");
 
-        List<ConditionCC> result = testProvider.getFilteredResources(null, null, null, clinical_status,null);
+        List<MedicationStatementCC> result = testProvider.getFilteredResources(null, null, null, clinical_status,null);
 
         Assert.assertNotNull(result);
     }

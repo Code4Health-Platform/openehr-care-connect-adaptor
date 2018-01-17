@@ -1,9 +1,11 @@
 package com.inidus.platform.fhir;
 
 import com.inidus.platform.fhir.allergy.AllergyProvider;
-import com.inidus.platform.fhir.condition.ConditionProvider;
-import com.inidus.platform.fhir.allergy.AllergyConnector;
 import com.inidus.platform.fhir.condition.ConditionConnector;
+import com.inidus.platform.fhir.condition.ConditionProvider;
+import com.inidus.platform.fhir.medication.MedicationStatementProvider;
+import com.inidus.platform.fhir.allergy.AllergyConnector;
+import com.inidus.platform.fhir.medication.MedicationStatementConnector;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +18,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {FhirServlet.class, AllergyProvider.class, AllergyConnector.class, ConditionProvider.class, ConditionConnector.class})
+@ContextConfiguration(classes = {FhirServlet.class,
+        AllergyProvider.class, AllergyConnector.class,
+        ConditionProvider.class, ConditionConnector.class,
+        MedicationStatementProvider.class, MedicationStatementConnector.class})
 public class FhirServletTest {
 
     private MockHttpServletRequest request;

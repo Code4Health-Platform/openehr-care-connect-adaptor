@@ -14,7 +14,14 @@ public class OpenEHRConverter {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected Date convertAssertedDate(JsonNode ehrJson) {
-        String dateString = ehrJson.get("AssertedDate").textValue();
+
+        //Test explicitly for 'AssertedDAte as it may not always exist in the resultset
+
+        JsonNode dateElement = ehrJson.get("AssertedDate");
+        String dateString = null;
+        if (dateElement != null)
+         dateString = dateElement.textValue();
+
         if (null == dateString) {
             dateString = ehrJson.get("compositionStartTime").textValue();
         }
@@ -33,19 +40,19 @@ public class OpenEHRConverter {
             asserter.addName().setText(asserterName);
         }
 
-// Not supported by EtherCis - causes exception
-//        String asserterID = ehrJson.get("composerId").textValue();
-//        if (null != asserterID) {
-//
-//            Identifier id = asserter.addIdentifier();
-//            id.setValue(asserterID);
-//
-//            String asserterNamespace = ehrJson.get("composerNamespace").textValue();
-//            if (null != asserterNamespace) {
-//                id.setSystem(asserterNamespace);
-//
-//            }
-//        }
+        // Not supported by EtherCis - causes exception
+        //        String asserterID = ehrJson.get("composerId").textValue();
+        //        if (null != asserterID) {
+        //
+        //            Identifier id = asserter.addIdentifier();
+        //            id.setValue(asserterID);
+        //
+        //            String asserterNamespace = ehrJson.get("composerNamespace").textValue();
+        //            if (null != asserterNamespace) {
+        //                id.setSystem(asserterNamespace);
+        //
+        //            }
+        //        }
 
         return asserter;
     }
@@ -83,19 +90,33 @@ public class OpenEHRConverter {
         }
     }
 
+
     protected CodeableConcept convertScalarCodableConcept(JsonNode ehrJson, String scalarElementName) {
 
-  //      logger.debug("Scalar Name" + scalarElementName);
-
-        String value = ehrJson.get(scalarElementName+"_value").textValue();
-        String terminology = ehrJson.get(scalarElementName+"_terminology").textValue();
-        String code = ehrJson.get(scalarElementName+"_code").textValue();
+        String value = getResultsetString(ehrJson, scalarElementName + "_value");
+        String terminology = getResultsetString(ehrJson, scalarElementName + "_terminology");
+        String code = getResultsetString(ehrJson, scalarElementName + "_code");
 
         if (null != terminology && null != code) {
             DvCodedText openEHRCodeable = new DvCodedText(value, terminology, code);
             return DfText.convertToCodeableConcept(openEHRCodeable);
-        } else {
+        } else if (null != value) {
             return new CodeableConcept().setText(value);
         }
+        else
+            return null;
+    }
+
+    protected String getResultsetString(JsonNode ehrJson, String nodeName) {
+        String nodeString = null;
+        JsonNode node = ehrJson.get(nodeName);
+
+        if (node != null) {
+            nodeString = node.textValue();
+            //Ensure that emptyString are marked as null which prevetns them being stored in FHIR
+            if (nodeString != null && nodeString.isEmpty())
+                nodeString = null;
+        }
+        return nodeString;
     }
 }
