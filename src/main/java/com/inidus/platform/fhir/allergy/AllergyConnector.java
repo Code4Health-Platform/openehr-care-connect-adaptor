@@ -4,7 +4,6 @@ import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inidus.platform.fhir.allergy.AllergyIntoleranceCategory;
 import com.inidus.platform.fhir.openehr.OpenEhrConnector;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,6 @@ import java.util.Date;
  * Connects to an openEHR backend and returns selected data
  */
 @ConfigurationProperties(prefix = "cdr-connector", ignoreUnknownFields = false)
-
 @Service()
 public class AllergyConnector extends OpenEhrConnector {
     protected String getAQL() {
@@ -26,7 +24,7 @@ public class AllergyConnector extends OpenEhrConnector {
                 " e/ehr_status/subject/external_ref/namespace as subjectNamespace," +
                 " a/context/start_time/value as compositionStartTime," +
                 " a/uid/value as compositionId," +
-                " a/composer/name as composerName,"+
+                " a/composer/name as composerName," +
                 // Not supported in EtherCis
                 //        " a/composer/external_ref/id/value as composerId," +
                 //        " a/composer/external_ref/namespace as composerNamespace," +
@@ -59,9 +57,6 @@ public class AllergyConnector extends OpenEhrConnector {
                 " contains COMPOSITION a[openEHR-EHR-COMPOSITION.adverse_reaction_list.v1]" +
                 " contains EVALUATION b_a[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1]" +
                 " where a/name/value='Adverse reaction list'";
-    }
-
-    public AllergyConnector() throws IOException {
     }
 
     public JsonNode getFilteredAllergies(

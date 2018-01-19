@@ -1,9 +1,9 @@
 package com.inidus.platform.fhir;
 
-import com.inidus.platform.fhir.allergy.AllergyProvider;
-import com.inidus.platform.fhir.condition.ConditionProvider;
 import com.inidus.platform.fhir.allergy.AllergyConnector;
+import com.inidus.platform.fhir.allergy.AllergyProvider;
 import com.inidus.platform.fhir.condition.ConditionConnector;
+import com.inidus.platform.fhir.condition.ConditionProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,6 +54,7 @@ public class FhirServletTest {
 //        Assert.assertEquals(response.getContentAsString(), HttpStatus.OK.value(), response.getStatus());
 //        Assert.assertEquals("application/json+fhir", response.getContentType());
     }
+
     @Test
     public void condition_HttpOk_JSON() throws Exception {
 //        request.setMethod("GET");

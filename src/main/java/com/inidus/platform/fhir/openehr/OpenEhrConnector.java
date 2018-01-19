@@ -24,58 +24,9 @@ import java.util.TimeZone;
  */
 @ConfigurationProperties(prefix = "cdr-connector", ignoreUnknownFields = false)
 @Service
-public class OpenEhrConnector {
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-    protected String getAQL(){
-        return "";
-    };
-
-//    private static String AQL = "select" +
-//            " e/ehr_id/value as ehrId," +
-//            " e/ehr_status/subject/external_ref/id/value as subjectId," +
-//            " e/ehr_status/subject/external_ref/namespace as subjectNamespace," +
-//            " a/uid/value as compositionId," +
-//            " a/composer/external_ref/id/value as composerId," +
-//            " a/composer/external_ref/namespace as composerNamespace,"+
-//            " a/uid/value as compositionId,"+
-//            " a/context/start_time/value as compositionStartTime," +
-//            " b_a/uid/value as entryId," +
-//            " b_a/data[at0001]/items[at0002]/value/value as Causative_agent_value," +
-//            " b_a/data[at0001]/items[at0002]/value/defining_code/code_string as Causative_agent_code," +
-//            " b_a/data[at0001]/items[at0002]/value/defining_code/terminology_id/value as Causative_agent_terminology," +
-//            " b_a/data[at0001]/items[at0063]/value/defining_code/code_string as Status_code," +
-//            " b_a/data[at0001]/items[at0101]/value/defining_code/code_string as Criticality_code," +
-//            " b_a/data[at0001]/items[at0120]/value/defining_code/code_string as Category_code," +
-//            " b_a/data[at0001]/items[at0117]/value/value as Onset_of_last_reaction," +
-//            " b_a/data[at0001]/items[at0058]/value/defining_code/code_string as Reaction_mechanism_code," +
-//            " b_a/data[at0001]/items[at0006]/value/value as Comment," +
-//            " b_a/protocol[at0042]/items[at0062]/value/value as Adverse_reaction_risk_Last_updated," +
-//            " b_a/data[at0001]/items[at0009]/items[at0010]/value/value as Specific_substance_value," +
-//            " b_a/data[at0001]/items[at0009]/items[at0010]/value/defining_code/code_string as Specific_substance_code," +
-//            " b_a/data[at0001]/items[at0009]/items[at0010]/value/defining_code/terminology_id/value as Specific_substance_terminology," +
-//            " b_a/data[at0001]/items[at0009]/items[at0021]/value/defining_code/code_string as Certainty_code," +
-//            " b_a/data[at0001]/items[at0009]/items[at0011]/value/value as Manifestation_value,    " +
-//            " b_a/data[at0001]/items[at0009]/items[at0011]/value/defining_code/code_string as Manifestation_code," +
-//            " b_a/data[at0001]/items[at0009]/items[at0011]/value/defining_code/terminology_id/value as Manifestation_terminology," +
-//            " b_a/data[at0001]/items[at0009]/items[at0012]/value/value as Reaction_description," +
-//            " b_a/data[at0001]/items[at0009]/items[at0027]/value/value as Onset_of_reaction," +
-//            " b_a/data[at0001]/items[at0009]/items[at0089]/value/defining_code/code_string as Severity_code," +
-//            " b_a/data[at0001]/items[at0009]/items[at0106]/value/value as Route_of_exposure_value," +
-//            " b_a/data[at0001]/items[at0009]/items[at0106]/value/defining_code/code_string as Route_of_exposure_code," +
-//            " b_a/data[at0001]/items[at0009]/items[at0106]/value/defining_code/terminology_id/value as Route_of_exposure_terminology," +
-//            " b_a/data[at0001]/items[at0009]/items[at0032]/value/value as Adverse_reaction_risk_Comment" +
-//            " from EHR e" +
-//            " contains COMPOSITION a[openEHR-EHR-COMPOSITION.adverse_reaction_list.v1]" +
-//            " contains EVALUATION b_a[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1]" +
-//            " where a/name/value='Adverse reaction list'";
-
+public abstract class OpenEhrConnector {
     protected static final DateFormat ISO_DATE = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
-
-    // private static final String URL = "https://cdr.code4health.org/rest/v1/query";
-    // private static final String URL = "https://test.operon.systems/rest/v1/query";
-    // private static final String AUTH = "Basic b3Bybl9oY2JveDpYaW9UQUpvTzQ3OQ==";
-
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private String url;
     private String username;
     private String password;
@@ -85,12 +36,11 @@ public class OpenEhrConnector {
         ISO_DATE.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
-    public OpenEhrConnector() throws IOException {
-    }
-
     public JsonNode getAllResources() throws IOException {
         return getEhrJson(getAQL());
     }
+
+    protected abstract String getAQL();
 
     public JsonNode getResourceById(String id) throws IOException {
         if (null == id || id.isEmpty() || id.contains(" ")) {
@@ -101,15 +51,12 @@ public class OpenEhrConnector {
         // delineated by '_' character
         // If entryID exists query on compositionId and entryId.
 
-        String[] openEHRIds;
-
-        openEHRIds = id.split("\\|");
+        String[] openEHRIds = id.split("\\|");
         String compositionId = openEHRIds[0];
 
         String idFilter = " and a/uid/value='" + compositionId + "'";
 
-        if (openEHRIds.length > 1)
-        {
+        if (openEHRIds.length > 1) {
             String entryId = openEHRIds[1];
             idFilter.concat(" and b_a/uid/value='" + entryId + "'");
         }
@@ -124,7 +71,7 @@ public class OpenEhrConnector {
             headers = createAuthHeaders();
         }
 
-        logger.info("AQL:  " + aql);
+        logger.debug("AQL:  " + aql);
 
         String body = "{\"aql\" : \"" + aql + "\"}";
         HttpEntity<String> request = new HttpEntity<>(body, headers);
@@ -160,6 +107,7 @@ public class OpenEhrConnector {
 
         return idFilter;
     }
+
     private HttpHeaders createAuthHeaders() {
         String plainCredits = username + ":" + password;
         String auth = "Basic " + new String(Base64.encodeBase64(plainCredits.getBytes()));
