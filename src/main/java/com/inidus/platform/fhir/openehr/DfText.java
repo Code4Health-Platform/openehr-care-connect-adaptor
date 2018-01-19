@@ -1,4 +1,4 @@
-package com.inidus.platform.conversion;
+package com.inidus.platform.fhir.openehr;
 
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Coding;
