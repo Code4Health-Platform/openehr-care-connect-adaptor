@@ -166,7 +166,7 @@ public class OpenEhrConnector {
 
     private String getPatientIdentifierFilterAql(TokenParam patientIdentifier) {
         String system = patientIdentifier.getSystem();
-        if (system.isEmpty() || "https://fhir.nhs.uk/Id/nhs-number".equals(system)) {
+        if (null == system || system.isEmpty() || "https://fhir.nhs.uk/Id/nhs-number".equals(system)) {
             system = "uk.nhs.nhs_number";
         }
         String idFilter = " and e/ehr_status/subject/external_ref/id/value='" + patientIdentifier.getValue() +
