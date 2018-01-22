@@ -1,24 +1,18 @@
 package com.inidus.platform.fhir.allergy;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inidus.platform.fhir.openehr.DfText;
 import com.inidus.platform.fhir.openehr.OpenEHRConverter;
-import org.hl7.fhir.dstu3.model.*;
-import org.openehr.rm.datatypes.text.DvCodedText;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hl7.fhir.dstu3.model.AllergyIntolerance;
+import org.hl7.fhir.dstu3.model.Annotation;
 
 import javax.xml.bind.DatatypeConverter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class AllergyConverter extends OpenEHRConverter{
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
+public class AllergyConverter extends OpenEHRConverter {
     /**
      * Converts the given json coming from openEHR into 1 {@link AllergyIntolerance} resource.
-     * Duplicates in the json will be merged.
      *
      * @param ehrJson is the array contained inside the "resultSet" section
      */
@@ -29,7 +23,6 @@ public class AllergyConverter extends OpenEHRConverter{
 
     /**
      * Converts the given json coming from openEHR into a list of {@link AllergyIntolerance} resources.
-     * Duplicates in the json will be merged.
      *
      * @param ehrJson is the array contained inside the "resultSet" section
      */
@@ -52,7 +45,7 @@ public class AllergyConverter extends OpenEHRConverter{
         retVal.getAsserter().setResource(convertAsserter(ehrJson));
 
 
-       retVal.setClinicalStatus(AllergyIntolerance.AllergyIntoleranceClinicalStatus.ACTIVE);
+        retVal.setClinicalStatus(AllergyIntolerance.AllergyIntoleranceClinicalStatus.ACTIVE);
 
         String statusCode = ehrJson.get("Status_code").textValue();
         if ("at0065".equals(statusCode)) {
@@ -86,7 +79,7 @@ public class AllergyConverter extends OpenEHRConverter{
             retVal.setCriticality(AllergyIntolerance.AllergyIntoleranceCriticality.UNABLETOASSESS);
         }
 
-        retVal.setCode(convertScalarCodableConcept(ehrJson,"Causative_agent"));
+        retVal.setCode(convertScalarCodableConcept(ehrJson, "Causative_agent"));
 
         String onset_of_last_reaction = ehrJson.get("Onset_of_last_reaction").textValue();
         if (null != onset_of_last_reaction) {
@@ -100,9 +93,9 @@ public class AllergyConverter extends OpenEHRConverter{
 
         AllergyIntolerance.AllergyIntoleranceReactionComponent reaction = new AllergyIntolerance.AllergyIntoleranceReactionComponent();
 
-        reaction.setSubstance(convertScalarCodableConcept(ehrJson,"Specific_substance"));
+        reaction.setSubstance(convertScalarCodableConcept(ehrJson, "Specific_substance"));
 
-        reaction.addManifestation(convertScalarCodableConcept(ehrJson,"Manifestation"));
+        reaction.addManifestation(convertScalarCodableConcept(ehrJson, "Manifestation"));
 
         reaction.setDescription(ehrJson.get("Reaction_description").textValue());
 
@@ -120,7 +113,7 @@ public class AllergyConverter extends OpenEHRConverter{
             reaction.setSeverity(AllergyIntolerance.AllergyIntoleranceSeverity.SEVERE);
         }
 
-        reaction.setExposureRoute(convertScalarCodableConcept(ehrJson,"Route_of_exposure"));
+        reaction.setExposureRoute(convertScalarCodableConcept(ehrJson, "Route_of_exposure"));
 
         reaction.addNote().setText(ehrJson.get("Adverse_reaction_risk_Comment").textValue());
 

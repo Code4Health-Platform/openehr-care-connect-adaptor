@@ -1,26 +1,23 @@
 package com.inidus.platform.fhir.openehr;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
-import org.hl7.fhir.dstu3.model.*;
+import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Identifier;
+import org.hl7.fhir.dstu3.model.Practitioner;
+import org.hl7.fhir.dstu3.model.Reference;
 import org.openehr.rm.datatypes.text.DvCodedText;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.DatatypeConverter;
 import java.util.Date;
 
 public class OpenEHRConverter {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
     protected Date convertAssertedDate(JsonNode ehrJson) {
 
         //Test explicitly for 'AssertedDAte as it may not always exist in the resultset
-
         JsonNode dateElement = ehrJson.get("AssertedDate");
         String dateString = null;
         if (dateElement != null)
-         dateString = dateElement.textValue();
+            dateString = dateElement.textValue();
 
         if (null == dateString) {
             dateString = ehrJson.get("compositionStartTime").textValue();
@@ -30,8 +27,7 @@ public class OpenEHRConverter {
 
     protected Practitioner convertAsserter(JsonNode ehrJson) {
 
-        //Convert Composer name and ID.
-
+        // Convert Composer name and ID.
         Practitioner asserter = new Practitioner();
         asserter.setId("Practitioner/#composer");
 
@@ -59,7 +55,7 @@ public class OpenEHRConverter {
 
     protected Reference convertPatientReference(JsonNode ehrJson) {
         Reference reference = new Reference();
-        reference.setReference("Patient/"+ehrJson.get("ehrId").textValue());
+        reference.setReference("Patient/" + ehrJson.get("ehrId").textValue());
         reference.setIdentifier(convertPatientIdentifier(ehrJson));
         return reference;
     }
@@ -70,7 +66,7 @@ public class OpenEHRConverter {
         if (entryId == null)
             return compositionId;
         else {
-             return compositionId + "|" + entryId;
+            return compositionId + "|" + entryId;
         }
     }
 
@@ -90,7 +86,6 @@ public class OpenEHRConverter {
         }
     }
 
-
     protected CodeableConcept convertScalarCodableConcept(JsonNode ehrJson, String scalarElementName) {
 
         String value = getResultsetString(ehrJson, scalarElementName + "_value");
@@ -102,8 +97,7 @@ public class OpenEHRConverter {
             return DfText.convertToCodeableConcept(openEHRCodeable);
         } else if (null != value) {
             return new CodeableConcept().setText(value);
-        }
-        else
+        } else
             return null;
     }
 

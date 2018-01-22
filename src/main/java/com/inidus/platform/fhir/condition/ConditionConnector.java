@@ -5,10 +5,9 @@ import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inidus.platform.fhir.openehr.OpenEhrConnector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.util.Date;
 
@@ -16,21 +15,20 @@ import java.util.Date;
 /**
  * Connects to an openEHR backend and returns selected ProblemDiagnosis data
  */
-@ConfigurationProperties(prefix = "cdr-connector", ignoreUnknownFields = false)@Service
+@ConfigurationProperties(prefix = "cdr-connector", ignoreUnknownFields = false)
+@Service
 public class ConditionConnector extends OpenEhrConnector {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
     protected String getAQL() {
-
         return "select" +
                 " e/ehr_id/value as ehrId," +
                 " e/ehr_status/subject/external_ref/id/value as subjectId," +
                 " e/ehr_status/subject/external_ref/namespace as subjectNamespace," +
                 " a/context/start_time/value as compositionStartTime," +
                 " a/uid/value as compositionId," +
-                " a/composer/name as composerName,"+
-         // Not supported in EtherCis
-        //        " a/composer/external_ref/id/value as composerId," +
-        //        " a/composer/external_ref/namespace as composerNamespace," +
+                " a/composer/name as composerName," +
+                // Not supported in EtherCis
+                //        " a/composer/external_ref/id/value as composerId," +
+                //        " a/composer/external_ref/namespace as composerNamespace," +
                 " b_a/uid/value as entryId," +
                 " b_a/data[at0001]/items[at0002]/value/value as Problem_Diagnosis_value," +
                 " b_a/data[at0001]/items[at0002]/value/defining_code/code_string as Problem_Diagnosis_code," +
@@ -56,22 +54,14 @@ public class ConditionConnector extends OpenEhrConnector {
                 " where a/name/value='Problem list'";
     }
 
-    public ConditionConnector() throws IOException {
-
-    }
-
-    public JsonNode getConditionById(String id) throws IOException {
-        return getResourceById(id);
-    }
-
     public JsonNode getFilteredConditions(
-         //   StringParam listParam,
+            //   StringParam listParam,
             StringParam patientId,
             TokenParam patientIdentifier,
             StringParam category,
             StringParam clinical_status,
             DateRangeParam conditionLastAsserted
-           ) throws IOException {
+    ) throws IOException {
 
         String filter = "";
 
@@ -88,7 +78,7 @@ public class ConditionConnector extends OpenEhrConnector {
 
         // category provided
         if (null != category) {
-           filter += getConditionCategoryFilterAql(category);
+            filter += getConditionCategoryFilterAql(category);
         }
 
         // category provided
@@ -124,9 +114,8 @@ public class ConditionConnector extends OpenEhrConnector {
         if (categoryParam.getValue().equals("problem-list-item")) {
             //Dummy AQL line to prevent non problem list items from being returned
             return "";
-        }
-        else
-         return " and a/name/value = ''";
+        } else
+            return " and a/name/value = ''";
     }
 
     private String getClinicalStatusFilterAql(StringParam statusParam) {
@@ -148,7 +137,8 @@ public class ConditionConnector extends OpenEhrConnector {
         }
 
         if (!code.isEmpty() && !element.isEmpty()
-)           return String.format(" and b_a/data[at0001]/items[openEHR-EHR-CLUSTER.problem_status.v0]/items[%s]/value/defining_code/code_string matches {%s}", element,code);
+                )
+            return String.format(" and b_a/data[at0001]/items[openEHR-EHR-CLUSTER.problem_status.v0]/items[%s]/value/defining_code/code_string matches {%s}", element, code);
         else
             return "";
     }
