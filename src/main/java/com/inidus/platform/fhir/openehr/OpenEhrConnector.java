@@ -144,7 +144,7 @@ public class OpenEhrConnector {
         return idFilter;
     }
 
-    /** Retreives the AQL clause required to filter a resulSet by patient/subject logical id
+    /** Retreives the AQL clause required to filter a resultSet by patient/subject logical id
      * which is the openEHR ehr.ehr_id value
      * @param patientId
      * @return
