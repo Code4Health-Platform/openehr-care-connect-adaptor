@@ -1,6 +1,9 @@
 package com.inidus.platform.fhir.condition;
 
-import ca.uhn.fhir.rest.annotation.*;
+import ca.uhn.fhir.rest.annotation.IdParam;
+import ca.uhn.fhir.rest.annotation.OptionalParam;
+import ca.uhn.fhir.rest.annotation.Read;
+import ca.uhn.fhir.rest.annotation.Search;
 import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
@@ -15,17 +18,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.List;
 
 @Component("ConditionProvider")
 public class ConditionProvider implements IResourceProvider {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
-    private final ConditionConverter openehrConverter = new ConditionConverter();
+    private final ConditionConverter converter = new ConditionConverter();
 
     @Autowired
-    private ConditionConnector openEhrService;
+    private ConditionConnector connector;
 
     @Override
     public Class<? extends IBaseResource> getResourceType() {
@@ -33,22 +33,22 @@ public class ConditionProvider implements IResourceProvider {
     }
 
     @Read()
-    public ConditionCC getResourceById(@IdParam IdType id) throws ParseException, IOException {
-        JsonNode ehrJsonList = openEhrService.getResourceById(id.getIdPart());
+    public ConditionCC getResourceById(@IdParam IdType id) throws IOException {
+        JsonNode ehrJsonList = connector.getResourceById(id.getIdPart());
 
         if (null != ehrJsonList) {
-            return openehrConverter.convertToCondition(ehrJsonList);
+            return converter.convertToCondition(ehrJsonList);
         } else {
             return null;
         }
     }
 
     @Search()
-    public List<ConditionCC> getAllResources() throws ParseException, IOException {
-        JsonNode ehrJsonList = openEhrService.getAllResources();
+    public List<ConditionCC> getAllResources() throws IOException {
+        JsonNode ehrJsonList = connector.getAllResources();
 
         if (null != ehrJsonList) {
-            return openehrConverter.convertToConditionList(ehrJsonList);
+            return converter.convertToConditionList(ehrJsonList);
         } else {
             return null;
         }
@@ -56,17 +56,16 @@ public class ConditionProvider implements IResourceProvider {
 
     @Search()
     public List<ConditionCC> getFilteredResources(
-       //     @OptionalParam(name="_list") StringParam listParam,
             @OptionalParam(name = "patient.id") StringParam id,
             @OptionalParam(name = "patient.identifier") TokenParam identifier,
             @OptionalParam(name = "category") StringParam category,
             @OptionalParam(name = "clinical-status") StringParam clinicalStatus,
             @OptionalParam(name = "asserted-date") DateRangeParam dateRange) throws IOException {
 
-        JsonNode ehrJsonList = openEhrService.getFilteredConditions(id, identifier, category, clinicalStatus,dateRange);
+        JsonNode ehrJsonList = connector.getFilteredConditions(id, identifier, category, clinicalStatus, dateRange);
 
         if (null != ehrJsonList) {
-            return openehrConverter.convertToConditionList(ehrJsonList);
+            return converter.convertToConditionList(ehrJsonList);
         } else {
             return null;
         }

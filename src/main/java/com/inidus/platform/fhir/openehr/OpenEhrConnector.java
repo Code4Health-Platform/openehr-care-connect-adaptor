@@ -24,21 +24,9 @@ import java.util.TimeZone;
  */
 @ConfigurationProperties(prefix = "cdr-connector", ignoreUnknownFields = false)
 @Service
-public class OpenEhrConnector {
-
+public abstract class OpenEhrConnector {
+    protected static final DateFormat ISO_DATE = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
     private final Logger logger = LoggerFactory.getLogger(getClass());
-
-    // Overriden in sub-classes with resource-specific AQL
-     protected String getAQL(){
-        return "";
-    };
-
-     protected static final DateFormat ISO_DATE = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
-
-    // private static final String URL = "https://cdr.code4health.org/rest/v1/query";
-    // private static final String URL = "https://test.operon.systems/rest/v1/query";
-    // private static final String AUTH = "Basic b3Bybl9oY2JveDpYaW9UQUpvTzQ3OQ==";
-
     private String url;
     private String username;
     private String password;
@@ -48,27 +36,12 @@ public class OpenEhrConnector {
         ISO_DATE.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
-    public OpenEhrConnector() throws IOException {
-    }
-
-    /** Retreive all resources without filtering
-     * @return - AQL resultset as a JsonNode tree
-     * @throws IOException
-     */
     public JsonNode getAllResources() throws IOException {
         return getEhrJson(getAQL());
     }
 
-    /**
-     * Adds the requisite AQL clause to filter the resultset to include only
-     * matching logical identifiers.
-     * Depennding on local policy, the CDR may label each ENTRY with a uid,
-     * or rely on the encompassing compositionUid where only a single entry exists per
-     * composition
-     * @param id - the logical FHIR resource identifier
-     * @return - the AQL clause
-     * @throws IOException
-     */
+    protected abstract String getAQL();
+
     public JsonNode getResourceById(String id) throws IOException {
         if (null == id || id.isEmpty() || id.contains(" ")) {
             return null;
@@ -76,30 +49,20 @@ public class OpenEhrConnector {
 
         // Test for presence of entryId as well as compositionId
         // delineated by '_' character
-        // If entryID exists query on both compositionId and entryId
-        // which should in=mprove performance
+        // If entryID exists query on compositionId and entryId.
 
-        String[] openEHRIds;
-
-        openEHRIds = id.split("\\|");
+        String[] openEHRIds = id.split("\\|");
         String compositionId = openEHRIds[0];
 
         String idFilter = " and a/uid/value='" + compositionId + "'";
 
-        if (openEHRIds.length > 1)
-        {
+        if (openEHRIds.length > 1) {
             String entryId = openEHRIds[1];
-            idFilter = idFilter.concat(" and b_a/uid/value='" + entryId + "'");
+            idFilter.concat(" and b_a/uid/value='" + entryId + "'");
         }
         return getEhrJson(getAQL() + idFilter);
     }
 
-    /**
-     * Retrieves an AQL resultset from an openEHR Ehrsscape-compliant CDR
-     * @param aql - the AQL string ot be sent to the CDR
-     * @return the CDR /query resultset as a JsonNode tree
-     * @throws IOException
-     */
     protected JsonNode getEhrJson(String aql) throws IOException {
         MultiValueMap<String, String> headers;
         if (isTokenAuth) {
@@ -108,7 +71,7 @@ public class OpenEhrConnector {
             headers = createAuthHeaders();
         }
 
-        logger.info("AQL:  " + aql);
+        logger.debug("AQL:  " + aql);
 
         String body = "{\"aql\" : \"" + aql + "\"}";
         HttpEntity<String> request = new HttpEntity<>(body, headers);
@@ -128,12 +91,6 @@ public class OpenEhrConnector {
         }
     }
 
-    /**
-     * Returns the AQL caluse required to filtee the /query resultSet by external
-     * patient identifier e.g an NHS number
-     * @param patientIdentifier
-     * @return - AQL clause as a string
-     */
     protected String getPatientIdentifierFilterAql(TokenParam patientIdentifier) {
         String system = patientIdentifier.getSystem();
         if (system.isEmpty() || "https://fhir.nhs.uk/Id/nhs-number".equals(system)) {
@@ -144,13 +101,11 @@ public class OpenEhrConnector {
         return idFilter;
     }
 
-    /** Retreives the AQL clause required to filter a resultSet by patient/subject logical id
-     * which is the openEHR ehr.ehr_id value
-     * @param patientId
-     * @return
-     */
     protected String getPatientIdFilterAql(StringParam patientId) {
-        return " and e/ehr_id/value='" + patientId.getValue() + "'";
+
+        String idFilter = " and e/ehr_id/value='" + patientId.getValue() + "'";
+
+        return idFilter;
     }
 
     private HttpHeaders createAuthHeaders() {
