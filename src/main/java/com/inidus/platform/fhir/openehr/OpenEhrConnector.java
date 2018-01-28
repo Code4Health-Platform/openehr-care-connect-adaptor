@@ -36,12 +36,29 @@ public abstract class OpenEhrConnector {
         ISO_DATE.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
+    /**
+     * Retreive all resources without filtering
+     *
+     * @return - AQL resultset as a JsonNode tree
+     * @throws IOException
+     */
     public JsonNode getAllResources() throws IOException {
         return getEhrJson(getAQL());
     }
 
     protected abstract String getAQL();
 
+    /**
+     * Adds the requisite AQL clause to filter the resultset to include only
+     * matching logical identifiers.
+     * Depennding on local policy, the CDR may label each ENTRY with a uid,
+     * or rely on the encompassing compositionUid where only a single entry exists per
+     * composition
+     *
+     * @param id - the logical FHIR resource identifier
+     * @return - the AQL clause
+     * @throws IOException
+     */
     public JsonNode getResourceById(String id) throws IOException {
         if (null == id || id.isEmpty() || id.contains(" ")) {
             return null;
@@ -49,7 +66,8 @@ public abstract class OpenEhrConnector {
 
         // Test for presence of entryId as well as compositionId
         // delineated by '_' character
-        // If entryID exists query on compositionId and entryId.
+        // If entryID exists query on both compositionId and entryId
+        // which should in=mprove performance
 
         String[] openEHRIds = id.split("\\|");
         String compositionId = openEHRIds[0];
@@ -58,11 +76,18 @@ public abstract class OpenEhrConnector {
 
         if (openEHRIds.length > 1) {
             String entryId = openEHRIds[1];
-            idFilter.concat(" and b_a/uid/value='" + entryId + "'");
+            idFilter = idFilter.concat(" and b_a/uid/value='" + entryId + "'");
         }
         return getEhrJson(getAQL() + idFilter);
     }
 
+    /**
+     * Retrieves an AQL resultset from an openEHR Ehrsscape-compliant CDR
+     *
+     * @param aql - the AQL string ot be sent to the CDR
+     * @return the CDR /query resultset as a JsonNode tree
+     * @throws IOException
+     */
     protected JsonNode getEhrJson(String aql) throws IOException {
         MultiValueMap<String, String> headers;
         if (isTokenAuth) {
@@ -91,6 +116,13 @@ public abstract class OpenEhrConnector {
         }
     }
 
+    /**
+     * Returns the AQL caluse required to filtee the /query resultSet by external
+     * patient identifier e.g an NHS number
+     *
+     * @param patientIdentifier
+     * @return - AQL clause as a string
+     */
     protected String getPatientIdentifierFilterAql(TokenParam patientIdentifier) {
         String system = patientIdentifier.getSystem();
         if (system.isEmpty() || "https://fhir.nhs.uk/Id/nhs-number".equals(system)) {
@@ -101,11 +133,15 @@ public abstract class OpenEhrConnector {
         return idFilter;
     }
 
+    /**
+     * Retreives the AQL clause required to filter a resulSet by patient/subject logical id
+     * which is the openEHR ehr.ehr_id value
+     *
+     * @param patientId
+     * @return
+     */
     protected String getPatientIdFilterAql(StringParam patientId) {
-
-        String idFilter = " and e/ehr_id/value='" + patientId.getValue() + "'";
-
-        return idFilter;
+        return " and e/ehr_id/value='" + patientId.getValue() + "'";
     }
 
     private HttpHeaders createAuthHeaders() {
