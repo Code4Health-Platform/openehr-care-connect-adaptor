@@ -63,7 +63,6 @@ public class MedicationStatementConnector extends OpenEhrConnector {
 
 
     public JsonNode getFilteredMedicationStatements(
-         //   StringParam listParam,
             StringParam patientId,
             TokenParam patientIdentifier,
             StringParam category,
