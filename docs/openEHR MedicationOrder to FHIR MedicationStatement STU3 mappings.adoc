@@ -1,0 +1,388 @@
+== openEHR MedicationOrder (as MedicationStatement) to FHIR MedicationStatement STU3 mappings
+Ian McNicoll <ian@inidus.com>
+v1.0.0, 28-Jan-2018
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+== Target openEHR template
+
+http://ckm.apperta.org/ckm[IDCR -  .v1| Medication Statement list]
+
+This template assumes that a static list of medication orders is being maintained in the underlying CDR. A different AQL approach may be need to pull data from a live prescribing system.
+
+== FHIR resource operation Requirements
+
+=== Operation : `read`
+
+1. Expose any MedicationStatement records held in the underlying openEHR CDR 'Medication Statement list' as a bundle of FHIR MedicationStatement resources, profiled to meet NHS Care-Connect Profile STU3.
+2. Deleted records, those entered in error, should not be sent.
+3. Individual MedicationStatement negations, handled in openEHR as `Specific Exclusions` such as 'No history of penicillin allergy' should not be exposed.
+4. Support the `read`, `search` and `conformance` FHIR resource operations.
+5. The following FHIR MedicationStatement data elements should be exposed where corresponding openEHR data is available.
+
+- `id` (logical resource identifier)
+- `text` (This will be generated narrative from concatenated structured data below)
+
+- `status` active | completed | entered-in-error | intended | stopped | on-hold
+
+- `medicationReference.code` - Mandatory
+
+- `subject.reference` - Mandatory
+- `subject.identifier`- Mandatory
+- `subject.id`- Mandatory
+
+- `informationSource`
+
+- `assertedDate`
+
+- `effective.effectivePeriod`
+- `effective.effectiveDate`
+
+
+- `taken` - Mandatory  y | n | unk | na
+
+- `note` - Multiple
+
+- `reasonCode`
+
+- `dosage.text`
+
+- `dosage.additionalInstruction`
+
+- `dosage.patientInstruction`
+
+- `dosage.site`
+- `dosage.route`
+- `dosage.method`
+- `dosage.patientInstruction`
+
+
+===  Operation: `search`
+
+The following Search criteria must be supported
+
+- `effectiveDate` (including date ranges)
+- `subject.id` (via logicalID)
+- `subject.identifier` (via NHS Number)
+- `status` (To be Confirmed after review by Care-Connect)
+
+Implementation will require appropriate AQL construction and or AQL resultSet filtering, for which guidance will be provided.
+
+see http://hapifhir.io/doc_rest_operations.html (Search)
+
+=== Operation: `conformance`
+
+The AllergyIntolerance profile should emit a conformance statement on request via the
+/metadata resource - it is expected that the default handling provided by the HAPI-FHIR stack should be sufficient for this purpose.
+
+see http://hapifhir.io/doc_rest_operations.html (Conformance)
+
+==== Ignored FHIR Care-connect extension nodes
+
+None
+
+==== Approach
+
+1. Retrieve candidate openEHR Medication Order data via a an openEHR /query POST call, using AQL.
+2. Return Scalar values for DV_TEXT/DV_CODED_TEXT elements and map to CodeableConcept, as openEHR objects are not currently supported in EtherCis AQL.
+2. Alternatively, where the openEHR data is held as DV_TEXT/DV_CODED_TEXT ELEMENT, return the whole ELEMENT value as an object.
+4. Create handlers for Excluded/Absent information items when Care-Connect guidance emerges. Assume making use of FHIR List resource for now.
+
+
+==== SCALAR AQL (includes search parameters and dv_coded_text as scalar values)
+
+This flattened form of the AQL avoids use of DV_CODED_TEXT objects which are not supported by EtherCis
+
+[source, sql]
+----
+select
+    e/ehr_id/value as ehrId,
+    e/ehr_status/subject/external_ref/id/value as subjectId,
+    e/ehr_status/subject/external_ref/namespace as subjectNamespace,
+    a/composer/name as composerName,
+    a/composer/external_ref/id/value as composerId,
+    a/composer/external_ref/namespace as composerNamespace,
+    a/uid/value as compositionId,
+    a/context/start_time/value as compositionStartTime,
+    b_a/uid/value as entryId,
+    b_a/data[at0001]/items[at0002]/value/value as Problem_Diagnosis_value,
+    b_a/data[at0001]/items[at0002]/value/defining_code/code_string as Problem_Diagnosis_code,
+    b_a/data[at0001]/items[at0002]/value/defining_code/terminology_id/value as Problem_Diagnosis_terminology,
+    b_a/data[at0001]/items[at0012]/value/value as Body_site_value,
+    b_a/data[at0001]/items[at0012]/value/defining_code/code_string as Body_site_code,
+    b_a/data[at0001]/items[at0012]/value/defining_code/terminology_id as Body_site_terminology,
+    b_a/data[at0001]/items[at0077]/value/value as Date_time_of_onset,
+    b_a/data[at0001]/items[at0030]/value/value as Date_time_of_resolution,
+    b_a/data[at0001]/items[at0005]/value/defining_code/code_string as Severity_code,
+    b_a/data[at0001]/items[at0073]/value/defining_code/code_string as Diagnostic_certainty_code,
+    b_a/data[at0001]/items[at0069]/value/value as Comment,
+    b_a/protocol[at0032]/items[at0070]/value/value as AssertedDate,
+    b_b/items[at0003]/value/defining_code/code_string as Active_inactive_code,
+    b_b/items[at0083]/value/defining_code/code_string as Resolution_status_code,
+    b_b/items[at0001]/value/defining_code/code_string as Episodicity_code,
+    b_b/items[at0071]/value/value as First_occurrence
+from EHR e
+contains COMPOSITION a[openEHR-EHR-COMPOSITION.problem_list.v1]
+contains (
+    EVALUATION b_a[openEHR-EHR-EVALUATION.problem_diagnosis.v1] or
+    CLUSTER b_b[openEHR-EHR-CLUSTER.problem_status.v0])
+where a/name/value='Problem list'
+
+-- Optional parameters, depending on FHIR search criteria
+and e/ehr_id/value = '{{fhir.patient.id_param}}'
+and e/ehr_status/subject/external_ref/id/value = '{{fhir.patient.identifier.value.param}}'
+and e/ehr_status/subject/external_ref/namespace =  '{{fhir.patient.identifier.system.param}}'
+and b_a/protocol[at0032]/items[at0070]/value/value >= '{{fhir_asserted_date_param_min}}'
+and b_a/protocol[at0032]/items[at0070]/value/value <= '{{fhir_asserted_date_param_max}}'
+
+----
+
+=== Node mappings
+
+==== FHIR node:: `condition.id`
+
+FHIR Description::
+The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes.
+
+openEHR AQL node::
+if `entryId` is not null
+  `compositionId`+ '_' + `entryId`
+else
+  `compositionId`
+
+Valueset mappings:: None
+
+NOTE: The FHIR id is constructed by a concatenation of the openEHR `compositionId` and `entryId` as above.
+If `entryID` is null, simply send the `compositionID`. `entryID` is currently not supported by Ethercis.
+
+==== FHIR node:: `condition.clinicalStatus`
+
+FHIR Description::
+The clinical status of the condition.
+Valueset: active | recurrence | inactive | remission | resolved
+
+openEHR AQL node::
+- `Active_Inactive_code` => `condition.clinicalStatus`
+- `Resolution_status_code` => `condition.clinicalStatus`
+NOTE: openEHR splits active/inactive status from resolution status, whereas FHIR combines the two concepts.
+
+
+Datatype Mapping style::
+DV_CODED_TEXT => Code
+
+Valueset Mappings::
+WARNING: Further discussion required in 5N-CDR and Care-Connect group before accurate mappings can be defined.
+There is a conflict here between GP-style longitudinal problems, where e.g a problem can be both `active` and `resolved`.
+
+FHIR Valueset:: active | recurrence | inactive | remission | resolved
+
+`local::at0026::Active` => `active`
+`local::at0027::Inactive` => `inactive`
+`local::at0084::Resolved` => `resolved`
+`local::at0085::Resolving` => `active` No direct match - Add to Notes
+`local::at0086::Not resolving` => `active` No direct match - Add to Notes
+`local::at0087::Indeterminate` => **Null**
+
+
+==== FHIR node:: `condition.episodicity` (CC-extension)
+
+openEHR AQL node::
+- `Episodicity_code` => `condition.episodicity.episode.valuecode`
+- `First_occurence` => `condition.episodicity.episode.valuecode`
+NOTE: openEHR splits out First occurrence as separate boolean attribute.
+
+Datatype Mapping style::
+DV_CODED_TEXT => Code
+
+Valueset Mappings::
+WARNING: Further discussion required in 5N-CDR and Care-Connect group before accurate mappings can be defined.
+
+if (`Episodicity_code` == `at0034`)
+{
+ if (`First_occurence` == `true`)
+  `condition.episodicity` = `First`
+ else
+  `condition.episodicity` = `New`
+}
+
+`local::at0035::Ongoing episode` => `Review`
+`local::at0070::Indeterminate` => **null**
+
+
+==== FHIR node:: `condition.verificationStatus`
+
+openEHR AQL node::
+- `DiagnosticCertaintyCode` => `condition.verificationStatus`
+
+Datatype Mapping style::
+
+DV_CODED_TEXT => Code
+
+Valueset mappings::
+
+`local::at0074::Suspected` | `local::at0075::Probable` => `provisional`
+`local::at0076::Confirmed` => `confirmed`
+
+==== FHIR node:: `condition.severity`
+
+openEHR AQL node::
+- `Severity_code` => `condition.verificationStatus`
+
+Datatype Mapping style::
+DV_CODED_TEXT => Code
+
+Valueset mappings::
+`local::at0047::Mild` => `http://snomed.info/sct|255604002|Mild`
+`local::at0048::Moderate` => `http://snomed.info/sct|6736007|Moderate`
+`local::at0049::Severe` => `http://snomed.info/sct|24484000|Severe`
+
+
+==== FHIR node:: `condition.category`
+
+openEHR AQL node::
+- "problem-item-list" => `condition.category`
+
+Datatype Mapping::
+
+DV_CODED_TEXT => Code
+
+NOTE: The source of conditions from openEHR are currently always 'problems so `condition.category`
+should always be set to "problem-item-list".
+
+
+==== FHIR node: `condition.code`
+
+openEHR AQL node::
+
+- `Problem_Diagnosis` => `condition.code`
+
+Datatype mapping::
+
+DV_TEXT => CodeableConcept
+
+Valueset mappings::
+
+See dfText.jar for code example
+
+- `SNOMED-CT` => `http://snomed.info/sct`
+- `LOINC` => `http://loinc.org`
+
+
+==== FHIR name: `condition.subject`
+
+FHIR Description::
+Who has the  condition.
+
+openEHR AQL node::
+
+`ehrId` => `condition.subject.reference`
+`subjectId` => `condition.subject.identifier.value`
+`subjectNamespace` => `condition.subject.identifier.system`
+
+Valueset mappings::
+
+. For `subjectNamespace` => `condition.subject.identifier.system`
+.. `uk.nhs.nhs_number` => `https://fhir.nhs.uk/Id/nhs-number`
+
+NOTE: We are using the patient's openEHR `ehrId` as the `id` of the FHIR `subject` resource, and using the patient's NHS Number, carried in the openEHR 'ehr' object as `subjectId` as the patient identifier.
+If the subjectNamespace is not `uk.nhs.nhs_number`, it should not be mapped to `https://fhir.nhs.uk/Id/nhs-number` but simply passed through unchanged.
+
+==== FHIR node: `condition.assertedDate`
+
+FHIR Description::  - Date record was believed accurate.
+
+openEHR AQL node::
+
+`Last_updated` => `condition.assertedDate`
+
+Datatype mapping::
+
+DV_DATE_TIME => dateTime
+
+Valueset mappings:: None
+
+==== FHIR node: `condition.note`
+
+FHIR Description::  - Additional text not captured in other fields.
+
+openEHR AQL node::
+
+`Comment` => `condition.note.text`
+
+Datatype mapping::
+
+DV_TEXT => Annotation.
+
+Valueset mappings:: None
+
+
+=== `condition.asserter.identifier.value`
+
+FHIR Description::  - The identifier of the person asserting the allergy.
+
+openEHR AQL node::
+
+`composerIdentifier` => `condition.asserter.identifier.value`
+`composerNamespace` => `condition.asserter.identifier.system`
+
+Datatype mapping::
+
+DV_TEXT => Identifier
+
+Valueset mappings:: None
+
+==== Alternative OBJECT AQL (includes search parameters and dv_coded_text objects)
+
+This flattened form of the AQL uses DV_CODED_TEXT objects which are currently not supported by EtherCis.
+
+[source, sql]
+----
+select
+    e/ehr_id/value as ehrId,
+    e/ehr_status/subject/external_ref/id/value as subjectId,
+    e/ehr_status/subject/external_ref/namespace as subjectNamespace,
+    a/composer/name as composerName,
+    a/composer/external_ref/id/value as composerId,
+    a/composer/external_ref/namespace as composerNamespace,
+    a/uid/value as compositionId,
+    a/context/start_time/value as compositionStartTime,
+    b_a/uid/value as entryId,
+    b_a/data[at0001]/items[at0002]/value as Problem_Diagnosis,
+    b_a/data[at0001]/items[at0012]/value as Body_site,
+    b_a/data[at0001]/items[at0077]/value/value as Date_time_of_onset,
+    b_a/data[at0001]/items[at0005]/value/defining_code/code_string as Severity_code,
+    b_a/data[at0001]/items[at0030]/value/value as Date_time_of_resolution,
+    b_a/data[at0001]/items[at0073]/value//defining_code/code_string as Diagnostic_certainty_code,
+    b_a/data[at0001]/items[at0069]/value/value as Comment,
+    b_a/protocol[at0032]/items[at0070]/value/value as Date_last_updated,
+    b_b/items[at0003]/value/defining_code/code_string as Active_Inactive_code,
+    b_b/items[at0083]/value/defining_code/code_string as Resolution_status_code,
+    b_b/items[at0001]/value//defining_code/code_string as Episodicity_code,
+    b_b/items[at0071]/value/value as First_occurrence
+from EHR e
+contains COMPOSITION a[openEHR-EHR-COMPOSITION.problem_list.v1]
+contains (
+    EVALUATION b_a[openEHR-EHR-EVALUATION.problem_diagnosis.v1] or
+    CLUSTER b_b[openEHR-EHR-CLUSTER.problem_status.v0])
+where a/name/value='Problem list'
+
+-- Optional parameters, depending on FHIR search criteria
+and e/ehr_id/value = '{{fhir.patient.id_param}}'
+and e/ehr_status/subject/external_ref/id/value = '{{fhir.patient.identifier.value.param}}'
+and e/ehr_status/subject/external_ref/namespace =  '{{fhir.patient.identifier.system.param}}'
+and b_a/protocol[at0032]/items[at0070]/value/value >= '{{fhir_asserted_date_param_min}}'
+and b_a/protocol[at0032]/items[at0070]/value/value <= '{{fhir_asserted_date_param_max}}'
+
+----
+
+=== FHIR Narrative block
+
+This is optional in Care-Connect but is good practice.
+
+NOTE:: TBD
