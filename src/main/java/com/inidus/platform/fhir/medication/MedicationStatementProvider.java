@@ -62,11 +62,10 @@ public class MedicationStatementProvider implements IResourceProvider {
        //     @OptionalParam(name="_list") StringParam listParam,
             @OptionalParam(name = "patient.id") StringParam id,
             @OptionalParam(name = "patient.identifier") TokenParam identifier,
-            @OptionalParam(name = "category") StringParam category,
-            @OptionalParam(name = "status") StringParam clinicalStatus,
-            @OptionalParam(name = "asserted-date") DateRangeParam dateRange) throws IOException {
+            @OptionalParam(name = "status") StringParam status,
+            @OptionalParam(name = "effective") DateRangeParam dateRange) throws IOException {
 
-        JsonNode ehrJsonList = openEhrService.getFilteredMedicationStatements(id, identifier, category, clinicalStatus,dateRange);
+        JsonNode ehrJsonList = openEhrService.getFilteredMedicationStatements(id, identifier, status,dateRange);
 
         if (null != ehrJsonList) {
             return openehrConverter.convertToMedicationStatementList(ehrJsonList);
