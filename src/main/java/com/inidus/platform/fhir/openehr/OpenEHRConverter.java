@@ -1,10 +1,7 @@
 package com.inidus.platform.fhir.openehr;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.Identifier;
-import org.hl7.fhir.dstu3.model.Practitioner;
-import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.dstu3.model.*;
 import org.openehr.rm.datatypes.text.DvCodedText;
 
 import javax.xml.bind.DatatypeConverter;
@@ -101,6 +98,14 @@ public class OpenEHRConverter {
             return null;
     }
 
+    /**
+     Converts the value of an openEHR Resultset node into a string,
+     ensuring that a null is returned if the value or the node itself is null.
+     This ensures that HAPI-FHIR will ignore attempts to set a value.
+     * @param ehrJson Resultset Tree
+     * @param nodeName
+     * @return
+     */
     protected String getResultsetString(JsonNode ehrJson, String nodeName) {
         String nodeString = null;
         JsonNode node = ehrJson.get(nodeName);
@@ -113,4 +118,20 @@ public class OpenEHRConverter {
         }
         return nodeString;
     }
+
+
+    /**
+     Converts an openEHR ISO Date String into a FHIR DateTimeType, used where the DateTime is a choice
+     * @param ehrJson
+     * @param nodeName
+     * @return
+     */
+    protected DateTimeType convertChoiceDate(JsonNode ehrJson, String nodeName){
+        String onsetDate = getResultsetString(ehrJson, nodeName);
+        if (null != onsetDate) {
+            return new DateTimeType(onsetDate);
+        }
+        else return null;
+    }
+
 }

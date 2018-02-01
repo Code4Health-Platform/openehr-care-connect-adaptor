@@ -5,6 +5,7 @@ import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inidus.platform.fhir.openehr.OpenEhrConnector;
+import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -20,6 +21,7 @@ import java.util.Date;
 @ConfigurationProperties(prefix = "cdr-connector", ignoreUnknownFields = false)@Service
 public class MedicationStatementConnector extends OpenEhrConnector {
     private final Logger logger = LoggerFactory.getLogger(getClass());
+
     protected String getAQL() {
 
         return "select" +
@@ -30,7 +32,6 @@ public class MedicationStatementConnector extends OpenEhrConnector {
                 "  a/uid/value as compositionId," +
                 "  a/composer/name as composerName," +
                 "  b_a/uid/value as entryId," +
-                "  b_a/uid/null as AssertedDate," +
                 "  b_a/activities[at0001]/description[at0002]/items[at0070]/value/value as Medication_item_value," +
                 "  b_a/activities[at0001]/description[at0002]/items[at0070]/value/defining_code/code_string as Medication_item_code," +
                 "  b_a/activities[at0001]/description[at0002]/items[at0070]/value/defining_code/terminology_id/value as Medication_item_terminology," +
@@ -45,31 +46,30 @@ public class MedicationStatementConnector extends OpenEhrConnector {
                 "  b_a/activities[at0001]/description[at0002]/items[at0018]/value/value as Clinical_indication_value," +
                 "  b_a/activities[at0001]/description[at0002]/items[at0018]/value/defining_code/code_string as Clinical_indication_code," +
                 "  b_a/activities[at0001]/description[at0002]/items[at0018]/value/terminology_id/value as Clinical_indication_terminology," +
-                "  b_a/activities[at0001]/description[at0002]/items[at0091]/value/value as Route_value,"+
-                "  b_a/activities[at0001]/description[at0002]/items[at0091]/value/defining_code/code_string as Route_code,"+
-                "  b_a/activities[at0001]/description[at0002]/items[at0091]/value/defining_code/terminology_id/value as Route_terminology,"+
-                "  b_a/activities[at0001]/description[at0002]/items[openEHR-EHR-CLUSTER.medication_substance.v0]/items[at0071]/value/value as Form_value,"+
-                "  b_a/activities[at0001]/description[at0002]/items[openEHR-EHR-CLUSTER.medication_substance.v0]/items[at0071]/value/defining_code/code_string as Form_code,"+
-                "  b_a/activities[at0001]/description[at0002]/items[openEHR-EHR-CLUSTER.medication_substance.v0]/items[at0071]/value/defining_code/terminology_id/value as Form_terminology,"+
-                "  b_a/activities[at0001]/description[at0002]/items[at0113]/items[openEHR-EHR-CLUSTER.medication_course_summary.v0, 'Order summary']/items[at0001]/value/defining_code/code_string as Status_code" +
+                "  b_a/activities[at0001]/description[at0002]/items[at0091]/value/value as Route_value," +
+                "  b_a/activities[at0001]/description[at0002]/items[at0091]/value/defining_code/code_string as Route_code," +
+                "  b_a/activities[at0001]/description[at0002]/items[at0091]/value/defining_code/terminology_id/value as Route_terminology," +
+                "  b_a/activities[at0001]/description[at0002]/items[openEHR-EHR-CLUSTER.medication_substance.v0]/items[at0071]/value/value as Form_value," +
+                "  b_a/activities[at0001]/description[at0002]/items[openEHR-EHR-CLUSTER.medication_substance.v0]/items[at0071]/value/defining_code/code_string as Form_code," +
+                "  b_a/activities[at0001]/description[at0002]/items[openEHR-EHR-CLUSTER.medication_substance.v0]/items[at0071]/value/defining_code/terminology_id/value as Form_terminology," +
+                "  b_a/activities[at0001]/description[at0002]/items[at0113]/items[openEHR-EHR-CLUSTER.medication_course_summary.v0]/items[at0001]/value/defining_code/code_string as Status_code," +
+                "  b_a/activities[at0001]/description[at0002]/items[at0113]/items[openEHR-EHR-CLUSTER.medication_course_summary.v0]/items[at0028]/value/value as AssertedDate," +
+                "  b_a/activities[at0001]/description[at0002]/items[at0113]/items[at0012]/value/value as Order_start_date_time," +
+                "  b_a/activities[at0001]/description[at0002]/items[at0113]/items[at0013]/value/value as Order_stop_date_time" +
                 " from EHR e" +
                 " contains COMPOSITION a[openEHR-EHR-COMPOSITION.medication_list.v0]" +
-                " contains INSTRUCTION b_a[openEHR-EHR-INSTRUCTION.medication_order.v1]";
-    }
-
-    public MedicationStatementConnector() throws IOException {
-
+                " contains" +
+                "    INSTRUCTION b_a[openEHR-EHR-INSTRUCTION.medication_order.v1]" +
+                " WHERE a/name/value = 'Medication statement list'";
     }
 
 
     public JsonNode getFilteredMedicationStatements(
-         //   StringParam listParam,
             StringParam patientId,
             TokenParam patientIdentifier,
-            StringParam category,
             StringParam status,
-            DateRangeParam dateAsserted
-           ) throws IOException {
+            DateRangeParam dateStarted
+    ) throws IOException {
 
         String filter = "";
 
@@ -78,7 +78,7 @@ public class MedicationStatementConnector extends OpenEhrConnector {
             filter += getPatientIdentifierFilterAql(patientIdentifier);
         }
 
-        // patient identifier provided
+        // patient id provided
         if (null != patientId) {
             filter += getPatientIdFilterAql(patientId);
         }
@@ -89,49 +89,72 @@ public class MedicationStatementConnector extends OpenEhrConnector {
         }
 
         // date filter provided
-        if (null != dateAsserted) {
-            filter += getdateAssertedFilterAql(dateAsserted);
+        if (null != dateStarted) {
+            filter += getdateStartedFilterAql(dateStarted);
         }
 
+ //       logger.debug("AQL... =" + getAQL() + filter);
         return getEhrJson(getAQL() + filter);
     }
 
-    private String getdateAssertedFilterAql(DateRangeParam conditionAsserted) {
+    private String getdateStartedFilterAql(DateRangeParam dateStarted) {
         String filter = "";
-        Date fromDate = conditionAsserted.getLowerBoundAsInstant();
+        Date fromDate = dateStarted.getLowerBoundAsInstant();
+
         if (null != fromDate) {
             String from = ISO_DATE.format(fromDate);
-            filter += String.format(" and a/context/start_time/value >= '%s'", from);
+     //       logger.debug("fromDate: " + from);
+            filter += String.format(" and b_a/activities[at0001]/description[at0002]/items[at0113]/items[at0012]/value/value >= '%s'", from);
         }
 
-        Date toDate = conditionAsserted.getUpperBoundAsInstant();
+        Date toDate = dateStarted.getUpperBoundAsInstant();
         if (null != toDate) {
             String to = ISO_DATE.format(toDate);
-            filter += String.format(" and a/context/start_time/value <= '%s'", to);
+     //       logger.debug("fromDate: " + to);
+            filter += String.format(" and b_a/activities[at0001]/description[at0002]/items[at0113]/items[at0012]/value/value <= '%s'", to);
         }
+
+        logger.debug("Filter: " + filter);
         return filter;
     }
 
-      private String getMedicationStatusFilterAql(StringParam statusParam) {
-        String code = "";
-        String element = "";
-        switch (statusParam.getValue()) {
-            case "active":
-                code = "'at0026','at0085','at0086'";
-                element = "at0003";
-                break;
-            case "inactive":
-                code = "'at0027'";
-                element = "at0003";
-                break;
-            case "resolved":
-                code = "'at0084'";
-                element = "at0083";
-                break;
+    private String getMedicationStatusFilterAql(StringParam statusParam) {
+        String openEHRCode = "";
+
+/*
+        at0021::Active [This is an active medication.]
+        at0022::Stopped [This is a medication that has previously been issued, dispensed or administered but has now been discontinued.]
+        at0023::Never active [A medication which was ordered or authorised but has been cancelled prior to being issued, dispensed or adiminstered.]
+        at0024::Completed [The medication course has been completed.]
+        at0025::Obsolete [This medication order has been superseded by another.]
+        at0026::Suspended [Actions resulting from the order are to be temporarily halted, but are expected to continue later. May also be called 'on-hold'.]
+        at0027::Draft [The medication order has been made but further processes e.g. sign-off or verification are required before it becomes actionable.]
+    */
+        String statusCodeParam = statusParam.getValue();
+
+        if (statusCodeParam.equals(MedicationStatement.MedicationStatementStatus.ACTIVE.toCode()))
+        {
+            openEHRCode = "'at0021' , 'at0027'";
+        }
+        else if (statusCodeParam.equals(MedicationStatement.MedicationStatementStatus.STOPPED.toCode()))
+        {
+            openEHRCode = "'at0022', 'at0025'";
+        }
+        else if (statusCodeParam.equals(MedicationStatement.MedicationStatementStatus.INTENDED.toCode()))
+        {
+            openEHRCode = "'at0023'";
+        }
+        else if (statusCodeParam.equals(MedicationStatement.MedicationStatementStatus.COMPLETED.toCode()))
+        {
+            openEHRCode = "'at0024'";
+        }
+        else if (statusCodeParam.equals(MedicationStatement.MedicationStatementStatus.ONHOLD.toCode()))
+        {
+            openEHRCode = "'at0026'";
         }
 
-        if (!code.isEmpty() && !element.isEmpty()
-)           return String.format(" and b_a/data[at0001]/items[openEHR-EHR-CLUSTER.problem_status.v0]/items[%s]/value/defining_code/code_string matches {%s}", element,code);
+        if (!openEHRCode.isEmpty())
+            return String.format(" and b_a/activities[at0001]/description[at0002]/items[at0113]/items[openEHR-EHR-CLUSTER.medication_course_summary.v0]/items[at0001]/value/defining_code/code_string matches {%s}", openEHRCode);
         else
             return "";
     }

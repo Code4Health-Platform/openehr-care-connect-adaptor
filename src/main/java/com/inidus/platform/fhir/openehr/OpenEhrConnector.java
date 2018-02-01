@@ -5,6 +5,7 @@ import ca.uhn.fhir.rest.param.TokenParam;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.binary.Base64;
+import org.hl7.fhir.dstu3.model.DateTimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -143,6 +144,7 @@ public abstract class OpenEhrConnector {
     protected String getPatientIdFilterAql(StringParam patientId) {
         return " and e/ehr_id/value='" + patientId.getValue() + "'";
     }
+
 
     private HttpHeaders createAuthHeaders() {
         String plainCredits = username + ":" + password;

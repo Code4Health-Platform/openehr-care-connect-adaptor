@@ -59,10 +59,12 @@ public class MedicationStatementConverter extends OpenEHRConverter{
 
         retVal.addReasonCode(convertScalarCodableConcept(ehrJson,"Clinical_indication"));
 
+        //Default 'taken' to Unknown
         retVal.setTaken(MedicationStatementTaken.UNK);
 
         retVal.setStatus(convertMedicationStatus(ehrJson));
 
+        retVal.setEffective(convertChoiceDate(ehrJson,"Order_start_date_time"));
         retVal.addDosage(convertDosage(ehrJson));
 
         retVal.addNote(new Annotation().setText(getResultsetString(ehrJson,"Comment")));
@@ -74,7 +76,7 @@ public class MedicationStatementConverter extends OpenEHRConverter{
         Dosage dosage = new Dosage();
 
         dosage.setText(convertDosageDirections(ehrJson));
-        dosage.addAdditionalInstruction(convertScalarCodableConcept(ehrJson,"Additional_instruction"));;
+        dosage.addAdditionalInstruction(convertScalarCodableConcept(ehrJson,"Additional_instruction"));
         dosage.setPatientInstruction(getResultsetString(ehrJson, "Patient_instructions"));
         dosage.setRoute(convertScalarCodableConcept(ehrJson,"Route"));
         dosage.setMethod(convertScalarCodableConcept(ehrJson,"Method"));
@@ -119,12 +121,12 @@ public class MedicationStatementConverter extends OpenEHRConverter{
 
     /**
      * Concatenates DoseAmountDescription and DoseFrequencyDescription elements if present
-     * @param ehrJson
+     * @param ehrJson The openEHR Resultset tree
      * @return The concatenated string, if data present
      */
     private String convertDoseAmountFrequencyDirections(JsonNode ehrJson){
 
-        String outText = null;
+        String outText;
         String doseAmountText = getResultsetString(ehrJson,"Dose_amount_description");
         String doseFrequencyText =  getResultsetString(ehrJson,"Dose_frequency_description");;
 
@@ -142,7 +144,7 @@ public class MedicationStatementConverter extends OpenEHRConverter{
     private MedicationStatementStatus convertMedicationStatus(JsonNode ehrJson) {
         MedicationStatementStatus status = null;
 
-    /*
+    /* openEHR Valueset
         at0021::Active [This is an active medication.]
         at0022::Stopped [This is a medication that has previously been issued, dispensed or administered but has now been discontinued.]
         at0023::Never active [A medication which was ordered or authorised but has been cancelled prior to being issued, dispensed or adiminstered.]
@@ -152,45 +154,23 @@ public class MedicationStatementConverter extends OpenEHRConverter{
         at0027::Draft [The medication order has been made but further processes e.g. sign-off or verification are required before it becomes actionable.]
     */
 
-        JsonNode statusElement =  ehrJson.get("Status_code");
-
-        if(statusElement != null){
-            String statusCode = statusElement.asText();
-            if (statusCode == null)
-            {
-                status = MedicationStatementStatus.ACTIVE;
-            }
-            else
-            if (statusCode.equals("at0021")){
-                status = MedicationStatementStatus.ACTIVE;
-            }
-            else
-            if (statusCode.equals("at0022")){
-             status = MedicationStatementStatus.STOPPED;
-            }
-            else
-            if (statusCode.equals("at0023")){
-                status = MedicationStatementStatus.INTENDED;
-            }
-            else
-            if (statusCode.equals("at0024")){
-                status = MedicationStatementStatus.COMPLETED;
-            }
-            else
-            if (statusCode.equals("at0025")){
-                status = MedicationStatementStatus.STOPPED;
-            }
-            else
-            if (statusCode.equals("at0026")){
-                status = MedicationStatementStatus.ONHOLD;
-            }
-            else
-            if (statusCode.equals("at0027")){
-                status = MedicationStatementStatus.INTENDED;
-            }
-
-
-
+        String statusCode = getResultsetString(ehrJson, "Status_code");
+        if (statusCode == null) {
+            status = MedicationStatementStatus.ACTIVE;
+        } else if (statusCode.equals("at0021")) {
+            status = MedicationStatementStatus.ACTIVE;
+        } else if (statusCode.equals("at0022")) {
+            status = MedicationStatementStatus.STOPPED;
+        } else if (statusCode.equals("at0023")) {
+            status = MedicationStatementStatus.INTENDED;
+        } else if (statusCode.equals("at0024")) {
+            status = MedicationStatementStatus.COMPLETED;
+        } else if (statusCode.equals("at0025")) {
+            status = MedicationStatementStatus.STOPPED;
+        } else if (statusCode.equals("at0026")) {
+            status = MedicationStatementStatus.ONHOLD;
+        } else if (statusCode.equals("at0027")) {
+            status = MedicationStatementStatus.INTENDED;
         }
         return status;
     }
