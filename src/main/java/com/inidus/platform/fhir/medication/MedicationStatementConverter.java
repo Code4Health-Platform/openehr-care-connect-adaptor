@@ -170,7 +170,7 @@ public class MedicationStatementConverter extends OpenEHRConverter{
             }
             else
             if (statusCode.equals("at0023")){
-                status = MedicationStatementStatus.STOPPED;
+                status = MedicationStatementStatus.INTENDED;
             }
             else
             if (statusCode.equals("at0024")){
