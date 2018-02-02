@@ -79,7 +79,7 @@ public class AllergyConverter extends OpenEHRConverter {
             retVal.setCriticality(AllergyIntolerance.AllergyIntoleranceCriticality.UNABLETOASSESS);
         }
 
-        retVal.setCode(convertScalarCodableConcept(ehrJson, "Causative_agent"));
+        retVal.setCode(convertCodeableConcept(ehrJson, "Causative_agent"));
 
         String onset_of_last_reaction = ehrJson.get("Onset_of_last_reaction").textValue();
         if (null != onset_of_last_reaction) {
@@ -95,7 +95,7 @@ public class AllergyConverter extends OpenEHRConverter {
 
         reaction.setSubstance(convertScalarCodableConcept(ehrJson, "Specific_substance"));
 
-        reaction.addManifestation(convertScalarCodableConcept(ehrJson, "Manifestation"));
+        reaction.setManifestation(convertCodeableConceptList(ehrJson, "Manifestation"));
 
         reaction.setDescription(ehrJson.get("Reaction_description").textValue());
 

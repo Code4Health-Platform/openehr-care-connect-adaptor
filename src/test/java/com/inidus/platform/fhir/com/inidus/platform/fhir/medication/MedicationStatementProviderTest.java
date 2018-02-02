@@ -1,4 +1,4 @@
-package com.inidus.platform.fhir;
+package com.inidus.platform.fhir.com.inidus.platform.fhir.medication;
 
 import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.StringParam;

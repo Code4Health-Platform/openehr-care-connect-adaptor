@@ -6,8 +6,6 @@ import org.hl7.fhir.dstu3.model.*;
 
 
 import org.hl7.fhir.dstu3.model.MedicationStatement.*;
-import org.hl7.fhir.dstu3.model.Medication.*;
-import org.hl7.fhir.dstu3.model.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class MedicationStatementConverter extends OpenEHRConverter{
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+ //   private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * Converts the given json coming from openEHR into 1 {@link Condition} resource.

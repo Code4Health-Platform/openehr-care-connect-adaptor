@@ -5,6 +5,8 @@ import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inidus.platform.fhir.openehr.OpenEhrConnector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +19,9 @@ import java.util.Date;
 @ConfigurationProperties(prefix = "cdr-connector", ignoreUnknownFields = false)
 @Service()
 public class AllergyConnector extends OpenEhrConnector {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     protected String getAQL() {
-        return "select" +
+        String aql = "select" +
                 " e/ehr_id/value as ehrId," +
                 " e/ehr_status/subject/external_ref/id/value as subjectId," +
                 " e/ehr_status/subject/external_ref/namespace as subjectNamespace," +
@@ -30,6 +33,7 @@ public class AllergyConnector extends OpenEhrConnector {
                 //        " a/composer/external_ref/namespace as composerNamespace," +
                 " b_a/uid/value as entryId," +
                 " b_a/protocol[at0042]/items[at0062]/value/value as AssertedDate," +
+                " b_a/data[at0001]/items[at0002] as Causative_agent," +
                 " b_a/data[at0001]/items[at0002]/value/value as Causative_agent_value," +
                 " b_a/data[at0001]/items[at0002]/value/defining_code/code_string as Causative_agent_code," +
                 " b_a/data[at0001]/items[at0002]/value/defining_code/terminology_id/value as Causative_agent_terminology," +
@@ -43,6 +47,7 @@ public class AllergyConnector extends OpenEhrConnector {
                 " b_a/data[at0001]/items[at0009]/items[at0010]/value/defining_code/code_string as Specific_substance_code," +
                 " b_a/data[at0001]/items[at0009]/items[at0010]/value/defining_code/terminology_id/value as Specific_substance_terminology," +
                 " b_a/data[at0001]/items[at0009]/items[at0021]/value/defining_code/code_string as Certainty_code," +
+                " b_a/data[at0001]/items[at0009]/items[at0011] as Manifestation,    " +
                 " b_a/data[at0001]/items[at0009]/items[at0011]/value/value as Manifestation_value,    " +
                 " b_a/data[at0001]/items[at0009]/items[at0011]/value/defining_code/code_string as Manifestation_code," +
                 " b_a/data[at0001]/items[at0009]/items[at0011]/value/defining_code/terminology_id/value as Manifestation_terminology," +
@@ -57,6 +62,8 @@ public class AllergyConnector extends OpenEhrConnector {
                 " contains COMPOSITION a[openEHR-EHR-COMPOSITION.adverse_reaction_list.v1]" +
                 " contains EVALUATION b_a[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1]" +
                 " where a/name/value='Adverse reaction list'";
+           logger.info("getAQL():  "+ aql);
+        return aql;
     }
 
     public JsonNode getFilteredAllergies(
@@ -80,7 +87,10 @@ public class AllergyConnector extends OpenEhrConnector {
             filter += getLastUpdatedFilterAql(adverseReactionRiskLastUpdated);
         }
 
-        return getEhrJson(getAQL() + filter);
+        String aql = getAQL() + filter;
+     //   logger.debug("Filtered AQL:  "+ aql);
+        return getEhrJson(aql);
+
     }
 
     private String getLastUpdatedFilterAql(DateRangeParam adverseReactionRiskLastUpdated) {

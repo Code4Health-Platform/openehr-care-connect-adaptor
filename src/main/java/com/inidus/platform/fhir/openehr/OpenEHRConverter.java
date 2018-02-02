@@ -3,11 +3,17 @@ package com.inidus.platform.fhir.openehr;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.hl7.fhir.dstu3.model.*;
 import org.openehr.rm.datatypes.text.DvCodedText;
+import org.openehr.rm.datatypes.text.DvText;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.DatatypeConverter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class OpenEHRConverter {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     protected Date convertAssertedDate(JsonNode ehrJson) {
 
         //Test explicitly for 'AssertedDAte as it may not always exist in the resultset
@@ -89,6 +95,7 @@ public class OpenEHRConverter {
         String terminology = getResultsetString(ehrJson, scalarElementName + "_terminology");
         String code = getResultsetString(ehrJson, scalarElementName + "_code");
 
+
         if (null != terminology && null != code) {
             DvCodedText openEHRCodeable = new DvCodedText(value, terminology, code);
             return DfText.convertToCodeableConcept(openEHRCodeable);
@@ -96,6 +103,59 @@ public class OpenEHRConverter {
             return new CodeableConcept().setText(value);
         } else
             return null;
+    }
+
+
+    protected List<CodeableConcept> convertCodeableConceptList(JsonNode ehrJson, String nodeName) {
+
+        List<CodeableConcept> resultList = new ArrayList<>();
+        JsonNode codeables;
+
+        codeables = ehrJson.get(nodeName);
+
+        if (codeables != null && codeables.isContainerNode()) {
+            logger.info("JSONNode : "+ codeables.toString());
+            for (JsonNode codeableItem: codeables) {
+                resultList.add(getCodeableConceptObject(codeableItem));
+            }
+        }
+        else
+            resultList.add(convertScalarCodableConcept(ehrJson, nodeName));
+
+        return resultList;
+    }
+
+    protected CodeableConcept convertCodeableConcept(JsonNode ehrJson, String nodeName) {
+
+        JsonNode codeables = ehrJson.get(nodeName);
+        logger.info("JSON Value Node : "+ codeables.toString());
+        if (codeables != null && codeables.isContainerNode()) {
+            return getCodeableConceptObject(codeables.get("value"));
+        }
+
+        else
+        {
+            return (convertScalarCodableConcept(ehrJson,nodeName));
+        }
+
+    }
+
+    private CodeableConcept getCodeableConceptObject(JsonNode codeableItem) {
+        String terminology = null; String code = null;
+        String value;
+        logger.info("JSON Item Node : "+ codeableItem.toString());
+        value = codeableItem.get("value").textValue();
+        String datatype = codeableItem.get("@class").textValue();
+
+        if (datatype.equals("DV_CODED_TEXT")) {
+            terminology = codeableItem.get("defining_code").get("terminology_id").get("value").textValue();
+            code = codeableItem.get("defining_code").get("code_string").textValue();
+        }
+
+        if (null != terminology && null != code)
+            return DfText.convertToCodeableConcept(new DvCodedText(value, terminology,code));
+        else
+            return DfText.convertToCodeableConcept(new DvText(value));
     }
 
     /**
