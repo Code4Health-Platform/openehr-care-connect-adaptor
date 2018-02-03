@@ -5,6 +5,8 @@ import org.hl7.fhir.dstu3.model.Coding;
 import org.openehr.rm.datatypes.text.CodePhrase;
 import org.openehr.rm.datatypes.text.DvCodedText;
 import org.openehr.rm.datatypes.text.DvText;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,10 +14,11 @@ import java.util.Map;
 /**
  * Created by ian on 15/09/2017.
  */
-
 public class DfText {
+
     private static final Map<String, String> terminologyNameToFHIRSystem = new HashMap<>();
     private static final Map<String, String> FHIRSystemToTerminologyName = new HashMap<>();
+    private static final Logger log = LoggerFactory.getLogger(DfText.class);
 
     static {
         terminologyNameToFHIRSystem.put("SNOMED-CT", "http://snomed.info/sct");
@@ -27,11 +30,13 @@ public class DfText {
 
     // Convert an openEHR DV_TEXT to a FHIR CodeableConcept
     public static CodeableConcept convertToCodeableConcept(DvText dvText) {
+
         CodeableConcept codeableConcept = new CodeableConcept();
         codeableConcept.setText(dvText.getValue());
 
         //If this is a coded_text add the defining_code to the Codeable Concept
         // as a user_defined coding
+
         if (dvText instanceof DvCodedText) {
             DvCodedText dvCodedText = (DvCodedText) dvText;
             codeableConcept.addCoding(convertToCoding(dvCodedText.getDefiningCode(), true, dvCodedText.getValue()));

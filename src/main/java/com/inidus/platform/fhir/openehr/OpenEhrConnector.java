@@ -68,7 +68,7 @@ public abstract class OpenEhrConnector {
         // Test for presence of entryId as well as compositionId
         // delineated by '_' character
         // If entryID exists query on both compositionId and entryId
-        // which should in=mprove performance
+        // which should improve performance
 
         String[] openEHRIds = id.split("\\|");
         String compositionId = openEHRIds[0];

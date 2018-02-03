@@ -95,7 +95,8 @@ public class AllergyConverter extends OpenEHRConverter {
 
         reaction.setSubstance(convertScalarCodableConcept(ehrJson, "Specific_substance"));
 
-        reaction.setManifestation(convertCodeableConceptList(ehrJson, "Manifestation"));
+    //    reaction.setManifestation(convertCodeableConceptList(ehrJson, "Manifestation"));
+        reaction.addManifestation(convertCodeableConcept(ehrJson, "Manifestation"));
 
         reaction.setDescription(ehrJson.get("Reaction_description").textValue());
 

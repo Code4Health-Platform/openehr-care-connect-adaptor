@@ -1,0 +1,22 @@
+{
+  "Manifestation": {
+    "@class": "ELEMENT",
+    "name": {
+      "@class": "DV_TEXT",
+      "value": "Manifestation"
+    },
+    "archetype_node_id": "at0011",
+    "value": {
+      "@class": "DV_CODED_TEXT",
+      "value": "Vomiting",
+      "defining_code": {
+        "@class": "CODE_PHRASE",
+        "terminology_id": {
+          "@class": "TERMINOLOGY_ID",
+          "value": "SNOMED-CT"
+        },
+        "code_string": "422400008"
+      }
+    }
+  }
+}

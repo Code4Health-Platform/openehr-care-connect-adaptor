@@ -114,7 +114,6 @@ public class MedicationStatementConnector extends OpenEhrConnector {
             filter += String.format(" and b_a/activities[at0001]/description[at0002]/items[at0113]/items[at0012]/value/value <= '%s'", to);
         }
 
-        logger.debug("Filter: " + filter);
         return filter;
     }
 

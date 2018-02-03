@@ -34,9 +34,9 @@ public class AllergyConnector extends OpenEhrConnector {
                 " b_a/uid/value as entryId," +
                 " b_a/protocol[at0042]/items[at0062]/value/value as AssertedDate," +
                 " b_a/data[at0001]/items[at0002] as Causative_agent," +
-                " b_a/data[at0001]/items[at0002]/value/value as Causative_agent_value," +
-                " b_a/data[at0001]/items[at0002]/value/defining_code/code_string as Causative_agent_code," +
-                " b_a/data[at0001]/items[at0002]/value/defining_code/terminology_id/value as Causative_agent_terminology," +
+//                " b_a/data[at0001]/items[at0002]/value/value as Causative_agent_value," +
+//                " b_a/data[at0001]/items[at0002]/value/defining_code/code_string as Causative_agent_code," +
+//                " b_a/data[at0001]/items[at0002]/value/defining_code/terminology_id/value as Causative_agent_terminology," +
                 " b_a/data[at0001]/items[at0063]/value/defining_code/code_string as Status_code," +
                 " b_a/data[at0001]/items[at0101]/value/defining_code/code_string as Criticality_code," +
                 " b_a/data[at0001]/items[at0120]/value/defining_code/code_string as Category_code," +
@@ -62,7 +62,7 @@ public class AllergyConnector extends OpenEhrConnector {
                 " contains COMPOSITION a[openEHR-EHR-COMPOSITION.adverse_reaction_list.v1]" +
                 " contains EVALUATION b_a[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1]" +
                 " where a/name/value='Adverse reaction list'";
-           logger.info("getAQL():  "+ aql);
+    //       logger.info("getAQL():  "+ aql);
         return aql;
     }
 

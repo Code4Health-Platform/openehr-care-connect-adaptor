@@ -114,7 +114,7 @@ public class OpenEHRConverter {
         codeables = ehrJson.get(nodeName);
 
         if (codeables != null && codeables.isContainerNode()) {
-            logger.info("JSONNode : "+ codeables.toString());
+            logger.info("codeAblesList : "+ codeables.toString());
             for (JsonNode codeableItem: codeables) {
                 resultList.add(getCodeableConceptObject(codeableItem));
             }
@@ -126,26 +126,26 @@ public class OpenEHRConverter {
     }
 
     protected CodeableConcept convertCodeableConcept(JsonNode ehrJson, String nodeName) {
-
+ //       logger.debug("ehrJson : !!!!!!");
         JsonNode codeables = ehrJson.get(nodeName);
-        logger.info("JSON Value Node : "+ codeables.toString());
+ //      logger.info("codeables : "+ codeables.toString());
         if (codeables != null && codeables.isContainerNode()) {
             return getCodeableConceptObject(codeables.get("value"));
         }
-
         else
         {
             return (convertScalarCodableConcept(ehrJson,nodeName));
         }
-
     }
 
     private CodeableConcept getCodeableConceptObject(JsonNode codeableItem) {
         String terminology = null; String code = null;
         String value;
-        logger.info("JSON Item Node : "+ codeableItem.toString());
-        value = codeableItem.get("value").textValue();
+
+  //      logger.info("codeabelItem : "+ codeableItem.toString());
         String datatype = codeableItem.get("@class").textValue();
+        value = codeableItem.get("value").textValue();
+
 
         if (datatype.equals("DV_CODED_TEXT")) {
             terminology = codeableItem.get("defining_code").get("terminology_id").get("value").textValue();
