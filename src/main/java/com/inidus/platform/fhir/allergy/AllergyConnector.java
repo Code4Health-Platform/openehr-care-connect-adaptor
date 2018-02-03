@@ -39,9 +39,7 @@ public class AllergyConnector extends OpenEhrConnector {
                 " b_a/data[at0001]/items[at0117]/value/value as Onset_of_last_reaction," +
                 " b_a/data[at0001]/items[at0058]/value/defining_code/code_string as Reaction_mechanism_code," +
                 " b_a/data[at0001]/items[at0006]/value/value as Comment," +
-                " b_a/data[at0001]/items[at0009]/items[at0010]/value/value as Specific_substance_value," +
-                " b_a/data[at0001]/items[at0009]/items[at0010]/value/defining_code/code_string as Specific_substance_code," +
-                " b_a/data[at0001]/items[at0009]/items[at0010]/value/defining_code/terminology_id/value as Specific_substance_terminology," +
+                " b_a/data[at0001]/items[at0009]/items[at0010] as Specific_substance," +
                 " b_a/data[at0001]/items[at0009]/items[at0021]/value/defining_code/code_string as Certainty_code," +
                 " b_a/data[at0001]/items[at0009]/items[at0011] as Manifestation,    " +
                 " b_a/data[at0001]/items[at0009]/items[at0012]/value/value as Reaction_description," +
