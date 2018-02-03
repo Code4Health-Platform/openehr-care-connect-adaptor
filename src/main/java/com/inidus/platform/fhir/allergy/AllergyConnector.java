@@ -28,15 +28,11 @@ public class AllergyConnector extends OpenEhrConnector {
                 " a/context/start_time/value as compositionStartTime," +
                 " a/uid/value as compositionId," +
                 " a/composer/name as composerName," +
-                // Not supported in EtherCis
-                //        " a/composer/external_ref/id/value as composerId," +
-                //        " a/composer/external_ref/namespace as composerNamespace," +
+                " a/composer/external_ref/id/value as composerId," +
+                " a/composer/external_ref/namespace as composerNamespace," +
                 " b_a/uid/value as entryId," +
                 " b_a/protocol[at0042]/items[at0062]/value/value as AssertedDate," +
                 " b_a/data[at0001]/items[at0002] as Causative_agent," +
-//                " b_a/data[at0001]/items[at0002]/value/value as Causative_agent_value," +
-//                " b_a/data[at0001]/items[at0002]/value/defining_code/code_string as Causative_agent_code," +
-//                " b_a/data[at0001]/items[at0002]/value/defining_code/terminology_id/value as Causative_agent_terminology," +
                 " b_a/data[at0001]/items[at0063]/value/defining_code/code_string as Status_code," +
                 " b_a/data[at0001]/items[at0101]/value/defining_code/code_string as Criticality_code," +
                 " b_a/data[at0001]/items[at0120]/value/defining_code/code_string as Category_code," +
@@ -48,15 +44,10 @@ public class AllergyConnector extends OpenEhrConnector {
                 " b_a/data[at0001]/items[at0009]/items[at0010]/value/defining_code/terminology_id/value as Specific_substance_terminology," +
                 " b_a/data[at0001]/items[at0009]/items[at0021]/value/defining_code/code_string as Certainty_code," +
                 " b_a/data[at0001]/items[at0009]/items[at0011] as Manifestation,    " +
-                " b_a/data[at0001]/items[at0009]/items[at0011]/value/value as Manifestation_value,    " +
-                " b_a/data[at0001]/items[at0009]/items[at0011]/value/defining_code/code_string as Manifestation_code," +
-                " b_a/data[at0001]/items[at0009]/items[at0011]/value/defining_code/terminology_id/value as Manifestation_terminology," +
                 " b_a/data[at0001]/items[at0009]/items[at0012]/value/value as Reaction_description," +
                 " b_a/data[at0001]/items[at0009]/items[at0027]/value/value as Onset_of_reaction," +
                 " b_a/data[at0001]/items[at0009]/items[at0089]/value/defining_code/code_string as Severity_code," +
-                " b_a/data[at0001]/items[at0009]/items[at0106]/value/value as Route_of_exposure_value," +
-                " b_a/data[at0001]/items[at0009]/items[at0106]/value/defining_code/code_string as Route_of_exposure_code," +
-                " b_a/data[at0001]/items[at0009]/items[at0106]/value/defining_code/terminology_id/value as Route_of_exposure_terminology," +
+                " b_a/data[at0001]/items[at0009]/items[at0106] as Route_of_exposure," +
                 " b_a/data[at0001]/items[at0009]/items[at0032]/value/value as Adverse_reaction_risk_Comment" +
                 " from EHR e" +
                 " contains COMPOSITION a[openEHR-EHR-COMPOSITION.adverse_reaction_list.v1]" +
