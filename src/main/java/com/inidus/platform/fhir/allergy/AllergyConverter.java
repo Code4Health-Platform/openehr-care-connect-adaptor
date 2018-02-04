@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class AllergyConverter extends OpenEHRConverter {
+public class AllergyConverter extends OpenEHRConverter{
+
     /**
      * Converts the given json coming from openEHR into 1 {@link AllergyIntolerance} resource.
      *

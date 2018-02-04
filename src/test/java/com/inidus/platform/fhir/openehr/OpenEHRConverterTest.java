@@ -36,14 +36,10 @@ public class OpenEHRConverterTest {
 
     private String resourcesRootPath;
 
-    public OpenEHRConverterTest() {
-
-
-    }
 
     @Before
     public void setUp() throws Exception {
-        SetupResourcesPath();
+      SetupResourcesPath();
     }
 
     private void SetupResourcesPath() throws Exception{
