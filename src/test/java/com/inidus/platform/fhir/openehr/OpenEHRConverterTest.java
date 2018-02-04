@@ -1,12 +1,8 @@
 package com.inidus.platform.fhir.openehr;
 
 
-import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,18 +13,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.junit.Assert.*;
 
 @ConfigurationProperties(prefix = "cdr-connector", ignoreUnknownFields = false)
 
@@ -41,21 +30,44 @@ public class OpenEHRConverterTest {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Before
-    public void setUp() throws Exception {
-        //     configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
- //       configureCdrConnector("https://test.operon.systems", "oprn_hcbox", "XioTAJoO479", true);
+    //     configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
+
+    //       configureCdrConnector("https://test.operon.systems", "oprn_hcbox", "XioTAJoO479", true);
+
+    private String resourcesRootPath;
+
+    public OpenEHRConverterTest() {
+
+
     }
 
-    private JsonNode getJsonfromFile(String filePath) throws IOException {
-        Path path = Paths.get("./src/test/resources/instance/" +  filePath);
-        return new ObjectMapper().readTree(Files.lines(path).collect(Collectors.joining()));
+    @Before
+    public void setUp() throws Exception {
+        SetupResourcesPath();
+    }
+
+    private void SetupResourcesPath() throws Exception{
+
+        resourcesRootPath = getClass()
+                .getClassLoader()
+                .getResource(".")
+                .toURI() // to deal with spaces in path
+                .getPath();
+    }
+
+    private String readFileContent(String filePath) throws Exception{
+        byte[] content = Files.readAllBytes(Paths.get( filePath));
+        return new String(content);
+    }
+
+    private JsonNode getJsonNodeFromResourceFile(String filePath) throws Exception {
+     return new ObjectMapper().readTree(readFileContent(resourcesRootPath + "instance/" +filePath));
     }
 
     @Test
      public void convertCodeableConceptDvCodedText() throws Exception {
 
-        JsonNode resultJson = getJsonfromFile("convertCodeableConceptDvCodedText.json");
+        JsonNode resultJson = getJsonNodeFromResourceFile("convertCodeableConceptDvCodedText.json");
         CodeableConcept result = testConverter.convertCodeableConcept(resultJson, "Manifestation");
         Assert.assertEquals("Vomiting", result.getText());
         Assert.assertEquals("422400008", result.getCodingFirstRep().getCode());
@@ -83,7 +95,7 @@ public class OpenEHRConverterTest {
     @Test
     public void convertCodeableConceptDvText() throws Exception {
 
-        JsonNode resultJson = getJsonfromFile("convertCodeableConceptDvText.json");
+        JsonNode resultJson = getJsonNodeFromResourceFile("convertCodeableConceptDvText.json");
 
         CodeableConcept result = testConverter.convertCodeableConcept(resultJson, "Manifestation");
         Assert.assertEquals("Vomiting", result.getText());

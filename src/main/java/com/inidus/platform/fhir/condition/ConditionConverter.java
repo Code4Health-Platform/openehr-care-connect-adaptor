@@ -43,8 +43,8 @@ public class ConditionConverter extends OpenEHRConverter {
         retVal.setAssertedDate(convertAssertedDate(ehrJson));
         retVal.getAsserter().setResource(convertAsserter(ehrJson));
 
-        retVal.setCode(convertScalarCodableConcept(ehrJson, "Problem_Diagnosis"));
-        retVal.addBodySite(convertScalarCodableConcept(ehrJson, "Body_site"));
+        retVal.setCode(convertCodeableConcept(ehrJson, "Problem_Diagnosis"));
+        retVal.addBodySite(convertCodeableConcept(ehrJson, "Body_site"));
 
         retVal.addCategory(convertCategory(ehrJson));
         retVal.setSeverity(convertSeverity(ehrJson));

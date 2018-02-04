@@ -26,9 +26,8 @@ public class ConditionConnector extends OpenEhrConnector {
                 " a/context/start_time/value as compositionStartTime," +
                 " a/uid/value as compositionId," +
                 " a/composer/name as composerName," +
-                // Not supported in EtherCis
-                //        " a/composer/external_ref/id/value as composerId," +
-                //        " a/composer/external_ref/namespace as composerNamespace," +
+                " a/composer/external_ref/id/value as composerId," +
+                " a/composer/external_ref/namespace as composerNamespace," +
                 " b_a/uid/value as entryId," +
                 " b_a/data[at0001]/items[at0002] as Problem_Diagnosis," +
                 " b_a/data[at0001]/items[at0012] as Body_site," +

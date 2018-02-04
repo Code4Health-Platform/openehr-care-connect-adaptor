@@ -93,7 +93,7 @@ public class AllergyConverter extends OpenEHRConverter {
 
         AllergyIntolerance.AllergyIntoleranceReactionComponent reaction = new AllergyIntolerance.AllergyIntoleranceReactionComponent();
 
-        reaction.setSubstance(convertScalarCodableConcept(ehrJson, "Specific_substance"));
+        reaction.setSubstance(convertCodeableConcept(ehrJson, "Specific_substance"));
 
     //    reaction.setManifestation(convertCodeableConceptList(ehrJson, "Manifestation"));
         reaction.addManifestation(convertCodeableConcept(ehrJson, "Manifestation"));
@@ -114,7 +114,7 @@ public class AllergyConverter extends OpenEHRConverter {
             reaction.setSeverity(AllergyIntolerance.AllergyIntoleranceSeverity.SEVERE);
         }
 
-        reaction.setExposureRoute(convertScalarCodableConcept(ehrJson, "Route_of_exposure"));
+        reaction.setExposureRoute(convertCodeableConcept(ehrJson, "Route_of_exposure"));
 
         reaction.addNote().setText(ehrJson.get("Adverse_reaction_risk_Comment").textValue());
 
