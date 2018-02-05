@@ -51,11 +51,6 @@ public class OpenEHRConverter {
 
 
 
-    private String readFileContent(String filePath) throws Exception{
-        byte[] content = Files.readAllBytes(Paths.get( filePath));
-        return new String(content);
-    }
-
     protected Practitioner convertAsserter(JsonNode ehrJson) {
 
         // Convert Composer name and ID.

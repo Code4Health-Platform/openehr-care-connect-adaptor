@@ -8,6 +8,9 @@ import com.inidus.platform.fhir.medication.MedicationStatementConnector;
 import com.inidus.platform.fhir.medication.MedicationStatementProvider;
 import com.inidus.platform.fhir.openehr.OpenEHRConverter;
 import com.inidus.platform.fhir.openehr.OpenEhrConnector;
+import com.inidus.platform.fhir.procedure.ProcedureConnector;
+import com.inidus.platform.fhir.procedure.ProcedureConverter;
+import com.inidus.platform.fhir.procedure.ProcedureProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,11 +23,15 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {FhirServlet.class,
+@ContextConfiguration(classes = {
+        FhirServlet.class,
+        OpenEHRConverter.class,
         AllergyProvider.class, AllergyConnector.class,
         ConditionProvider.class, ConditionConnector.class,
         MedicationStatementProvider.class, MedicationStatementConnector.class,
-        OpenEHRConverter.class})
+        ProcedureProvider.class, ProcedureConnector.class, ProcedureConverter.class
+    })
+
 public class FhirServletTest {
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;

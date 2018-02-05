@@ -16,6 +16,8 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
@@ -37,6 +39,31 @@ public abstract class OpenEhrConnector {
         ISO_DATE.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
+    public OpenEhrConnector() {
+        try {
+            SetupResourcesPath();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    protected String resourcesRootPath;
+
+    protected void SetupResourcesPath() throws Exception{
+
+        resourcesRootPath = getClass()
+                .getClassLoader()
+                .getResource(".")
+                .toURI() // to deal with spaces in path
+                .getPath();
+    }
+
+
+    protected String readFileContent(String filePath) throws Exception{
+        byte[] content = Files.readAllBytes(Paths.get( filePath));
+        return new String(content);
+    }
     /**
      * Retreive all resources without filtering
      *
@@ -97,9 +124,9 @@ public abstract class OpenEhrConnector {
             headers = createAuthHeaders();
         }
 
-//        logger.info("POST AQL:  " + aql);
+   //     logger.info("POST AQL:  " + aql);
 
-        String body = "{\"aql\" : \"" + aql + "\"}";
+        String body = "{\"aql\" : \"" + aql.replaceAll("\n", " ")+ "\"}";
         HttpEntity<String> request = new HttpEntity<>(body, headers);
         String url = this.url + "/rest/v1/query";
 
