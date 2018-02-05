@@ -14,7 +14,7 @@ select
    b_a/description[at0001]/items[at0067] as Procedure_type,
    b_a/description[at0001]/items[at0063] as Body_site,
    b_a/description[at0001]/items[at0014] as Reason,
-   b_a/description[at0001]/items[at0005] as Comment,
+   b_a/description[at0001]/items[at0005]/value/value as Comment,
    b_a/other_participations as OtherParticipations,
    b_a/time/value as Procedure_time,
    b_a/ism_transition/current_state/defining_code/code_string as Status_code,

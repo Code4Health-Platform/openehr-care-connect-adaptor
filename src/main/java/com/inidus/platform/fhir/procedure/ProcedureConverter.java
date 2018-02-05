@@ -1,23 +1,25 @@
 package com.inidus.platform.fhir.procedure;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inidus.platform.fhir.procedure.ProcedureCC;
 import com.inidus.platform.fhir.openehr.OpenEHRConverter;
-import com.inidus.platform.fhir.openehr.DfIsmTransition;
 import org.hl7.fhir.dstu3.model.*;
 import org.hl7.fhir.dstu3.model.Procedure.ProcedureStatus;
 import org.hl7.fhir.exceptions.FHIRException;
-import org.openehr.rm.datatypes.text.CodePhrase;
-import org.openehr.rm.datatypes.text.DvCodedText;
-import org.openehr.rm.demographic.Actor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.inidus.platform.fhir.procedure.ProcedureMappings.getProcedureStatusEnumFromCode;
+
 public class ProcedureConverter extends OpenEHRConverter{
 
+ //   private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private String url;
     /**
      * Converts the given json coming from openEHR into 1 {@link Condition} resource.
      * Duplicates in the json will be merged.
@@ -52,7 +54,7 @@ public class ProcedureConverter extends OpenEHRConverter{
         retVal.setId(convertResourceId(ehrJson));
         retVal.setSubject(convertPatientReference(ehrJson));
 
-        retVal.addPerformer().setActor(convertOtherParticipations(ehrJson));
+        retVal.addPerformer(convertPerformer(ehrJson));
 
         retVal.setCode(convertCodeableConcept(ehrJson,"Procedure_name"));
 
@@ -65,36 +67,57 @@ public class ProcedureConverter extends OpenEHRConverter{
         retVal.setOutcome(convertCodeableConcept(ehrJson,"Outcome"));
 
         retVal.setCategory(convertCodeableConcept(ehrJson,"Procedure_type"));
+
         retVal.setStatus(convertProcedureStatus(ehrJson));
 
         retVal.setPerformed(convertChoiceDate(ehrJson,"Procedure_time"));
 
-        retVal.addNote(new Annotation().setText("Description: "+ getResultsetString(ehrJson,"Description")));
-        retVal.addNote(new Annotation().setText("Comment: "+ getResultsetString(ehrJson,"Comment")));
+        String description = getResultsetString(ehrJson,"Description");
+        if (description != null)
+            retVal.addNote(new Annotation().setText("Description: "+ description));
+
+        String comment = getResultsetString(ehrJson,"comment");
+        if (comment != null)
+            retVal.addNote(new Annotation().setText("Comment: "+comment));
 
         return retVal;
     }
 
-    private Reference convertOtherParticipations(JsonNode ehrJson){
+    private Procedure.ProcedurePerformerComponent convertPerformer(JsonNode ehrJson) {
 
-        // Adding Performer to Contained.
-        Practitioner PracResource = new Practitioner();
-        Reference PerformerRefDt = new Reference("Performer/1");
+        Procedure.ProcedurePerformerComponent performer = null;
 
-      //  PracResource.addName().setText();
-        // Medication reference. This should point to the contained resource.
-        PerformerRefDt.setDisplay(PracResource.getName().toString());
-        // Resource reference set, but no ID
-        PerformerRefDt.setResource(PracResource);
+        //The openEHR PARTICIPATION class maps well to Performer.
+        JsonNode participationsNode = ehrJson.get("OtherParticipations");
 
-       return PerformerRefDt;
+        if (participationsNode == null) {
+            return performer;
+        }
+  //      logger.info("ehrJson: " + ehrJson.toString());
+  //      logger.info("ParticipationsNode: " + participationsNode);
 
+        Practitioner practitioner = new Practitioner();
+        performer= new Procedure.ProcedurePerformerComponent();
+        Reference PerformerRefDt = new Reference("Practitioner/1");
+
+        String name = participationsNode.path("performer").path("name").textValue();
+        practitioner.addName().setText(name);
+
+        String role = participationsNode.path("function").path("value").textValue();
+        performer.setRole(new CodeableConcept().setText(role));
+
+        PerformerRefDt.setDisplay(name + " : " + role);
+        PerformerRefDt.setResource(practitioner);
+
+        performer.setActor(PerformerRefDt);
+
+        return performer;
     }
 
     private ProcedureStatus convertProcedureStatus(JsonNode ehrJson) throws FHIRException {
 
         String statusCode = getResultsetString(ehrJson, "Status_code");
-        return DfIsmTransition.getProcedureStatusEnumFromCode(statusCode);
+        return getProcedureStatusEnumFromCode(statusCode);
     }
 
 }

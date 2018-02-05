@@ -126,7 +126,9 @@ public abstract class OpenEhrConnector {
 
 //        logger.debug("POST AQL:  " + aql);
 
+        // Strip any new lines from AQL
         String body = "{\"aql\" : \"" + aql.replaceAll("\n", " ")+ "\"}";
+
         HttpEntity<String> request = new HttpEntity<>(body, headers);
         String url = this.url + "/rest/v1/query";
 
@@ -138,6 +140,9 @@ public abstract class OpenEhrConnector {
 
         if (result.getStatusCode() == HttpStatus.OK) {
             JsonNode resultJson = new ObjectMapper().readTree(result.getBody());
+
+            //           logger.info("POST resultSet: "+ resultJson.get("resultSet").toString());
+
             return resultJson.get("resultSet");
         } else {
             return null;
