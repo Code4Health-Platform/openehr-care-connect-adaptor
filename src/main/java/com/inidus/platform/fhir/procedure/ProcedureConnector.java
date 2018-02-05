@@ -6,6 +6,7 @@ import ca.uhn.fhir.rest.param.TokenParam;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inidus.platform.fhir.openehr.OpenEhrConnector;
 import org.hl7.fhir.dstu3.model.MedicationStatement;
+import org.hl7.fhir.dstu3.model.Procedure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -38,7 +39,7 @@ public class ProcedureConnector extends OpenEhrConnector {
             StringParam patientId,
             TokenParam patientIdentifier,
             StringParam status,
-            DateRangeParam dateStarted
+            DateRangeParam datePerformed
     ) throws IOException {
 
         String filter = "";
@@ -59,71 +60,65 @@ public class ProcedureConnector extends OpenEhrConnector {
         }
 
         // date filter provided
-        if (null != dateStarted) {
-            filter += getdateStartedFilterAql(dateStarted);
+        if (null != datePerformed) {
+            filter += getDatePerformed(datePerformed);
         }
 
  //       logger.debug("AQL... =" + getAQL() + filter);
         return getEhrJson(getAQL() + filter);
     }
 
-    private String getdateStartedFilterAql(DateRangeParam dateStarted) {
+    private String getDatePerformed(DateRangeParam datePerformed) {
         String filter = "";
-        Date fromDate = dateStarted.getLowerBoundAsInstant();
+        Date fromDate = datePerformed.getLowerBoundAsInstant();
 
         if (null != fromDate) {
             String from = ISO_DATE.format(fromDate);
      //       logger.debug("fromDate: " + from);
-            filter += String.format(" and b_a/activities[at0001]/description[at0002]/items[at0113]/items[at0012]/value/value >= '%s'", from);
+            filter += String.format(" and b_a/time/value >= '%s'", from);
         }
 
-        Date toDate = dateStarted.getUpperBoundAsInstant();
+        Date toDate = datePerformed.getUpperBoundAsInstant();
         if (null != toDate) {
             String to = ISO_DATE.format(toDate);
      //       logger.debug("fromDate: " + to);
-            filter += String.format(" and b_a/activities[at0001]/description[at0002]/items[at0113]/items[at0012]/value/value <= '%s'", to);
+            filter += String.format(" and b_a/time/value <= '%s'", to);
         }
 
         return filter;
     }
 
     private String getProcedureStatusFilterAql(StringParam statusParam) {
+
         String openEHRCode = "";
 
-/*
-        at0021::Active [This is an active medication.]
-        at0022::Stopped [This is a medication that has previously been issued, dispensed or administered but has now been discontinued.]
-        at0023::Never active [A medication which was ordered or authorised but has been cancelled prior to being issued, dispensed or adiminstered.]
-        at0024::Completed [The medication course has been completed.]
-        at0025::Obsolete [This medication order has been superseded by another.]
-        at0026::Suspended [Actions resulting from the order are to be temporarily halted, but are expected to continue later. May also be called 'on-hold'.]
-        at0027::Draft [The medication order has been made but further processes e.g. sign-off or verification are required before it becomes actionable.]
-    */
+
         String statusCodeParam = statusParam.getValue();
 
-        if (statusCodeParam.equals(MedicationStatement.MedicationStatementStatus.ACTIVE.toCode()))
+        if (statusCodeParam.equals(Procedure.ProcedureStatus.PREPARATION.toCode()))
         {
-            openEHRCode = "'at0021' , 'at0027'";
+            openEHRCode = "'524','526'";
         }
-        else if (statusCodeParam.equals(MedicationStatement.MedicationStatementStatus.STOPPED.toCode()))
+        else if (statusCodeParam.equals(Procedure.ProcedureStatus.INPROGRESS.toCode()))
         {
-            openEHRCode = "'at0022', 'at0025'";
+            openEHRCode = "'245'";
         }
-        else if (statusCodeParam.equals(MedicationStatement.MedicationStatementStatus.INTENDED.toCode()))
+        else if (statusCodeParam.equals(Procedure.ProcedureStatus.SUSPENDED.toCode()))
         {
-            openEHRCode = "'at0023'";
+            openEHRCode = "'527', '530'";
         }
-        else if (statusCodeParam.equals(MedicationStatement.MedicationStatementStatus.COMPLETED.toCode()))
+        else if (statusCodeParam.equals(Procedure.ProcedureStatus.ABORTED.toCode()))
         {
-            openEHRCode = "'at0024'";
+            openEHRCode = "'528' , '531', '533'";
         }
-        else if (statusCodeParam.equals(MedicationStatement.MedicationStatementStatus.ONHOLD.toCode()))
+        else if (statusCodeParam.equals(Procedure.ProcedureStatus.COMPLETED.toCode()))
         {
-            openEHRCode = "'at0026'";
+            openEHRCode = "'532'";
         }
 
+
         if (!openEHRCode.isEmpty())
-            return String.format(" and b_a/activities[at0001]/description[at0002]/items[at0113]/items[openEHR-EHR-CLUSTER.medication_course_summary.v0]/items[at0001]/value/defining_code/code_string matches {%s}", openEHRCode);
+            return String.format("and b_a/ism_transition/current_state/defining_code/code_string matches {%s}", openEHRCode);
         else
             return "";
     }

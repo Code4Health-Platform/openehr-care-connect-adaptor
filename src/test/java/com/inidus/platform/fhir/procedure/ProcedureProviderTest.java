@@ -85,9 +85,9 @@ public class ProcedureProviderTest {
     }
 
     @Test
-    public void getResourceByStatus_active() throws Exception {
+    public void getResourceByStatus_inProgress() throws Exception {
 
-        StringParam status = new StringParam("active");
+        StringParam status = new StringParam("in-progress");
 
         List<ProcedureCC> result = testProvider.getFilteredResources(null, null, status,null);
 
@@ -95,9 +95,9 @@ public class ProcedureProviderTest {
     }
 
     @Test
-    public void getResourceByStatus_inactive() throws Exception {
+    public void getResourceByStatus_completed() throws Exception {
 
-        StringParam status = new StringParam("inactive");
+        StringParam status = new StringParam("completed");
 
         List<ProcedureCC> result = testProvider.getFilteredResources(null, null, status,null);
 

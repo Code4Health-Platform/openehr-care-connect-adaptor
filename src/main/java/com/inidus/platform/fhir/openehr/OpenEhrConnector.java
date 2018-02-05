@@ -124,7 +124,7 @@ public abstract class OpenEhrConnector {
             headers = createAuthHeaders();
         }
 
-   //     logger.info("POST AQL:  " + aql);
+//        logger.debug("POST AQL:  " + aql);
 
         String body = "{\"aql\" : \"" + aql.replaceAll("\n", " ")+ "\"}";
         HttpEntity<String> request = new HttpEntity<>(body, headers);

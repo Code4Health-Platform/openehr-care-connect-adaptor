@@ -14,6 +14,7 @@ import com.inidus.platform.fhir.procedure.ProcedureConnector;
 import com.inidus.platform.fhir.procedure.ProcedureCC;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.dstu3.model.Procedure;
+import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public class ProcedureProvider implements IResourceProvider {
     }
 
     @Read()
-    public ProcedureCC getResourceById(@IdParam IdType id) throws ParseException, IOException {
+    public ProcedureCC getResourceById(@IdParam IdType id) throws ParseException, IOException, FHIRException {
         JsonNode ehrJsonList = openEhrService.getResourceById(id.getIdPart());
 
         if (null != ehrJsonList) {
@@ -50,7 +51,7 @@ public class ProcedureProvider implements IResourceProvider {
     }
 
     @Search()
-    public List<ProcedureCC> getAllResources() throws ParseException, IOException {
+    public List<ProcedureCC> getAllResources() throws ParseException, IOException, FHIRException {
         JsonNode ehrJsonList = openEhrService.getAllResources();
 
         if (null != ehrJsonList) {
@@ -61,12 +62,12 @@ public class ProcedureProvider implements IResourceProvider {
     }
 
    @Search()
-    public List<ProcedureCC> getFilteredResources(
+    public List<ProcedureCC> getFilteredResources (
        //     @OptionalParam(name="_list") StringParam listParam,
             @OptionalParam(name = "patient.id") StringParam id,
             @OptionalParam(name = "patient.identifier") TokenParam identifier,
             @OptionalParam(name = "status") StringParam status,
-            @OptionalParam(name = "datePerformed") DateRangeParam dateRange) throws IOException {
+            @OptionalParam(name = "datePerformed") DateRangeParam dateRange) throws IOException,FHIRException {
 
         JsonNode ehrJsonList = openEhrService.getFilteredProcedures(id, identifier, status,dateRange);
 
