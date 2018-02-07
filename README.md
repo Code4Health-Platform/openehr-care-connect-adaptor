@@ -1,5 +1,5 @@
 # FHIR Adaptor
-Web service that exposes data (read-only) from an openEHR CDR via FHIR resources (HAPI FHIR)
+Web service that exposes data (read-only) from an openEHR CDR via FHIR resources ([HAPI FHIR](http://hapifhir.io/doc_rest_operations.html))
 
 ## Build the project
 `./mvnw clean package` (inside the project folder)
@@ -20,4 +20,4 @@ https://www.hl7.org/fhir/allergyintolerance.html
 
 https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-AllergyIntolerance-1
 
-http://hapifhir.io/doc_rest_operations.html
+
