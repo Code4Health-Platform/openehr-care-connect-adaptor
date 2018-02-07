@@ -30,7 +30,5 @@ public class ConditionCC extends Condition {
     public boolean isEmpty() {
         return super.isEmpty() && ElementUtil.isEmpty(episodeExtension);
     }
-
-
 }
 

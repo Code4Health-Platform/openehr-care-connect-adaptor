@@ -5,9 +5,6 @@ import com.inidus.platform.fhir.openehr.OpenEHRConverter;
 import org.hl7.fhir.dstu3.model.*;
 import org.hl7.fhir.dstu3.model.Procedure.ProcedureStatus;
 import org.hl7.fhir.exceptions.FHIRException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -15,18 +12,15 @@ import java.util.List;
 
 import static com.inidus.platform.fhir.procedure.ProcedureMappings.getProcedureStatusEnumFromCode;
 
-public class ProcedureConverter extends OpenEHRConverter{
+public class ProcedureConverter extends OpenEHRConverter {
 
- //   private final Logger logger = LoggerFactory.getLogger(getClass());
-
-    private String url;
     /**
      * Converts the given json coming from openEHR into 1 {@link Condition} resource.
      * Duplicates in the json will be merged.
      *
      * @param ehrJson is the array contained inside the "resultSet" section
      */
-    public ProcedureCC convertToProcedure(JsonNode ehrJson)  throws FHIRException{
+    public ProcedureCC convertToProcedure(JsonNode ehrJson) throws FHIRException {
         List<ProcedureCC> list = convertToProcedureList(ehrJson);
         return list.get(0);
     }
@@ -47,7 +41,7 @@ public class ProcedureConverter extends OpenEHRConverter{
         return profiles;
     }
 
-    private ProcedureCC createProcedureResource(JsonNode ehrJson) throws FHIRException{
+    private ProcedureCC createProcedureResource(JsonNode ehrJson) throws FHIRException {
 
         ProcedureCC retVal = new ProcedureCC();
 
@@ -56,29 +50,29 @@ public class ProcedureConverter extends OpenEHRConverter{
 
         retVal.addPerformer(convertPerformer(ehrJson));
 
-        retVal.setCode(convertCodeableConcept(ehrJson,"Procedure_name"));
+        retVal.setCode(convertCodeableConcept(ehrJson, "Procedure_name"));
 
-        retVal.addReasonCode(convertCodeableConcept(ehrJson,"Reason"));
+        retVal.addReasonCode(convertCodeableConcept(ehrJson, "Reason"));
 
-        retVal.addComplication(convertCodeableConcept(ehrJson,"Complication"));
+        retVal.addComplication(convertCodeableConcept(ehrJson, "Complication"));
 
-        retVal.addBodySite(convertCodeableConcept(ehrJson,"Body_site"));
+        retVal.addBodySite(convertCodeableConcept(ehrJson, "Body_site"));
 
-        retVal.setOutcome(convertCodeableConcept(ehrJson,"Outcome"));
+        retVal.setOutcome(convertCodeableConcept(ehrJson, "Outcome"));
 
-        retVal.setCategory(convertCodeableConcept(ehrJson,"Procedure_type"));
+        retVal.setCategory(convertCodeableConcept(ehrJson, "Procedure_type"));
 
         retVal.setStatus(convertProcedureStatus(ehrJson));
 
-        retVal.setPerformed(convertChoiceDate(ehrJson,"Procedure_time"));
+        retVal.setPerformed(convertChoiceDate(ehrJson, "Procedure_time"));
 
-        String description = getResultsetString(ehrJson,"Description");
+        String description = getResultsetString(ehrJson, "Description");
         if (description != null)
-            retVal.addNote(new Annotation().setText("Description: "+ description));
+            retVal.addNote(new Annotation().setText("Description: " + description));
 
-        String comment = getResultsetString(ehrJson,"comment");
+        String comment = getResultsetString(ehrJson, "comment");
         if (comment != null)
-            retVal.addNote(new Annotation().setText("Comment: "+comment));
+            retVal.addNote(new Annotation().setText("Comment: " + comment));
 
         return retVal;
     }
@@ -93,11 +87,9 @@ public class ProcedureConverter extends OpenEHRConverter{
         if (participationsNode == null) {
             return performer;
         }
-  //      logger.info("ehrJson: " + ehrJson.toString());
-  //      logger.info("ParticipationsNode: " + participationsNode);
 
         Practitioner practitioner = new Practitioner();
-        performer= new Procedure.ProcedurePerformerComponent();
+        performer = new Procedure.ProcedurePerformerComponent();
         Reference PerformerRefDt = new Reference("Practitioner/1");
 
         String name = participationsNode.path("performer").path("name").textValue();

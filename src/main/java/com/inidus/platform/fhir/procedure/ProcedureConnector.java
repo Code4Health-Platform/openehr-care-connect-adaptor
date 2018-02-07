@@ -5,10 +5,7 @@ import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inidus.platform.fhir.openehr.OpenEhrConnector;
-import org.hl7.fhir.dstu3.model.MedicationStatement;
 import org.hl7.fhir.dstu3.model.Procedure;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 
@@ -19,19 +16,36 @@ import java.util.Date;
 /**
  * Connects to an openEHR backend and returns selected Medication Statement data
  */
-@ConfigurationProperties(prefix = "cdr-connector", ignoreUnknownFields = false)@Service
+@ConfigurationProperties(prefix = "cdr-connector", ignoreUnknownFields = false)
+@Service
 public class ProcedureConnector extends OpenEhrConnector {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
     protected String getAQL() {
-        String aql = "";
-        try {
-            aql = readFileContent(resourcesRootPath + "aql/procedures.aql").replaceAll("\n", " ");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return aql;
+        return "select\n" +
+                "   e/ehr_id/value as ehrId,\n" +
+                "   e/ehr_status/subject/external_ref/id/value as subjectId,\n" +
+                "   e/ehr_status/subject/external_ref/namespace as subjectNamespace,\n" +
+                "   a/context/start_time/value as compositionStartTime,\n" +
+                "   a/uid/value as compositionId,\n" +
+                "   a/composer/name as composerName,\n" +
+                "   a/composer/external_ref/id/value as composerId,\n" +
+                "   a/composer/external_ref/namespace as composerNamespace,\n" +
+                "   b_a/uid/value as entryId,\n" +
+                "   b_a/description[at0001]/items[at0002] as Procedure_name,\n" +
+                "   b_a/description[at0001]/items[at0048] as Outcome,\n" +
+                "   b_a/description[at0001]/items[at0006] as Complication,\n" +
+                "   b_a/description[at0001]/items[at0067] as Procedure_type,\n" +
+                "   b_a/description[at0001]/items[at0063] as Body_site,\n" +
+                "   b_a/description[at0001]/items[at0014] as Reason,\n" +
+                "   b_a/description[at0001]/items[at0005]/value/value as Comment,\n" +
+                "   b_a/other_participations as OtherParticipations,\n" +
+                "   b_a/time/value as Procedure_time,\n" +
+                "   b_a/ism_transition/current_state/defining_code/code_string as Status_code,\n" +
+                "   b_a/ism_transition/careflow_step/defining_code/code_string as Careflow_step_code,\n" +
+                "   b_a/description[at0001]/items[at0049]/value/value as Description\n" +
+                "from EHR e\n" +
+                "contains COMPOSITION a[openEHR-EHR-COMPOSITION.health_summary.v1]\n" +
+                "contains ACTION b_a[openEHR-EHR-ACTION.procedure.v1]\n" +
+                "where a/name/value='Procedures list'";
     }
 
 
@@ -64,7 +78,7 @@ public class ProcedureConnector extends OpenEhrConnector {
             filter += getDatePerformed(datePerformed);
         }
 
- //       logger.debug("AQL... =" + getAQL() + filter);
+        //       logger.debug("AQL... =" + getAQL() + filter);
         return getEhrJson(getAQL() + filter);
     }
 
@@ -74,14 +88,14 @@ public class ProcedureConnector extends OpenEhrConnector {
 
         if (null != fromDate) {
             String from = ISO_DATE.format(fromDate);
-     //       logger.debug("fromDate: " + from);
+            //       logger.debug("fromDate: " + from);
             filter += String.format(" and b_a/time/value >= '%s'", from);
         }
 
         Date toDate = datePerformed.getUpperBoundAsInstant();
         if (null != toDate) {
             String to = ISO_DATE.format(toDate);
-     //       logger.debug("fromDate: " + to);
+            //       logger.debug("fromDate: " + to);
             filter += String.format(" and b_a/time/value <= '%s'", to);
         }
 
@@ -95,24 +109,15 @@ public class ProcedureConnector extends OpenEhrConnector {
 
         String statusCodeParam = statusParam.getValue();
 
-        if (statusCodeParam.equals(Procedure.ProcedureStatus.PREPARATION.toCode()))
-        {
+        if (statusCodeParam.equals(Procedure.ProcedureStatus.PREPARATION.toCode())) {
             openEHRCode = "'524','526'";
-        }
-        else if (statusCodeParam.equals(Procedure.ProcedureStatus.INPROGRESS.toCode()))
-        {
+        } else if (statusCodeParam.equals(Procedure.ProcedureStatus.INPROGRESS.toCode())) {
             openEHRCode = "'245'";
-        }
-        else if (statusCodeParam.equals(Procedure.ProcedureStatus.SUSPENDED.toCode()))
-        {
+        } else if (statusCodeParam.equals(Procedure.ProcedureStatus.SUSPENDED.toCode())) {
             openEHRCode = "'527', '530'";
-        }
-        else if (statusCodeParam.equals(Procedure.ProcedureStatus.ABORTED.toCode()))
-        {
+        } else if (statusCodeParam.equals(Procedure.ProcedureStatus.ABORTED.toCode())) {
             openEHRCode = "'528' , '531', '533'";
-        }
-        else if (statusCodeParam.equals(Procedure.ProcedureStatus.COMPLETED.toCode()))
-        {
+        } else if (statusCodeParam.equals(Procedure.ProcedureStatus.COMPLETED.toCode())) {
             openEHRCode = "'532'";
         }
 

@@ -3,19 +3,14 @@ package com.inidus.platform.fhir.medication;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inidus.platform.fhir.openehr.OpenEHRConverter;
 import org.hl7.fhir.dstu3.model.*;
-
-
-import org.hl7.fhir.dstu3.model.MedicationStatement.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementStatus;
+import org.hl7.fhir.dstu3.model.MedicationStatement.MedicationStatementTaken;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class MedicationStatementConverter extends OpenEHRConverter{
- //   private final Logger logger = LoggerFactory.getLogger(getClass());
+public class MedicationStatementConverter extends OpenEHRConverter {
 
     /**
      * Converts the given json coming from openEHR into 1 {@link Condition} resource.
@@ -55,17 +50,17 @@ public class MedicationStatementConverter extends OpenEHRConverter{
 
         retVal.setMedication(convertMedicationResource(ehrJson));
 
-        retVal.addReasonCode(convertCodeableConcept(ehrJson,"Clinical_indication"));
+        retVal.addReasonCode(convertCodeableConcept(ehrJson, "Clinical_indication"));
 
         //Default 'taken' to Unknown
         retVal.setTaken(MedicationStatementTaken.UNK);
 
         retVal.setStatus(convertMedicationStatus(ehrJson));
 
-        retVal.setEffective(convertChoiceDate(ehrJson,"Order_start_date_time"));
+        retVal.setEffective(convertChoiceDate(ehrJson, "Order_start_date_time"));
         retVal.addDosage(convertDosage(ehrJson));
 
-        retVal.addNote(new Annotation().setText(getResultsetString(ehrJson,"Comment")));
+        retVal.addNote(new Annotation().setText(getResultsetString(ehrJson, "Comment")));
 
         return retVal;
     }
@@ -74,31 +69,31 @@ public class MedicationStatementConverter extends OpenEHRConverter{
         Dosage dosage = new Dosage();
 
         dosage.setText(convertDosageDirections(ehrJson));
-        dosage.addAdditionalInstruction(convertCodeableConcept(ehrJson,"Additional_instruction"));
+        dosage.addAdditionalInstruction(convertCodeableConcept(ehrJson, "Additional_instruction"));
         dosage.setPatientInstruction(getResultsetString(ehrJson, "Patient_instructions"));
-        dosage.setRoute(convertCodeableConcept(ehrJson,"Route"));
-        dosage.setMethod(convertCodeableConcept(ehrJson,"Method"));
-        dosage.setSite(convertCodeableConcept(ehrJson,"Site"));
+        dosage.setRoute(convertCodeableConcept(ehrJson, "Route"));
+        dosage.setMethod(convertCodeableConcept(ehrJson, "Method"));
+        dosage.setSite(convertCodeableConcept(ehrJson, "Site"));
 
 
         return dosage;
     }
 
-    private Reference convertMedicationResource(JsonNode ehrJson){
+    private Reference convertMedicationResource(JsonNode ehrJson) {
 
         // Adding medication to Contained.
         Medication medResource = new MedicationCC();
         Reference medRefDt = new Reference("Medication/1");
 
-        medResource.setCode(convertCodeableConcept(ehrJson,"Medication_item"));
-        medResource.setForm(convertCodeableConcept(ehrJson,"Medication_form"));
+        medResource.setCode(convertCodeableConcept(ehrJson, "Medication_item"));
+        medResource.setForm(convertCodeableConcept(ehrJson, "Medication_form"));
 
         // Medication reference. This should point to the contained resource.
         medRefDt.setDisplay(medResource.getCode().getText());
         // Resource reference set, but no ID
         medRefDt.setResource(medResource);
 
-       return medRefDt;
+        return medRefDt;
 
     }
 
@@ -107,11 +102,9 @@ public class MedicationStatementConverter extends OpenEHRConverter{
 
         String overallDoseDirections = getResultsetString(ehrJson, "Overall_directions_description");
 
-        if (overallDoseDirections == null)
-        {
+        if (overallDoseDirections == null) {
             return convertDoseAmountFrequencyDirections(ehrJson);
-        }
-        else
+        } else
             return overallDoseDirections;
 
     }
@@ -119,14 +112,15 @@ public class MedicationStatementConverter extends OpenEHRConverter{
 
     /**
      * Concatenates DoseAmountDescription and DoseFrequencyDescription elements if present
+     *
      * @param ehrJson The openEHR Resultset tree
      * @return The concatenated string, if data present
      */
-    private String convertDoseAmountFrequencyDirections(JsonNode ehrJson){
+    private String convertDoseAmountFrequencyDirections(JsonNode ehrJson) {
 
         String outText;
-        String doseAmountText = getResultsetString(ehrJson,"Dose_amount_description");
-        String doseFrequencyText =  getResultsetString(ehrJson,"Dose_frequency_description");;
+        String doseAmountText = getResultsetString(ehrJson, "Dose_amount_description");
+        String doseFrequencyText = getResultsetString(ehrJson, "Dose_frequency_description");
 
         if (doseAmountText != null)
             outText = doseAmountText;
@@ -134,23 +128,13 @@ public class MedicationStatementConverter extends OpenEHRConverter{
             outText = "";
 
         if (doseFrequencyText != null)
-            outText+=  " " + doseFrequencyText;
+            outText += " " + doseFrequencyText;
 
         return outText;
     }
 
     private MedicationStatementStatus convertMedicationStatus(JsonNode ehrJson) {
         MedicationStatementStatus status = null;
-
-    /* openEHR Valueset
-        at0021::Active [This is an active medication.]
-        at0022::Stopped [This is a medication that has previously been issued, dispensed or administered but has now been discontinued.]
-        at0023::Never active [A medication which was ordered or authorised but has been cancelled prior to being issued, dispensed or adiminstered.]
-        at0024::Completed [The medication course has been completed.]
-        at0025::Obsolete [This medication order has been superseded by another.]
-        at0026::Suspended [Actions resulting from the order are to be temporarily halted, but are expected to continue later. May also be called 'on-hold'.]
-        at0027::Draft [The medication order has been made but further processes e.g. sign-off or verification are required before it becomes actionable.]
-    */
 
         String statusCode = getResultsetString(ehrJson, "Status_code");
         if (statusCode == null) {

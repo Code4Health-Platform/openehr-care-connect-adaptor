@@ -14,8 +14,6 @@ public class ProcedureMappings {
     private static final Map<String, String> OpenEhrCurrentStateToFhirProcedureSystem = new HashMap<>();
     private static final Map<String, String> FhirProcedureStatusToOpenEhrCurrentStateSystem = new HashMap<>();
 
-//    private static final Logger log = LoggerFactory.getLogger(DfText.class);
-
     static {
         openEHRCurrentStateToFHIRProcedureStatusCode.put("524", "preparation"); //initial
         openEHRCurrentStateToFHIRProcedureStatusCode.put("526", "preparation"); //planned
@@ -28,15 +26,15 @@ public class ProcedureMappings {
         openEHRCurrentStateToFHIRProcedureStatusCode.put("532", "completed"); //completed
         openEHRCurrentStateToFHIRProcedureStatusCode.put("533", "aborted"); //expired
 
-        FHIRProcedureStatusToOpenEhrCurrentStateCode.put("preparation","526"); //planned
-        FHIRProcedureStatusToOpenEhrCurrentStateCode.put("suspended","530"); //suspended
-        FHIRProcedureStatusToOpenEhrCurrentStateCode.put("aborted","528"); //aborted
-        FHIRProcedureStatusToOpenEhrCurrentStateCode.put( "in-progress","245"); //active
-        FHIRProcedureStatusToOpenEhrCurrentStateCode.put("completed","532"); //completed
+        FHIRProcedureStatusToOpenEhrCurrentStateCode.put("preparation", "526"); //planned
+        FHIRProcedureStatusToOpenEhrCurrentStateCode.put("suspended", "530"); //suspended
+        FHIRProcedureStatusToOpenEhrCurrentStateCode.put("aborted", "528"); //aborted
+        FHIRProcedureStatusToOpenEhrCurrentStateCode.put("in-progress", "245"); //active
+        FHIRProcedureStatusToOpenEhrCurrentStateCode.put("completed", "532"); //completed
 
         //System mappings
-        OpenEhrCurrentStateToFhirProcedureSystem.put("openehr","http://hl7.org/fhir/event-status");
-        FhirProcedureStatusToOpenEhrCurrentStateSystem.put("http://hl7.org/fhir/event-status","openehr");
+        OpenEhrCurrentStateToFhirProcedureSystem.put("openehr", "http://hl7.org/fhir/event-status");
+        FhirProcedureStatusToOpenEhrCurrentStateSystem.put("http://hl7.org/fhir/event-status", "openehr");
     }
 
     public static Procedure.ProcedureStatus getProcedureStatusEnumFromCode(String currentStatusCode) throws FHIRException {

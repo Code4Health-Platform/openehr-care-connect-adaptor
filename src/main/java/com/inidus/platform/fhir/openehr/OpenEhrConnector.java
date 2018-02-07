@@ -5,9 +5,6 @@ import ca.uhn.fhir.rest.param.TokenParam;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.binary.Base64;
-import org.hl7.fhir.dstu3.model.DateTimeType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -16,8 +13,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
@@ -29,7 +24,6 @@ import java.util.TimeZone;
 @Service
 public abstract class OpenEhrConnector {
     protected static final DateFormat ISO_DATE = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
-    private final Logger logger = LoggerFactory.getLogger(getClass());
     private String url;
     private String username;
     private String password;
@@ -39,31 +33,6 @@ public abstract class OpenEhrConnector {
         ISO_DATE.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
-    public OpenEhrConnector() {
-        try {
-            SetupResourcesPath();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    protected String resourcesRootPath;
-
-    protected void SetupResourcesPath() throws Exception{
-
-        resourcesRootPath = getClass()
-                .getClassLoader()
-                .getResource(".")
-                .toURI() // to deal with spaces in path
-                .getPath();
-    }
-
-
-    protected String readFileContent(String filePath) throws Exception{
-        byte[] content = Files.readAllBytes(Paths.get( filePath));
-        return new String(content);
-    }
     /**
      * Retreive all resources without filtering
      *
@@ -92,11 +61,6 @@ public abstract class OpenEhrConnector {
             return null;
         }
 
-        // Test for presence of entryId as well as compositionId
-        // delineated by '_' character
-        // If entryID exists query on both compositionId and entryId
-        // which should improve performance
-
         String[] openEHRIds = id.split("\\|");
         String compositionId = openEHRIds[0];
 
@@ -124,10 +88,8 @@ public abstract class OpenEhrConnector {
             headers = createAuthHeaders();
         }
 
-//        logger.debug("POST AQL:  " + aql);
-
         // Strip any new lines from AQL
-        String body = "{\"aql\" : \"" + aql.replaceAll("\n", " ")+ "\"}";
+        String body = "{\"aql\" : \"" + aql.replaceAll("\n", " ") + "\"}";
 
         HttpEntity<String> request = new HttpEntity<>(body, headers);
         String url = this.url + "/rest/v1/query";
@@ -140,8 +102,6 @@ public abstract class OpenEhrConnector {
 
         if (result.getStatusCode() == HttpStatus.OK) {
             JsonNode resultJson = new ObjectMapper().readTree(result.getBody());
-
-            //           logger.info("POST resultSet: "+ resultJson.get("resultSet").toString());
 
             return resultJson.get("resultSet");
         } else {
