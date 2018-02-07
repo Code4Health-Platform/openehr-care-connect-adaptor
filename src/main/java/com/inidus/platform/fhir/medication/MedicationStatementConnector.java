@@ -16,7 +16,7 @@ import java.util.Date;
 
 
 /**
- * Connects to an openEHR backend and returns selected ProblemDiagnosis data
+ * Connects to an openEHR backend and returns selected Medication Statement data
  */
 @ConfigurationProperties(prefix = "cdr-connector", ignoreUnknownFields = false)@Service
 public class MedicationStatementConnector extends OpenEhrConnector {
@@ -31,27 +31,19 @@ public class MedicationStatementConnector extends OpenEhrConnector {
                 "  a/context/start_time/value as compositionStartTime," +
                 "  a/uid/value as compositionId," +
                 "  a/composer/name as composerName," +
+                "  a/composer/external_ref/id/value as composerId," +
+                "  a/composer/external_ref/namespace as composerNamespace," +
                 "  b_a/uid/value as entryId," +
-                "  b_a/activities[at0001]/description[at0002]/items[at0070]/value/value as Medication_item_value," +
-                "  b_a/activities[at0001]/description[at0002]/items[at0070]/value/defining_code/code_string as Medication_item_code," +
-                "  b_a/activities[at0001]/description[at0002]/items[at0070]/value/defining_code/terminology_id/value as Medication_item_terminology," +
+                "  b_a/activities[at0001]/description[at0002]/items[at0070] as Medication_item," +
                 "  b_a/activities[at0001]/description[at0002]/items[at0009]/value/value as Overall_directions_description," +
                 "  b_a/activities[at0001]/description[at0002]/items[at0173, 'Dose amount description']/value/value as Dose_amount_description," +
                 "  b_a/activities[at0001]/description[at0002]/items[at0173, 'Dose timing description']/value/value as Dose_timing_description," +
-                "  b_a/activities[at0001]/description[at0002]/items[at0044]/value/value as Additional_instruction_value," +
-                "  b_a/activities[at0001]/description[at0002]/items[at0044]/value/defining_code/code_string as Additional_instruction_code," +
-                "  b_a/activities[at0001]/description[at0002]/items[at0044]/value/defining_code/terminology_id/value as Additional_instruction_terminology," +
+                "  b_a/activities[at0001]/description[at0002]/items[at0044] as Additional_instruction," +
                 "  b_a/activities[at0001]/description[at0002]/items[at0105]/value/value as Patient_information_value," +
                 "  b_a/activities[at0001]/description[at0002]/items[at0107]/value/value as Monitoring_instruction_value," +
-                "  b_a/activities[at0001]/description[at0002]/items[at0018]/value/value as Clinical_indication_value," +
-                "  b_a/activities[at0001]/description[at0002]/items[at0018]/value/defining_code/code_string as Clinical_indication_code," +
-                "  b_a/activities[at0001]/description[at0002]/items[at0018]/value/terminology_id/value as Clinical_indication_terminology," +
-                "  b_a/activities[at0001]/description[at0002]/items[at0091]/value/value as Route_value," +
-                "  b_a/activities[at0001]/description[at0002]/items[at0091]/value/defining_code/code_string as Route_code," +
-                "  b_a/activities[at0001]/description[at0002]/items[at0091]/value/defining_code/terminology_id/value as Route_terminology," +
-                "  b_a/activities[at0001]/description[at0002]/items[openEHR-EHR-CLUSTER.medication_substance.v0]/items[at0071]/value/value as Form_value," +
-                "  b_a/activities[at0001]/description[at0002]/items[openEHR-EHR-CLUSTER.medication_substance.v0]/items[at0071]/value/defining_code/code_string as Form_code," +
-                "  b_a/activities[at0001]/description[at0002]/items[openEHR-EHR-CLUSTER.medication_substance.v0]/items[at0071]/value/defining_code/terminology_id/value as Form_terminology," +
+                "  b_a/activities[at0001]/description[at0002]/items[at0018] as Clinical_indication," +
+                "  b_a/activities[at0001]/description[at0002]/items[at0091] as Route," +
+                "  b_a/activities[at0001]/description[at0002]/items[openEHR-EHR-CLUSTER.medication_substance.v0]/items[at0071] as Form," +
                 "  b_a/activities[at0001]/description[at0002]/items[at0113]/items[openEHR-EHR-CLUSTER.medication_course_summary.v0]/items[at0001]/value/defining_code/code_string as Status_code," +
                 "  b_a/activities[at0001]/description[at0002]/items[at0113]/items[openEHR-EHR-CLUSTER.medication_course_summary.v0]/items[at0028]/value/value as AssertedDate," +
                 "  b_a/activities[at0001]/description[at0002]/items[at0113]/items[at0012]/value/value as Order_start_date_time," +

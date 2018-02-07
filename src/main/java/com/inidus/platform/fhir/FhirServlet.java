@@ -9,6 +9,7 @@ import ca.uhn.fhir.rest.server.interceptor.ResponseHighlighterInterceptor;
 import com.inidus.platform.fhir.allergy.AllergyProvider;
 import com.inidus.platform.fhir.condition.ConditionProvider;
 import com.inidus.platform.fhir.medication.MedicationStatementProvider;
+import com.inidus.platform.fhir.procedure.ProcedureProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +30,8 @@ public class FhirServlet extends RestfulServer {
     ConditionProvider conditionProvider;
     @Autowired
     MedicationStatementProvider medicationStatementProvider;
+    @Autowired
+    ProcedureProvider procedureProvider;
 
     public FhirServlet() {
         super(FhirContext.forDstu3());
@@ -44,6 +47,7 @@ public class FhirServlet extends RestfulServer {
         providers.add(this.allergyProvider);
         providers.add(this.conditionProvider);
         providers.add(this.medicationStatementProvider);
+        providers.add(this.procedureProvider);
         setResourceProviders(providers);
 
         registerInterceptor(new ResponseHighlighterInterceptor());

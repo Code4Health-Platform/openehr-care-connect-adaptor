@@ -8,12 +8,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.DatatypeConverter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class OpenEHRConverter {
+
+    public OpenEHRConverter() {
+        try {
+            SetupResourcesPath();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    private String resourcesRootPath;
+
+    protected void SetupResourcesPath() throws Exception{
+
+        resourcesRootPath = getClass()
+                .getClassLoader()
+                .getResource(".")
+                .toURI() // to deal with spaces in path
+                .getPath();
+    }
     protected Date convertAssertedDate(JsonNode ehrJson) {
 
         //Test explicitly for 'AssertedDAte as it may not always exist in the resultset
@@ -27,6 +48,8 @@ public class OpenEHRConverter {
         }
         return (DatatypeConverter.parseDateTime(dateString).getTime());
     }
+
+
 
     protected Practitioner convertAsserter(JsonNode ehrJson) {
 

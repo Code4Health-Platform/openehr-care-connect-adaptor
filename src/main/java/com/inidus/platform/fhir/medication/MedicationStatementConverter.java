@@ -55,7 +55,7 @@ public class MedicationStatementConverter extends OpenEHRConverter{
 
         retVal.setMedication(convertMedicationResource(ehrJson));
 
-        retVal.addReasonCode(convertScalarCodableConcept(ehrJson,"Clinical_indication"));
+        retVal.addReasonCode(convertCodeableConcept(ehrJson,"Clinical_indication"));
 
         //Default 'taken' to Unknown
         retVal.setTaken(MedicationStatementTaken.UNK);
@@ -74,11 +74,11 @@ public class MedicationStatementConverter extends OpenEHRConverter{
         Dosage dosage = new Dosage();
 
         dosage.setText(convertDosageDirections(ehrJson));
-        dosage.addAdditionalInstruction(convertScalarCodableConcept(ehrJson,"Additional_instruction"));
+        dosage.addAdditionalInstruction(convertCodeableConcept(ehrJson,"Additional_instruction"));
         dosage.setPatientInstruction(getResultsetString(ehrJson, "Patient_instructions"));
-        dosage.setRoute(convertScalarCodableConcept(ehrJson,"Route"));
-        dosage.setMethod(convertScalarCodableConcept(ehrJson,"Method"));
-        dosage.setSite(convertScalarCodableConcept(ehrJson,"Site"));
+        dosage.setRoute(convertCodeableConcept(ehrJson,"Route"));
+        dosage.setMethod(convertCodeableConcept(ehrJson,"Method"));
+        dosage.setSite(convertCodeableConcept(ehrJson,"Site"));
 
 
         return dosage;
@@ -90,8 +90,8 @@ public class MedicationStatementConverter extends OpenEHRConverter{
         Medication medResource = new MedicationCC();
         Reference medRefDt = new Reference("Medication/1");
 
-        medResource.setCode(convertScalarCodableConcept(ehrJson,"Medication_item"));
-        medResource.setForm(convertScalarCodableConcept(ehrJson,"Medication_form"));
+        medResource.setCode(convertCodeableConcept(ehrJson,"Medication_item"));
+        medResource.setForm(convertCodeableConcept(ehrJson,"Medication_form"));
 
         // Medication reference. This should point to the contained resource.
         medRefDt.setDisplay(medResource.getCode().getText());

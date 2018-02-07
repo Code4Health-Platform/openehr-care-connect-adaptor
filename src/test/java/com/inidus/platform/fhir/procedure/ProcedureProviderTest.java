@@ -1,12 +1,8 @@
-package com.inidus.platform.fhir.com.inidus.platform.fhir.medication;
+package com.inidus.platform.fhir.procedure;
 
 import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
-import com.inidus.platform.fhir.medication.MedicationStatementCC;
-import com.inidus.platform.fhir.medication.MedicationStatementConnector;
-import com.inidus.platform.fhir.medication.MedicationStatementProvider;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,13 +17,13 @@ import java.util.Date;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {MedicationStatementProvider.class, MedicationStatementConnector.class})
-public class MedicationStatementProviderTest {
+@ContextConfiguration(classes = {ProcedureProvider.class, ProcedureConnector.class})
+public class ProcedureProviderTest {
     @Autowired
-    @Qualifier("MedicationStatementProvider")
-    private MedicationStatementProvider testProvider;
+    @Qualifier("ProcedureProvider")
+    private ProcedureProvider testProvider;
     @Autowired
-    private MedicationStatementConnector ehrConnector;
+    private ProcedureConnector ehrConnector;
 
     @Before
     public void setUp() throws Exception {
@@ -43,7 +39,7 @@ public class MedicationStatementProviderTest {
     @Test
     public void getResourceByPatientIdentifier_ehrNamespace() throws Exception {
          TokenParam identifier = new TokenParam("uk.nhs.nhs_number", "9999999000");
-        List<MedicationStatementCC> result = testProvider.getFilteredResources(null,identifier, null, null);
+        List<ProcedureCC> result = testProvider.getFilteredResources(null,identifier, null, null);
         Assert.assertNotNull(result);
         Assert.assertEquals("https://fhir.nhs.uk/Id/nhs-number", result.get(0).getSubject().getIdentifier().getSystem());
     }
@@ -51,7 +47,7 @@ public class MedicationStatementProviderTest {
     @Test
     public void getResourceByPatientIdentifier_FhirNamespace() throws Exception {
           TokenParam identifier = new TokenParam("https://fhir.nhs.uk/Id/nhs-number", "9999999000");
-        List<MedicationStatementCC> result = testProvider.getFilteredResources(null,identifier, null, null);
+        List<ProcedureCC> result = testProvider.getFilteredResources(null,identifier, null, null);
         Assert.assertNotNull(result);
         Assert.assertEquals("https://fhir.nhs.uk/Id/nhs-number", result.get(0).getSubject().getIdentifier().getSystem());
     }
@@ -62,7 +58,7 @@ public class MedicationStatementProviderTest {
         Date to = DatatypeConverter.parseDateTime("2018-12-07T15:47:43+01:00").getTime();
         DateRangeParam dateRange = new DateRangeParam(from, to);
 
-        List<MedicationStatementCC> result = testProvider.getFilteredResources(null,null, null, dateRange);
+        List<ProcedureCC> result = testProvider.getFilteredResources(null,null, null, dateRange);
 
         Assert.assertNotNull(result);
     }
@@ -72,7 +68,7 @@ public class MedicationStatementProviderTest {
         Date to = DatatypeConverter.parseDateTime("2018-12-07T15:47:43+01:00").getTime();
         DateRangeParam dateRange = new DateRangeParam(null, to);
 
-        List<MedicationStatementCC> result = testProvider.getFilteredResources(null,null, null,dateRange);
+        List<ProcedureCC> result = testProvider.getFilteredResources(null,null, null,dateRange);
 
         Assert.assertNotNull(result);
     }
@@ -83,27 +79,27 @@ public class MedicationStatementProviderTest {
         Date from = DatatypeConverter.parseDateTime("2000-12-07T15:47:43+01:00").getTime();
         DateRangeParam dateRange = new DateRangeParam(from, null);
 
-        List<MedicationStatementCC> result = testProvider.getFilteredResources(null, null, null, dateRange);
+        List<ProcedureCC> result = testProvider.getFilteredResources(null, null, null, dateRange);
 
         Assert.assertNotNull(result);
     }
 
     @Test
-    public void getResourceByStatus_active() throws Exception {
+    public void getResourceByStatus_inProgress() throws Exception {
 
-        StringParam status = new StringParam("active");
+        StringParam status = new StringParam("in-progress");
 
-        List<MedicationStatementCC> result = testProvider.getFilteredResources(null, null, status,null);
+        List<ProcedureCC> result = testProvider.getFilteredResources(null, null, status,null);
 
         Assert.assertNotNull(result);
     }
 
     @Test
-    public void getResourceByStatus_inactive() throws Exception {
+    public void getResourceByStatus_completed() throws Exception {
 
-        StringParam status = new StringParam("inactive");
+        StringParam status = new StringParam("completed");
 
-        List<MedicationStatementCC> result = testProvider.getFilteredResources(null, null, status,null);
+        List<ProcedureCC> result = testProvider.getFilteredResources(null, null, status,null);
 
         Assert.assertNotNull(result);
     }
