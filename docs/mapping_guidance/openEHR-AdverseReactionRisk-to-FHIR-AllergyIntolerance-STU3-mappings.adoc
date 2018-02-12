@@ -1,12 +1,14 @@
 == openEHR AdverseReactionRisk to FHIR allergyIntolerance STU3 mappings
 Ian McNicoll <ian@inidus.com>
 v1.1.2, 12-Feb-2018
+
 ifdef::env-github[]
 :tip-caption: :bulb:
 :note-caption: :information_source:
 :important-caption: :heavy_exclamation_mark:
 :caution-caption: :fire:
 :warning-caption: :warning:
+ifdef::env-browser[:outfilesuffix: .adoc]
 endif::[]
 
 == Target openEHR template
@@ -222,7 +224,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 ==== FHIR node: `allergyIntolerance.patient`
 
@@ -284,7 +286,7 @@ Valueset mappings::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 
 ==== FHIR node: `allergyIntolerance.reaction.manifestation`
@@ -300,7 +302,7 @@ Valueset mappings::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 
 ==== FHIR node: `allergyIntolerance.reaction.description`
@@ -345,7 +347,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 ==== FHIR node: `allergyIntolerance.reaction.note`
 
