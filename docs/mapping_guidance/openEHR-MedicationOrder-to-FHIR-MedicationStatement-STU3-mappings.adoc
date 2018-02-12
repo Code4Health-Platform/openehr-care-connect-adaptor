@@ -8,6 +8,7 @@ ifdef::env-github[]
 :important-caption: :heavy_exclamation_mark:
 :caution-caption: :fire:
 :warning-caption: :warning:
+ifdef::env-browser[:outfilesuffix: .adoc]
 endif::[]
 
 == Target openEHR template
@@ -168,7 +169,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see <<openEHR-to-FHIR-Datatype-mappings.adoc,Datatype mapping guidance>>
+see <<openEHR-to-FHIR-Datatype-mappings.adoc, Datatype mapping guidance>>
 
 ==== FHIR name: `medicationStatement.subject`
 
@@ -238,7 +239,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
 
 
 ==== FHIR node: `medicationStatement.dosage.text`
@@ -251,7 +252,7 @@ DV_TEXT => CodeableConcept
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:"openEHR-to-FHIR-Datatype-mappings.adoc"[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 ==== FHIR node: `medicationStatement.dosage.additionalInstruction`
 
