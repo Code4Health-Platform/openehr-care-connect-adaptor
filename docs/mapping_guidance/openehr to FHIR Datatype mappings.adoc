@@ -1,0 +1,97 @@
+== openEHR to FHIR datatypes mappings
+Ian McNicoll <ian@inidus.com>
+v1.0.0, 12-Feb-2017
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+
+=== DV_TEXT/DV_CODED_TEXT to CodeableConcept
+
+There is a very close relationship between the openEHR `DV_TEXT/DV_CODED_TEXT` data type and the FHIR `CodeableConcept`.
+
+Both allow for optional uncoded Text and for a number of codes/code-mappings to be carried,
+one of which is designated as the defining_code (openEHR) or userSelected (FHIR).
+
+We also have to manage different 'system/terminologyId' names.
+
+The code sample below comes from src/main/java/com/inidus/platform/fhir/openehr/DfText.java[DfText.java]
+[source, java]
+----
+public class DfText {
+
+    private static final Map<String, String> terminologyNameToFHIRSystem = new HashMap<>();
+    private static final Map<String, String> FHIRSystemToTerminologyName = new HashMap<>();
+    private static final Logger log = LoggerFactory.getLogger(DfText.class);
+
+  // Handle bi-directional mappings of the code system / terminology Id name
+    static {
+        terminologyNameToFHIRSystem.put("SNOMED-CT", "http://snomed.info/sct");
+        terminologyNameToFHIRSystem.put("LOINC", "http://loinc.org");
+        terminologyNameToFHIRSystem.put("ICD-10", "http://hl7.org/fhir/sid/icd-10");
+        terminologyNameToFHIRSystem.put("UCUM", "http://unitsofmeasure.org");
+        terminologyNameToFHIRSystem.forEach((String key, String value) -> FHIRSystemToTerminologyName.put(value, key));
+    }
+
+    // Convert an openEHR DV_TEXT to a FHIR CodeableConcept
+    public static CodeableConcept convertToCodeableConcept(DvText dvText) {
+
+        CodeableConcept codeableConcept = new CodeableConcept();
+        codeableConcept.setText(dvText.getValue());
+
+        //If this is a coded_text add the defining_code to the Codeable Concept
+        // as a user_defined coding
+
+        if (dvText instanceof DvCodedText) {
+            DvCodedText dvCodedText = (DvCodedText) dvText;
+            codeableConcept.addCoding(convertToCoding(dvCodedText.getDefiningCode(), true, dvCodedText.getValue()));
+        }
+
+        //Convert any openEHR DvText mappings
+        if (dvText.getMappings() != null) {
+            int maxMappings = dvText.getMappings().size();
+            for (int cntMappings = 0; cntMappings < maxMappings; cntMappings++) {
+                CodePhrase codePhrase = dvText.getMappings().get(cntMappings).getTarget();
+                codeableConcept.addCoding(convertToCoding(codePhrase, false, null));
+            }
+        }
+        return codeableConcept;
+    }
+
+    //Convert an openEHR CodePhrase object to a FHIR Coding object
+    private static Coding convertToCoding(CodePhrase codePhrase, boolean isDefiningCode, String textValue) {
+        Coding coding = new Coding();
+        coding.setCode(codePhrase.getCodeString());
+        coding.setSystem(terminologyNameToFHIRSystem.get(codePhrase.getTerminologyId().name()));
+        coding.setVersion(codePhrase.getTerminologyId().versionID());
+
+        // openEHR mapping CodePhrases do not carry a textValue;
+        if (textValue != null) {
+            coding.setDisplay(textValue);
+        }
+
+        // UserSelected (The code selected by the user) in FHIR is not an identical concept
+        // to definingCode (The code directly associated with a dv_coded_text value but close enough.
+        coding.setUserSelected(isDefiningCode);
+        return coding;
+    }
+
+    //Convert a FHIR Coding object to an openEHR CodePhrase object
+    private static CodePhrase convertToCodePhrase(Coding coding) {
+        String code = coding.getCode();
+        String termId = FHIRSystemToTerminologyName.get(coding.getSystem());
+        return new CodePhrase(termId, code);
+
+    }
+}
+----
+
+
+=== DV_DATETIME to Date/DateTime
+
+This is a simple maping as both use ISO-form dates.
