@@ -224,7 +224,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 ==== FHIR node: `allergyIntolerance.patient`
 
@@ -286,7 +286,7 @@ Valueset mappings::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 
 ==== FHIR node: `allergyIntolerance.reaction.manifestation`
@@ -302,7 +302,7 @@ Valueset mappings::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 
 ==== FHIR node: `allergyIntolerance.reaction.description`
@@ -347,7 +347,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 ==== FHIR node: `allergyIntolerance.reaction.note`
 

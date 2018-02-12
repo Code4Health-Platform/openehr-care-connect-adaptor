@@ -169,7 +169,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 
 === FHIR node: `medicationStatement.subject`
@@ -240,7 +240,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 
 === FHIR node: `medicationStatement.dosage.text`
@@ -262,7 +262,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 ==== FHIR node: `medicationStatement.dosage.patientInstruction`
 
@@ -271,7 +271,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 
 === FHIR node: `medicationStatement.dosage.method`
@@ -281,7 +281,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 === FHIR node: `medicationStatement.dosage.site`
 
@@ -293,7 +293,7 @@ DV_TEXT => CodeableConcept
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 === FHIR node: `medicationStatement.dosage.route`
 
@@ -302,7 +302,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 
 === FHIR node: `medicationStatement.text`

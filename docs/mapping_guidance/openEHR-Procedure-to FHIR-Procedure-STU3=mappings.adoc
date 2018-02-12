@@ -152,7 +152,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 ==== FHIR name: `procedure.subject`
 
@@ -193,7 +193,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 ==== FHIR node: `procedure.category`
 
@@ -202,7 +202,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 
 ==== FHIR node: `procedure.bodySite`
@@ -212,7 +212,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 ==== FHIR node: `procedure.complication`
 
@@ -221,7 +221,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
 ==== FHIR node: `procedure.note`
 
