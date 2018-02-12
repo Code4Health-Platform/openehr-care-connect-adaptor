@@ -1,4 +1,4 @@
-== openEHR Procedure (as MedicationStatement) to FHIR MedicationStatement STU3 mappings
+== openEHR Medication Order (as MedicationStatement) to FHIR MedicationStatement STU3 mappings
 Ian McNicoll <ian@inidus.com>
 v1.0.0, 06-Feb-2018
 
@@ -99,26 +99,16 @@ select
     a/uid/value as compositionId,
     a/composer/name as composerName,
     b_a/uid/value as entryId,
-    b_a/activities[at0001]/description[at0002]/items[at0070]/value/value as Medication_item_value,
-    b_a/activities[at0001]/description[at0002]/items[at0070]/value/defining_code/code_string as Medication_item_code,
-    b_a/activities[at0001]/description[at0002]/items[at0070]/value/defining_code/terminology_id/value as Medication_item_terminology,
+    b_a/activities[at0001]/description[at0002]/items[at0070] as Medication_item
     b_a/activities[at0001]/description[at0002]/items[at0009]/value/value as Overall_directions_description,
     b_a/activities[at0001]/description[at0002]/items[at0173, 'Dose amount description']/value/value as Dose_amount_description,
     b_a/activities[at0001]/description[at0002]/items[at0173, 'Dose timing description']/value/value as Dose_timing_description,
-    b_a/activities[at0001]/description[at0002]/items[at0044]/value/value as Additional_instruction_value,
-    b_a/activities[at0001]/description[at0002]/items[at0044]/value/defining_code/code_string as Additional_instruction_code,
-    b_a/activities[at0001]/description[at0002]/items[at0044]/value/defining_code/terminology_id/value as Additional_instruction_terminology,
+    b_a/activities[at0001]/description[at0002]/items[at0044] as Additional_instruction,
     b_a/activities[at0001]/description[at0002]/items[at0105]/value/value as Patient_information_value,
     b_a/activities[at0001]/description[at0002]/items[at0107]/value/value as Monitoring_instruction_value,
-    b_a/activities[at0001]/description[at0002]/items[at0018]/value/value as Clinical_indication_value,
-    b_a/activities[at0001]/description[at0002]/items[at0018]/value/defining_code/code_string as Clinical_indication_code,
-    b_a/activities[at0001]/description[at0002]/items[at0018]/value/terminology_id/value as Clinical_indication_terminology,
-    b_a/activities[at0001]/description[at0002]/items[at0091]/value/value as Route_value,
-    b_a/activities[at0001]/description[at0002]/items[at0091]/value/defining_code/code_string as Route_code,
-    b_a/activities[at0001]/description[at0002]/items[at0091]/value/defining_code/terminology_id/value as Route_terminology,
-    b_a/activities[at0001]/description[at0002]/items[openEHR-EHR-CLUSTER.medication_substance.v0]/items[at0071]/value/value as Form_value,
-    b_a/activities[at0001]/description[at0002]/items[openEHR-EHR-CLUSTER.medication_substance.v0]/items[at0071]/value/defining_code/code_string as Form_code,
-    b_a/activities[at0001]/description[at0002]/items[openEHR-EHR-CLUSTER.medication_substance.v0]/items[at0071]/value/defining_code/terminology_id/value as Form_terminology,
+    b_a/activities[at0001]/description[at0002]/items[at0018] as Clinical_indication,
+    b_a/activities[at0001]/description[at0002]/items[at0091] as Route,
+    b_a/activities[at0001]/description[at0002]/items[openEHR-EHR-CLUSTER.medication_substance.v0]/items[at0071] as Form,
     b_a/activities[at0001]/description[at0002]/items[at0113]/items[openEHR-EHR-CLUSTER.medication_course_summary.v0]/items[at0001]/value/defining_code/code_string as Status_code,
     b_a/activities[at0001]/description[at0002]/items[at0113]/items[openEHR-EHR-CLUSTER.medication_course_summary.v0]/items[at0028]/value/value as AssertedDate,
     b_a/activities[at0001]/description[at0002]/items[at0113]/items[at0012]/value/value as Order_start_date_time,
@@ -247,11 +237,8 @@ openEHR AQL node::
 - `Reason` => `medicationStatement.reasonCode`
 
 Datatype mapping::
-DV_TEXT => CodeableConcept
-
-Valueset mappings::
-See dfText.jar for code example
-
+DV_TEXT => CodeableConcept +
+see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
 
 
 ==== FHIR node: `medicationStatement.dosage.text`
@@ -262,9 +249,9 @@ openEHR AQL node::
 Datatype mapping::
 DV_TEXT => CodeableConcept
 
-Valueset mappings::
-See dfText.jar for code example
-
+Datatype mapping::
+DV_TEXT => CodeableConcept +
+see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
 
 ==== FHIR node: `medicationStatement.dosage.additionalInstruction`
 
@@ -272,10 +259,8 @@ openEHR AQL node::
 - `Reason` => `medicationStatement.dosage.additionalInstruction`
 
 Datatype mapping::
-DV_TEXT => CodeableConcept
-
-Valueset mappings::
-See dfText.jar for code example
+DV_TEXT => CodeableConcept +
+see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
 
 ==== FHIR node: `medicationStatement.dosage.patientInstruction`
 
@@ -283,10 +268,8 @@ openEHR AQL node::
 - `Reason` => `medicationStatement.dosage.patientInstruction`
 
 Datatype mapping::
-DV_TEXT => CodeableConcept
-
-Valueset mappings::
-See dfText.jar for code example
+DV_TEXT => CodeableConcept +
+see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
 
 
 ==== FHIR node: `medicationStatement.dosage.method`
@@ -295,10 +278,8 @@ openEHR AQL node::
 - `Reason` => `medicationStatement.dosage.method`
 
 Datatype mapping::
-DV_TEXT => CodeableConcept
-
-Valueset mappings::
-See dfText.jar for code example
+DV_TEXT => CodeableConcept +
+see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
 
 ==== FHIR node: `medicationStatement.dosage.site`
 
@@ -308,8 +289,9 @@ openEHR AQL node::
 Datatype mapping::
 DV_TEXT => CodeableConcept
 
-Valueset mappings::
-See dfText.jar for code example
+Datatype mapping::
+DV_TEXT => CodeableConcept +
+see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
 
 ==== FHIR node: `medicationStatement.dosage.route`
 
@@ -317,13 +299,62 @@ openEHR AQL node::
 - `Reason` => `medicationStatement.dosage.route`
 
 Datatype mapping::
-DV_TEXT => CodeableConcept
-
-Valueset mappings::
-See dfText.jar for code example
+DV_TEXT => CodeableConcept +
+see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
 
 
 ==== FHIR node: `medicationStatement.text`
 FHIR Narrative block::
 This is optional in Care-Connect but is good practice.
 NOTE:: TBD
+
+
+==== FLAT AQL (avoids use of dv_text/dv_coded_text as objects)
+
+[source, sql]
+----
+select
+    e/ehr_id/value as ehrId,
+    e/ehr_status/subject/external_ref/id/value as subjectId,
+    e/ehr_status/subject/external_ref/namespace as subjectNamespace,
+    a/context/start_time/value as compositionStartTime,
+    a/uid/value as compositionId,
+    a/composer/name as composerName,
+    b_a/uid/value as entryId,
+    b_a/activities[at0001]/description[at0002]/items[at0070]/value/value as Medication_item_value,
+    b_a/activities[at0001]/description[at0002]/items[at0070]/value/defining_code/code_string as Medication_item_code,
+    b_a/activities[at0001]/description[at0002]/items[at0070]/value/defining_code/terminology_id/value as Medication_item_terminology,
+    b_a/activities[at0001]/description[at0002]/items[at0009]/value/value as Overall_directions_description,
+    b_a/activities[at0001]/description[at0002]/items[at0173, 'Dose amount description']/value/value as Dose_amount_description,
+    b_a/activities[at0001]/description[at0002]/items[at0173, 'Dose timing description']/value/value as Dose_timing_description,
+    b_a/activities[at0001]/description[at0002]/items[at0044]/value/value as Additional_instruction_value,
+    b_a/activities[at0001]/description[at0002]/items[at0044]/value/defining_code/code_string as Additional_instruction_code,
+    b_a/activities[at0001]/description[at0002]/items[at0044]/value/defining_code/terminology_id/value as Additional_instruction_terminology,
+    b_a/activities[at0001]/description[at0002]/items[at0105]/value/value as Patient_information_value,
+    b_a/activities[at0001]/description[at0002]/items[at0107]/value/value as Monitoring_instruction_value,
+    b_a/activities[at0001]/description[at0002]/items[at0018]/value/value as Clinical_indication_value,
+    b_a/activities[at0001]/description[at0002]/items[at0018]/value/defining_code/code_string as Clinical_indication_code,
+    b_a/activities[at0001]/description[at0002]/items[at0018]/value/terminology_id/value as Clinical_indication_terminology,
+    b_a/activities[at0001]/description[at0002]/items[at0091]/value/value as Route_value,
+    b_a/activities[at0001]/description[at0002]/items[at0091]/value/defining_code/code_string as Route_code,
+    b_a/activities[at0001]/description[at0002]/items[at0091]/value/defining_code/terminology_id/value as Route_terminology,
+    b_a/activities[at0001]/description[at0002]/items[openEHR-EHR-CLUSTER.medication_substance.v0]/items[at0071]/value/value as Form_value,
+    b_a/activities[at0001]/description[at0002]/items[openEHR-EHR-CLUSTER.medication_substance.v0]/items[at0071]/value/defining_code/code_string as Form_code,
+    b_a/activities[at0001]/description[at0002]/items[openEHR-EHR-CLUSTER.medication_substance.v0]/items[at0071]/value/defining_code/terminology_id/value as Form_terminology,
+    b_a/activities[at0001]/description[at0002]/items[at0113]/items[openEHR-EHR-CLUSTER.medication_course_summary.v0]/items[at0001]/value/defining_code/code_string as Status_code,
+    b_a/activities[at0001]/description[at0002]/items[at0113]/items[openEHR-EHR-CLUSTER.medication_course_summary.v0]/items[at0028]/value/value as AssertedDate,
+    b_a/activities[at0001]/description[at0002]/items[at0113]/items[at0012]/value/value as Order_start_date_time,
+    b_a/activities[at0001]/description[at0002]/items[at0113]/items[at0013]/value/value as Order_stop_date_time
+   from EHR e
+   contains COMPOSITION a[openEHR-EHR-COMPOSITION.medication_list.v0]
+   contains
+      INSTRUCTION b_a[openEHR-EHR-INSTRUCTION.medication_order.v1]
+   WHERE a/name/value = 'Medication statement list';
+-- Optional parameters, depending on FHIR search criteria
+and e/ehr_id/value = '{{fhir.patient.id_param}}'
+and e/ehr_status/subject/external_ref/id/value = '{{fhir.patient.identifier.value.param}}'
+and e/ehr_status/subject/external_ref/namespace =  '{{fhir.patient.identifier.system.param}}'
+and b_a/activities[at0001]/description[at0002]/items[at0113]/items[at0012]/value/value >= '{{fhir.medication_statement.effective_date_param_min}}'
+and b_a/activities[at0001]/description[at0002]/items[at0113]/items[at0012]/value/value <= '{{fhir.medication_statement.effective_date_param_max}}'
+and b_a/activities[at0001]/description[at0002]/items[at0113]/items[openEHR-EHR-CLUSTER.medication_course_summary.v0]/items[at0001]/value/defining_code/code_string = '{{fhir_status_param}}',
+----

@@ -1,6 +1,7 @@
 == openEHR AdverseReactionRisk to FHIR allergyIntolerance STU3 mappings
 Ian McNicoll <ian@inidus.com>
 v1.1.2, 12-Feb-2018
+
 ifdef::env-github[]
 :tip-caption: :bulb:
 :note-caption: :information_source:
