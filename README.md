@@ -67,7 +67,6 @@ TBD
 - [openEHR ProblemDiagnosis to FHIR condition STU3 mappings](docs/mapping_guidance/openEHR-ProblemDiagnosis-to-FHIR-Condition-STU3-mappings.adoc)
 - [openEHR Procedure to FHIR Procedure STU3 mappings](docs/mapping_guidance/openEHR-Procedure-to FHIR-Procedure-STU3-mappings.adoc)
 
-
 #### General Approach
 
 The general approach has been to construct openEHR Archetype Language (AQL) statements to retrieve appropriate data from target openEHR templates. The mappings have been built in java, with considerable use made of generic mapping functions, facilitated by the close alignment of many openEHR and FHIR datatypes.
@@ -84,3 +83,4 @@ The general approach has been to construct openEHR Archetype Language (AQL) stat
 2. Add further operations (write).
 3. Improve low-level datatype mapping.
 3. Improve and extend search criteria.
+4. Adapt to replace the Ehrscape API with imminent openEHR REST API.
