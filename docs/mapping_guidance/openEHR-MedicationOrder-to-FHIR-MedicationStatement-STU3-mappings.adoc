@@ -128,9 +128,9 @@ and b_a/activities[at0001]/description[at0002]/items[at0113]/items[at0012]/value
 and b_a/activities[at0001]/description[at0002]/items[at0113]/items[openEHR-EHR-CLUSTER.medication_course_summary.v0]/items[at0001]/value/defining_code/code_string = '{{fhir_status_param}}',
 ----
 
-=== Node mappings
+== Node mappings
 
-==== FHIR node:: `medicationStatement.id`
+=== FHIR node:: `medicationStatement.id`
 
 openEHR AQL node::
 if `entryId` is not null
@@ -142,7 +142,7 @@ Valueset mappings:: None
 NOTE: The FHIR id is constructed by a concatenation of the openEHR `compositionId` and `entryId` as above.
 If `entryID` is null, simply send the `compositionID`.
 
-==== FHIR node:: `medicationStatement.status`
+=== FHIR node:: `medicationStatement.status`
 
 openEHR AQL node::
 - `Status_code` => `medicationStatement.status`
@@ -162,16 +162,17 @@ FHIR Valueset:: active | completed | entered-in-error | intended | stopped | on-
 `local::at0027::Draft` => `intended`
 
 
-==== FHIR node:: `medicationStatement.medicationReference.code`
+=== FHIR node:: `medicationStatement.medicationReference.code`
 
 openEHR AQL node::
 - `MedicationName` => `medicationStatement.medicationReference.code`
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see <<openEHR-to-FHIR-Datatype-mappings.adoc, Datatype mapping guidance>>
+see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
 
-==== FHIR name: `medicationStatement.subject`
+
+=== FHIR node: `medicationStatement.subject`
 
 openEHR AQL node::
 `ehrId` => `medicationStatement.subject.reference`
@@ -187,7 +188,7 @@ NOTE: We are using the patient's openEHR `ehrId` as the `id` of the FHIR `subjec
 If the subjectNamespace is not `uk.nhs.nhs_number`, it should not be mapped to `https://fhir.nhs.uk/Id/nhs-number` but simply passed through unchanged.
 
 
-==== FHIR name `medicationStatement.asserter`
+=== FHIR node: `medicationStatement.asserter`
 
 openEHR AQL nodes::
 `composerIdentifier` => `medicationStatement.asserter.identifier.value`
@@ -198,7 +199,7 @@ Datatype mapping::
 DV_TEXT => Identifier
 
 
-==== FHIR node: `medicationStatement.assertedDate`
+=== FHIR node: `medicationStatement.assertedDate`
 
 openEHR AQL node::
 `Last_updated` => `medicationStatement.assertedDate`
@@ -206,7 +207,7 @@ openEHR AQL node::
 Datatype mapping::
 DV_DATE_TIME => dateTime
 
-==== FHIR node: `medicationStatement.effective.effectiveDate`
+=== FHIR node: `medicationStatement.effective.effectiveDate`
 
 openEHR AQL node::
 `Order_start_date` => `medicationStatement.effective.effectiveDate`
@@ -214,13 +215,13 @@ openEHR AQL node::
 Datatype mapping::
 DV_DATE_TIME => dateTime
 
-==== FHIR node:: `medicationStatus.taken`
+=== FHIR node:: `medicationStatus.taken`
 
 openEHR AQL node::
 None - hardwire  value to `unk` as this a mandatory field.
 
 
-==== FHIR node: `medicationStatement.note`
+=== FHIR node: `medicationStatement.note`
 
 openEHR AQL node::
 `Comment` => `medicationStatement.note.text`
@@ -232,7 +233,7 @@ DV_TEXT => Annotation.
 - `dosage.route`
 - `dosage.method`
 
-==== FHIR node: `medicationStatement.reasonCode`
+=== FHIR node: `medicationStatement.reasonCode`
 
 openEHR AQL node::
 - `Reason` => `medicationStatement.reasonCode`
@@ -242,7 +243,7 @@ DV_TEXT => CodeableConcept +
 see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
 
 
-==== FHIR node: `medicationStatement.dosage.text`
+=== FHIR node: `medicationStatement.dosage.text`
 
 openEHR AQL node::
 - `Reason` => `medicationStatement.dosage.text`
@@ -254,14 +255,14 @@ Datatype mapping::
 DV_TEXT => CodeableConcept +
 see link:openEHR-to-FHIR-Datatype-mappings.adoc[Datatype mapping guidance]
 
-==== FHIR node: `medicationStatement.dosage.additionalInstruction`
+=== FHIR node: `medicationStatement.dosage.additionalInstruction`
 
 openEHR AQL node::
 - `Reason` => `medicationStatement.dosage.additionalInstruction`
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
 
 ==== FHIR node: `medicationStatement.dosage.patientInstruction`
 
@@ -270,19 +271,19 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
 
 
-==== FHIR node: `medicationStatement.dosage.method`
+=== FHIR node: `medicationStatement.dosage.method`
 
 openEHR AQL node::
 - `Reason` => `medicationStatement.dosage.method`
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
 
-==== FHIR node: `medicationStatement.dosage.site`
+=== FHIR node: `medicationStatement.dosage.site`
 
 openEHR AQL node::
 - `Reason` => `medicationStatement.dosage.site`
@@ -292,19 +293,20 @@ DV_TEXT => CodeableConcept
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
 
-==== FHIR node: `medicationStatement.dosage.route`
+=== FHIR node: `medicationStatement.dosage.route`
 
 openEHR AQL node::
 - `Reason` => `medicationStatement.dosage.route`
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
 
 
-==== FHIR node: `medicationStatement.text`
+=== FHIR node: `medicationStatement.text`
+
 FHIR Narrative block::
 This is optional in Care-Connect but is good practice.
 NOTE:: TBD

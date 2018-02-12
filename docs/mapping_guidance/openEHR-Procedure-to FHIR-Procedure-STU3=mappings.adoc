@@ -8,6 +8,7 @@ ifdef::env-github[]
 :important-caption: :heavy_exclamation_mark:
 :caution-caption: :fire:
 :warning-caption: :warning:
+ifdef::env-browser[:outfilesuffix: .adoc]
 endif::[]
 
 == Target openEHR template
@@ -192,7 +193,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
 
 ==== FHIR node: `procedure.category`
 
@@ -201,7 +202,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
 
 
 ==== FHIR node: `procedure.bodySite`
@@ -211,7 +212,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
 
 ==== FHIR node: `procedure.complication`
 
@@ -220,7 +221,7 @@ openEHR AQL node::
 
 Datatype mapping::
 DV_TEXT => CodeableConcept +
-see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
+see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
 
 ==== FHIR node: `procedure.note`
 
