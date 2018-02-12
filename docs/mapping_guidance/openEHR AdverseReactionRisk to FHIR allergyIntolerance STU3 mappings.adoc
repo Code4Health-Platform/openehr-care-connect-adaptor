@@ -1,9 +1,6 @@
 == openEHR AdverseReactionRisk to FHIR allergyIntolerance STU3 mappings
 Ian McNicoll <ian@inidus.com>
-v1.1.0, 05-Dec-2017
-// v1.0.1  -Add support for Github icons
-// v1.1.0 - corrected typo in AQL
-
+v1.1.2, 12-Feb-2018
 ifdef::env-github[]
 :tip-caption: :bulb:
 :note-caption: :information_source:
@@ -13,9 +10,7 @@ ifdef::env-github[]
 endif::[]
 
 == Target openEHR template
-
-[IDCR -  Adverse Reaction List.v1| Adverse reaction list](http://ckm.apperta.org/ckm/#showTemplate_1051.57.71)
-
+http://ckm.apperta.org/ckm/#showTemplate_1051.57.7[IDCR -  Adverse Reaction List.v1| Adverse reaction list]
 
 == FHIR resource operation Requirements
 
@@ -56,8 +51,6 @@ endif::[]
 - `reaction.onset`
 
 - `reaction.exposureRoute`
--
-
 
 ===  Operation: `search`
 
@@ -147,26 +140,20 @@ and b_a/protocol[at0042]/items[at0062]/value/value <= '{{fhir_date_param_max}}'
 
 ==== FHIR node:: `allergyIntolerance.id`
 
-FHIR Description::
-The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes.
-
 openEHR AQL node::  `compositionId`+ '_' + `entryId`
 
-Valueset mappings:: None
+Valueset mappings::
+None
 
 NOTE: The FHIR id is constructed by a concatenation of the openEHR `compositionId` and `entryId` as above.
 If `entryID` is null, simply send the `compositionID`. `entryID` is currently not supported by Ethercis.
 
 ==== FHIR node:: `allergyIntolerance.clinicalStatus`
 
-FHIR Description::
-The clinical status of the allergy or intolerance..
-
 openEHR AQL node::
 - `Status_code_string` => `allergyIntolerance.clinicalStatus`
 
 Datatype Mapping style::
-
 DV_CODED_TEXT => Code
 
 Valueset mappings::
@@ -174,14 +161,10 @@ Valueset mappings::
 
 ==== FHIR node:: `allergyIntolerance.verificationStatus`
 
-FHIR Description::
-Assertion about certainty associated with the propensity, or potential risk, of a reaction to the identified substance (including pharmaceutical product).
-
 openEHR AQL node::
 - `Status` => `allergyIntolerance.verificationStatus`
 
 Datatype Mapping style::
-
 DV_CODED_TEXT => Code
 
 Valueset mappings::
@@ -192,18 +175,13 @@ NOTE: If the openEHR node is unpopulated default to `unconfirmed`
 
 ==== FHIR node:: `allergyIntolerance.type`
 
-FHIR Description::
-Underlying mechanism (if known).
-
 openEHR AQL node::
 - `Reaction_mechanism_code` => `allergyIntolerance.type`
 
 Datatype Mapping style::
-
 DV_CODED_TEXT => Code
 
 Valueset mappings::
-
 - `at0059::Immune mediated` => `allergy`
 - `at0060::Non-immune mediated` => `intolerance`
 - `at0126::Indeterminate` => *DO NOT PERSIST*
@@ -212,80 +190,48 @@ NOTE: If the openEHR value is `at0126::Indeterminate` then this node should not 
 
 ==== FHIR node:: `allergyIntolerance.category`
 
-FHIR Description::
- Category of an identified Substance.
-
 openEHR AQL node::
 - `Category_code` => `allergyIntolerance.category`
 
 Datatype Mapping::
-
 DV_CODED_TEXT => Code
 
 Valueset mappings::
-
 - `at0121::Food` => `food`
 - `at0122::Medication` => `medication`
 - `at0123::Other` => `environment`
 - `at0122::Medication` => `biologic`
 
-
-
-
-
 ==== FHIR node:: `allergyIntolerance.criticality`
 
-FHIR Description::
-Estimate of the potential clinical harm, or seriousness, of a reaction to an identified Substance
-
 openEHR AQL node::
-
 - `Criticality` => `allergyIntolerance.criticality`
 
 Datatype Mapping::
-
 DV_CODED_TEXT => Code
 
 Valueset mappings::
-
 - `at0102::Low` => `low`
 - `at0103::High` => `high`
 - `at0124::Indeterminate` => `unable-to-assess`
 
 ==== FHIR node: `allergyIntolerance.code`
 
-FHIR Description::
-The Code that identifies the allergy or intolerance. Called Causative Agent in openEHR
-
 openEHR AQL node::
-
 - `Causative_agent` => `allergyIntolerance.code`
 
 Datatype mapping::
+DV_TEXT => CodeableConcept +
+see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
 
-DV_TEXT => CodeableConcept
-
-Valueset mappings::
-
-See dfText.jar for code example
-
-- `SNOMED-CT` => `http://snomed.info/sct`
-- `LOINC` => `http://loinc.org`
-
-
-==== FHIR name: `allergyIntolerance.patient`
-
-FHIR Description::
-Who the sensitivity is for.
+==== FHIR node: `allergyIntolerance.patient`
 
 openEHR AQL node::
-
 `ehrId` => `allergyIntolerance.patient.reference`
 `subjectId` => `allergyIntolerance.patient.identifier.value`
 `subjectNamespace` => `allergyIntolerance.patient.identifier.system`
 
 Valueset mappings::
-
 . For `subjectNamespace` => `allergyIntolerance.patient.identifier.system`
 .. `uk.nhs.nhs_number` => `https://fhir.nhs.uk/Id/nhs-number`
 
@@ -295,20 +241,15 @@ If the subjectNamespace is not `uk.nhs.nhs_number`, it should not be mapped to `
 
 === `allergyIntolerance.lastOccurence`
 
-FHIR Description::  - Date(/time) of last known occurrence of a reaction.
-
 openEHR AQL node::
-
 `Onset_of_last_reaction` => `allergyIntolerance.lastOccurence`
 
-Valueset mappings::None
+Valueset mappings::
+None
 
 ==== FHIR node: `allergyIntolerance.assertedDate`
 
-FHIR Description::  - Date record was believed accurate.
-
 openEHR AQL node::
-
 `Adverse_reaction_risk_Last_updated` => `allergyIntolerance.assertedDate`
 
 if `Adverse_reaction_risk_Last_updated` is null
@@ -317,61 +258,49 @@ if `Adverse_reaction_risk_Last_updated` is null
 NOTE: Where the last Updated date is null the start_time attribute of the parent composition is a safe proxy.
 
 Datatype mapping::
-
 DV_DATE_TIME => dateTime
 
-Valueset mappings:: None
+Valueset mappings::
+None
 
 ==== FHIR node: `allergyIntolerance.note`
 
-FHIR Description::  - Additional text not captured in other fields.
-
 openEHR AQL node::
-
 `Comment` => `allergyIntolerance.note.text`
 
-
 Datatype mapping::
-
 DV_TEXT => Annotation.
 
-Valueset mappings:: None
+Valueset mappings::
+None
 
 ==== FHIR node: `allergyIntolerance.reaction.substance`
 
-FHIR Description::  - Specific substance or pharmaceutical product considered to be responsible for event.
-
 openEHR AQL node::
-
 `Specific_substance_value` => `allergyIntolerance.reaction.substance.text`
 
 Valueset mappings::
-
 `Specific_substance_terminology_id` => `allergyIntolerance.reaction.substance.coding.system`
-See dfText.jar for code example
 
-* `SNOMED-CT` => `http://snomed.info/sct`
-* `LOINC` => `http://loinc.org`
+Datatype mapping::
+DV_TEXT => CodeableConcept +
+see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+
 
 ==== FHIR node: `allergyIntolerance.reaction.manifestation`
 
-FHIR Description::  - Clinical symptoms/signs associated with the Event.
-
 openEHR AQL node::
-
 `Manifestation_value` => `allergyIntolerance.reaction.manifestation.text`
 
 Datatype mapping::
-
 DV_TEXT => CodeableConcept
 
 Valueset mappings::
-
 `Specific_substance_terminology_id` => `allergyIntolerance.reaction.substance.coding.system`
-See dfText.jar for code example
 
-- `SNOMED-CT` => `http://snomed.info/sct`
-- `LOINC` => `http://loinc.org`
+Datatype mapping::
+DV_TEXT => CodeableConcept +
+see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
 
 
 ==== FHIR node: `allergyIntolerance.reaction.description`
@@ -379,108 +308,86 @@ See dfText.jar for code example
 FHIR Description::  - Description of the event as a whole.
 
 openEHR AQL node::
-
 `Reaction_description` => `allergyIntolerance.reaction.description`
 
 Datatype mapping::
-
 DV_TEXT => String
 
 Valueset mappings:: None
 
 ==== FHIR node: `allergyIntolerance.reaction.onset`
 
-FHIR Description::  - Date(/time) when manifestations showed.
-
 openEHR AQL node::
-
 `Onset_of_reaction` => `allergyIntolerance.reaction.onset`
 
-Valueset mappings:: None
+Valueset mappings::
+None
 
 ==== FHIR node: `allergyIntolerance.reaction.severity`
 
-FHIR Description::  - - Severity of the event as a whole.
-
 openEHR AQL node::
-
 `Severity` => `allergyIntolerance.reaction.severity`
 
 Datatype mapping::
-
 DV_CODED_TEXT => Code
 
 Valueset mappings::
-
 `local::at0093| Mild`  => `mild`
 `local::at0092| Moderate` =>`moderate`
 `local::at0090| Severe` => `severe`
-
 
 ==== FHIR node: `allergyIntolerance.reaction.exposureRoute`
 
 FHIR Description::  - How the subject was exposed to the substance.
 
 openEHR AQL node::
-
 `Route_of_exposure_value` => `allergyIntolerance.reaction.exposureRoute`
 
 Datatype mapping::
+DV_TEXT => CodeableConcept +
+see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
 
-DV_TEXT => CodeableConcept
-
-Valueset mappings::
-
-`Route_of_exposure_terminology_id` => `allergyIntolerance.reaction.substance.coding.system`
-
-- `SNOMED-CT` => `http://snomed.info/sct`
-- `LOINC` => `http://loinc.org`
-
-=== `allergyIntolerance.reaction.note`
+==== FHIR node: `allergyIntolerance.reaction.note`
 
 FHIR Description::  - Date(/time) when manifestations showed.
 
 openEHR AQL node::
-
 `Adverse_reaction_risk_Comment` => `allergyIntolerance.note.text`
 
 Datatype mapping::
-
 DV_TEXT => Annotation
 
-Valueset mappings:: None
+Valueset mappings::
+None
 
-
-=== `allergyIntolerance.asserter.name`
+=== FHIR node: `allergyIntolerance.asserter.name`
 
 FHIR Description::  - The name of the person asserting the allergy.
 
 openEHR AQL node::
-
 `composerName` => `allergyIntolerance.asserter.name`
 
 Datatype mapping::
-
 DV_TEXT => string
 
-Valueset mappings:: None
+Valueset mappings::
+None
 
-=== `allergyIntolerance.asserter.identifier.value`
+=== FHIR node: `allergyIntolerance.asserter.identifier.value`
 
 FHIR Description::  - The identifier of the person asserting the allergy.
 
 openEHR AQL node::
-
 `composerIdentifier` => `allergyIntolerance.asserter.identifier.value`
 `composerNamespace` => `allergyIntolerance.asserter.identifier.system`
 
 Datatype mapping::
-
 DV_TEXT => String
 
-Valueset mappings:: None
+Valueset mappings::
+None
 
-==== Alternative FLAT AQL (includes search parameters and dv_coded_text objects)
+==== Alternative FLAT AQL
 
 This flattened form of the AQL avoids use of DV_CODED_TEXT objects.
 
@@ -536,7 +443,7 @@ and b_a/protocol[at0042]/items[at0062]/value/value <= '{{fhir_date_param_max}}'
 
 ----
 
-=== FHIR Narrative block
+==== FHIR Narrative block
 
 This is optional in Care-Connect but is good practice.
 

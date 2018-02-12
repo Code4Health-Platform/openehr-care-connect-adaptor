@@ -1,6 +1,6 @@
-== openEHR MedicationOrder (as MedicationStatement) to FHIR MedicationStatement STU3 mappings
+== openEHR Procedure to FHIR Procedure STU3 mappings
 Ian McNicoll <ian@inidus.com>
-v1.0.0, 28-Jan-2018
+v1.1.0, 12-Feb-2018
 
 ifdef::env-github[]
 :tip-caption: :bulb:
@@ -11,10 +11,7 @@ ifdef::env-github[]
 endif::[]
 
 == Target openEHR template
-
-http://ckm.apperta.org/ckm[IDCR -  .v1| Medication Statement list]
-
-This template assumes that a static list of medication orders is being maintained in the underlying CDR. A different AQL approach may be need to pull data from a live prescribing system.
+http://ckm.apperta.org/ckm/#showTemplate_1051.57.140[IDCR - Procedure list .v1| Procedure list]
 
 == FHIR resource operation Requirements
 
@@ -46,7 +43,6 @@ This template assumes that a static list of medication orders is being maintaine
 - `datePerformed`
 
 - `note` - Multiple
-
 
 ===  Operation: `search`
 
@@ -140,7 +136,6 @@ DV_CODED_TEXT => Code
 
 Valueset Mappings::
 FHIR Valueset::
-
 `local::at0021::Active` => `active` (default)
 `local::at0024::Completed` => `completed`
 `local::at0022::Never active` => `stopped`
@@ -149,15 +144,14 @@ FHIR Valueset::
 `local::at0026::Suspended` => `on-hold`
 `local::at0027::Draft` => `intended`
 
-
 ==== FHIR node:: `procedure.code`
 
 openEHR AQL node::
 - `procedure.name` => `procedure..code`
 
-Datatype Mapping style::
-DV_TEXT => CodeableConcept
-
+Datatype mapping::
+DV_TEXT => CodeableConcept +
+see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
 
 ==== FHIR name: `procedure.subject`
 
@@ -174,7 +168,6 @@ NOTE: We are using the patient's openEHR `ehrId` as the `id` of the FHIR `subjec
  and using the patient's NHS Number, carried in the openEHR 'ehr' object as `subjectId` as the patient identifier.
 If the subjectNamespace is not `uk.nhs.nhs_number`, it should not be mapped to `https://fhir.nhs.uk/Id/nhs-number` but simply passed through unchanged.
 
-r
 ==== FHIR name `procedure.performer`
 
 openEHR AQL nodes::
@@ -184,7 +177,6 @@ openEHR AQL nodes::
 Datatype mapping::
 DV_PARTICIPATION => Performer
 
-
 ==== FHIR node: `procedure.performedDate`
 
 openEHR AQL node::
@@ -193,18 +185,14 @@ openEHR AQL node::
 Datatype mapping::
 DV_DATE_TIME => dateTime
 
-
 ==== FHIR node: `procedure.outcome`
 
 openEHR AQL node::
 - `Outcome` => `procedure.outcome`
 
 Datatype mapping::
-DV_TEXT => CodeableConcept
-
-Valueset mappings::
-See dfText.jar for code example
-
+DV_TEXT => CodeableConcept +
+see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
 
 ==== FHIR node: `procedure.category`
 
@@ -212,10 +200,9 @@ openEHR AQL node::
 - `Procedure_type` => `procedure.category`
 
 Datatype mapping::
-DV_TEXT => CodeableConcept
+DV_TEXT => CodeableConcept +
+see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
 
-Valueset mappings::
-See dfText.jar for code example
 
 ==== FHIR node: `procedure.bodySite`
 
@@ -223,11 +210,8 @@ openEHR AQL node::
 - `Body_site` => `procedure.bodySite`
 
 Datatype mapping::
-DV_TEXT => CodeableConcept
-
-Valueset mappings::
-See dfText.jar for code example
-
+DV_TEXT => CodeableConcept +
+see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
 
 ==== FHIR node: `procedure.complication`
 
@@ -235,11 +219,8 @@ openEHR AQL node::
 - `Complication` => `procedure.complication`
 
 Datatype mapping::
-DV_TEXT => CodeableConcept
-
-Valueset mappings::
-See dfText.jar for code example
-
+DV_TEXT => CodeableConcept +
+see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
 
 ==== FHIR node: `procedure.note`
 

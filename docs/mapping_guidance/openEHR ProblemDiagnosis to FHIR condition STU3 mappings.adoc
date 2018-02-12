@@ -255,15 +255,8 @@ openEHR AQL node::
 - `Problem_Diagnosis` => `condition.code`
 
 Datatype mapping::
-
-DV_TEXT => CodeableConcept
-
-Valueset mappings::
-
-See dfText.jar for code example
-
-- `SNOMED-CT` => `http://snomed.info/sct`
-- `LOINC` => `http://loinc.org`
+DV_TEXT => CodeableConcept +
+see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
 
 
 ==== FHIR name: `condition.subject`

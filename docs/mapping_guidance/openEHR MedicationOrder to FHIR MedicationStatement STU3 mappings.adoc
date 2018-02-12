@@ -12,7 +12,7 @@ endif::[]
 
 == Target openEHR template
 
-http://ckm.apperta.org/ckm[IDCR -  .v1| Medication Statement list]
+IDCR -  .v1| Medication Statement list (In preparation)
 
 This template assumes that a static list of medication orders is being maintained in the underlying CDR. A different AQL approach may be need to pull data from a live prescribing system.
 
