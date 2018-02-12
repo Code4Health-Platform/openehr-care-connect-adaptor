@@ -1,0 +1,450 @@
+== openEHR AdverseReactionRisk to FHIR allergyIntolerance STU3 mappings
+Ian McNicoll <ian@inidus.com>
+v1.1.2, 12-Feb-2018
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+== Target openEHR template
+http://ckm.apperta.org/ckm/#showTemplate_1051.57.7[IDCR -  Adverse Reaction List.v1| Adverse reaction list]
+
+== FHIR resource operation Requirements
+
+=== Operation : `read`
+
+1. Expose any **active** allergy records held in the underlying openEHR CDR 'Adverse reaction list' as a bundle of FHIR AllergyIntolerance resources, profiled to meet NHS Care-Connect Profile STU3.
+2. Deleted records, those entered in error, `inactive`, `refuted` or `resolved` allergies should not be sent.
+3. Individual allergy negations, handled in openEHR as `Specific Exclusions` such as 'No history of penicillin allergy' should not be exposed.
+4. Support the `read`, `search` and `conformance` FHIR resource operations.
+5. The following FHIR AllergyIntolerance data elements should be exposed where corresponding openEHR data is available
+
+- `id` (logical resource identifier)
+- `text` (This will be generated narrative from concatenated structured data below)
+
+- `clinicalStatus`
+- `verificationStatus`
+- `type`
+- `category`
+- `criticality`
+
+- `code` - Mandatory
+
+- `patient.reference` - Mandatory
+- `patient.identifier`- Mandatory
+
+- `assertedDate` - Mandatory
+
+- `onset.onsetDateTime`
+
+- `asserter`
+
+- `lastOccurence`
+- `note`
+
+- `reaction.manifestation`
+
+- `reaction.description`
+- `reaction.onset`
+
+- `reaction.exposureRoute`
+
+===  Operation: `search`
+
+The following Search criteria must be supported
+
+- `date` (including date ranges)
+- `patient.id` (via logicalID)
+- `patient.identifier` (via NHS Number)
+- `verificationStatus` (To be Confirmed after review by Care-Connect)
+- `category`
+- `$current-allergies` - see Named Queries in HAPI-FHIR
+- `$current-drug--allergies`
+
+Implementation will require appropriate AQL construction and or AQL resultSet filtering, for which guidance will be provided.
+
+see http://hapifhir.io/doc_rest_operations.html (Search)
+
+=== Operation: `conformance`
+
+The AllergyIntolerance profile should emit a conformance statement on request via the
+/metadata resource - it is expected that the default handling provided by the HAPI-FHIR stack should be sufficient for this purpose.
+
+see http://hapifhir.io/doc_rest_operations.html (Conformance)
+
+==== FHIR node: Ignored FHIR Care-connect extension nodes
+
+- `allergyIntolerance.encounter`
+- `allergyIntolerance.evidence`
+- `reaction.note`
+- `reaction.certainty`
+
+==== FHIR node: Approach
+
+1. Retrieve candidate openEHR Allergies data via a an openEHR /query POST call, using AQL.
+2. Where the openEHR data is held as DV_TEXT/DV_CODED_TEXT ELEMENT, return the whole ELEMENT value as an object.
+3. Create a generic DV_TEXT/DV_CODED_TEXT to a FHIR CodeableConcept / Coding equivalent mapping library.
+4. Create handlers for Excluded/Absent information items when Care-Connect guidance emerges. Assume making use of FHIR List resource for now.
+
+
+==== FHIR node: Full AQL (includes search parameters and dv_coded_text objects)
+
+[source, sql]
+----
+select
+    e/ehr_id/value as ehrId,
+    e/ehr_status/subject/external_ref/id/value as subjectId,
+    e/ehr_status/subject/external_ref/namespace as subjectNamespace,
+    a/uid/value as compositionId,
+    a/composer/name as composerName,
+    a/composer/external_ref/id/value as composerIdentifier,
+    a/composer/external_ref/namespace as composerNamespace,
+    a/context/start_time/value as compositionStartTime,
+    b_a/uid/value as entryId,
+    b_a/data[at0001]/items[at0002]/value as Causative_agent,
+    b_a/data[at0001]/items[at0063]/value/defining_code/code_string as Status_code,
+    b_a/data[at0001]/items[at0101]/value/defining_code/code_string as Criticality_code,
+    b_a/data[at0001]/items[at0120]/value/defining_code/code_string as Category_code,
+    b_a/data[at0001]/items[at0117]/value/value as Onset_of_last_reaction,
+    b_a/data[at0001]/items[at0058]/value/defining_code/code_string as Reaction_mechanism_code,
+    b_a/data[at0001]/items[at0006]/value/value as Comment,
+    b_a/protocol[at0042]/items[at0062]/value/value as Adverse_reaction_risk_Last_updated,
+    b_a/data[at0001]/items[at0009]/items[at0010]/value as Specific_substance,
+    b_a/data[at0001]/items[at0009]/items[at0021]/value/defining_code/code_string as Certainty_code,
+    b_a/data[at0001]/items[at0009]/items[at0011]/value as Manifestation,
+    b_a/data[at0001]/items[at0009]/items[at0012]/value/value as Reaction_description,
+    b_a/data[at0001]/items[at0009]/items[at0027]/value/value as Onset_of_reaction,
+    b_a/data[at0001]/items[at0009]/items[at0089]/value/defining_code/code_string as Severity_code,
+    b_a/data[at0001]/items[at0009]/items[at0106]/value as Route_of_exposure,
+    b_a/data[at0001]/items[at0009]/items[at0032]/value/value as Adverse_reaction_risk_Comment
+from EHR e
+
+contains COMPOSITION a[openEHR-EHR-COMPOSITION.adverse_reaction_list.v1]
+contains EVALUATION b_a[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1]
+
+where a/name/value='Adverse reaction list'
+-- Optional parameters, depending on FHIR search criteria
+and e/ehr_id/value = '{{fhir.patient.id_param}}'
+and e/ehr_status/subject/external_ref/id/value = '{{fhir.patient.identifier.value.param}}'
+and e/ehr_status/subject/external_ref/namespace =  '{{fhir.patient.identifier.system.param}}'
+and b_a/data[at0001]/items[at0120]/value/defining_code_string = '{{fhir_category_params}}'
+and b_a/protocol[at0042]/items[at0062]/value/value >= '{{fhir_date_param_min}}'
+and b_a/protocol[at0042]/items[at0062]/value/value <= '{{fhir_date_param_max}}'
+
+----
+
+=== Node mappings
+
+==== FHIR node:: `allergyIntolerance.id`
+
+openEHR AQL node::  `compositionId`+ '_' + `entryId`
+
+Valueset mappings::
+None
+
+NOTE: The FHIR id is constructed by a concatenation of the openEHR `compositionId` and `entryId` as above.
+If `entryID` is null, simply send the `compositionID`. `entryID` is currently not supported by Ethercis.
+
+==== FHIR node:: `allergyIntolerance.clinicalStatus`
+
+openEHR AQL node::
+- `Status_code_string` => `allergyIntolerance.clinicalStatus`
+
+Datatype Mapping style::
+DV_CODED_TEXT => Code
+
+Valueset mappings::
+- **always map to**  => `active`
+
+==== FHIR node:: `allergyIntolerance.verificationStatus`
+
+openEHR AQL node::
+- `Status` => `allergyIntolerance.verificationStatus`
+
+Datatype Mapping style::
+DV_CODED_TEXT => Code
+
+Valueset mappings::
+- `at0127::Suspected` => `unconfirmed` **(default)**
+- `at0065::Confirmed` => `confirmed`
+
+NOTE: If the openEHR node is unpopulated default to `unconfirmed`
+
+==== FHIR node:: `allergyIntolerance.type`
+
+openEHR AQL node::
+- `Reaction_mechanism_code` => `allergyIntolerance.type`
+
+Datatype Mapping style::
+DV_CODED_TEXT => Code
+
+Valueset mappings::
+- `at0059::Immune mediated` => `allergy`
+- `at0060::Non-immune mediated` => `intolerance`
+- `at0126::Indeterminate` => *DO NOT PERSIST*
+
+NOTE: If the openEHR value is `at0126::Indeterminate` then this node should not be persisted in FHIR.
+
+==== FHIR node:: `allergyIntolerance.category`
+
+openEHR AQL node::
+- `Category_code` => `allergyIntolerance.category`
+
+Datatype Mapping::
+DV_CODED_TEXT => Code
+
+Valueset mappings::
+- `at0121::Food` => `food`
+- `at0122::Medication` => `medication`
+- `at0123::Other` => `environment`
+- `at0122::Medication` => `biologic`
+
+==== FHIR node:: `allergyIntolerance.criticality`
+
+openEHR AQL node::
+- `Criticality` => `allergyIntolerance.criticality`
+
+Datatype Mapping::
+DV_CODED_TEXT => Code
+
+Valueset mappings::
+- `at0102::Low` => `low`
+- `at0103::High` => `high`
+- `at0124::Indeterminate` => `unable-to-assess`
+
+==== FHIR node: `allergyIntolerance.code`
+
+openEHR AQL node::
+- `Causative_agent` => `allergyIntolerance.code`
+
+Datatype mapping::
+DV_TEXT => CodeableConcept +
+see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
+
+==== FHIR node: `allergyIntolerance.patient`
+
+openEHR AQL node::
+`ehrId` => `allergyIntolerance.patient.reference`
+`subjectId` => `allergyIntolerance.patient.identifier.value`
+`subjectNamespace` => `allergyIntolerance.patient.identifier.system`
+
+Valueset mappings::
+. For `subjectNamespace` => `allergyIntolerance.patient.identifier.system`
+.. `uk.nhs.nhs_number` => `https://fhir.nhs.uk/Id/nhs-number`
+
+NOTE: We are using the patient's openEHR `ehrId` as the `id` of the FHIR `patient` resource, and using the patient's NHS Number, carried in the openEHR 'ehr' object as `subjectId` as the patient identifier.
+If the subjectNamespace is not `uk.nhs.nhs_number`, it should not be mapped to `https://fhir.nhs.uk/Id/nhs-number` but simply passed through unchanged.
+
+
+=== `allergyIntolerance.lastOccurence`
+
+openEHR AQL node::
+`Onset_of_last_reaction` => `allergyIntolerance.lastOccurence`
+
+Valueset mappings::
+None
+
+==== FHIR node: `allergyIntolerance.assertedDate`
+
+openEHR AQL node::
+`Adverse_reaction_risk_Last_updated` => `allergyIntolerance.assertedDate`
+
+if `Adverse_reaction_risk_Last_updated` is null
+ `compositionStartTime` => `allergyIntolerance.assertedDate`
+
+NOTE: Where the last Updated date is null the start_time attribute of the parent composition is a safe proxy.
+
+Datatype mapping::
+DV_DATE_TIME => dateTime
+
+Valueset mappings::
+None
+
+==== FHIR node: `allergyIntolerance.note`
+
+openEHR AQL node::
+`Comment` => `allergyIntolerance.note.text`
+
+Datatype mapping::
+DV_TEXT => Annotation.
+
+Valueset mappings::
+None
+
+==== FHIR node: `allergyIntolerance.reaction.substance`
+
+openEHR AQL node::
+`Specific_substance_value` => `allergyIntolerance.reaction.substance.text`
+
+Valueset mappings::
+`Specific_substance_terminology_id` => `allergyIntolerance.reaction.substance.coding.system`
+
+Datatype mapping::
+DV_TEXT => CodeableConcept +
+see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+
+
+==== FHIR node: `allergyIntolerance.reaction.manifestation`
+
+openEHR AQL node::
+`Manifestation_value` => `allergyIntolerance.reaction.manifestation.text`
+
+Datatype mapping::
+DV_TEXT => CodeableConcept
+
+Valueset mappings::
+`Specific_substance_terminology_id` => `allergyIntolerance.reaction.substance.coding.system`
+
+Datatype mapping::
+DV_TEXT => CodeableConcept +
+see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+
+
+==== FHIR node: `allergyIntolerance.reaction.description`
+
+FHIR Description::  - Description of the event as a whole.
+
+openEHR AQL node::
+`Reaction_description` => `allergyIntolerance.reaction.description`
+
+Datatype mapping::
+DV_TEXT => String
+
+Valueset mappings:: None
+
+==== FHIR node: `allergyIntolerance.reaction.onset`
+
+openEHR AQL node::
+`Onset_of_reaction` => `allergyIntolerance.reaction.onset`
+
+Valueset mappings::
+None
+
+==== FHIR node: `allergyIntolerance.reaction.severity`
+
+openEHR AQL node::
+`Severity` => `allergyIntolerance.reaction.severity`
+
+Datatype mapping::
+DV_CODED_TEXT => Code
+
+Valueset mappings::
+`local::at0093| Mild`  => `mild`
+`local::at0092| Moderate` =>`moderate`
+`local::at0090| Severe` => `severe`
+
+==== FHIR node: `allergyIntolerance.reaction.exposureRoute`
+
+FHIR Description::  - How the subject was exposed to the substance.
+
+openEHR AQL node::
+`Route_of_exposure_value` => `allergyIntolerance.reaction.exposureRoute`
+
+Datatype mapping::
+DV_TEXT => CodeableConcept +
+see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+
+==== FHIR node: `allergyIntolerance.reaction.note`
+
+FHIR Description::  - Date(/time) when manifestations showed.
+
+openEHR AQL node::
+`Adverse_reaction_risk_Comment` => `allergyIntolerance.note.text`
+
+Datatype mapping::
+DV_TEXT => Annotation
+
+Valueset mappings::
+None
+
+=== FHIR node: `allergyIntolerance.asserter.name`
+
+FHIR Description::  - The name of the person asserting the allergy.
+
+openEHR AQL node::
+`composerName` => `allergyIntolerance.asserter.name`
+
+Datatype mapping::
+DV_TEXT => string
+
+Valueset mappings::
+None
+
+=== FHIR node: `allergyIntolerance.asserter.identifier.value`
+
+FHIR Description::  - The identifier of the person asserting the allergy.
+
+openEHR AQL node::
+`composerIdentifier` => `allergyIntolerance.asserter.identifier.value`
+`composerNamespace` => `allergyIntolerance.asserter.identifier.system`
+
+Datatype mapping::
+DV_TEXT => String
+
+Valueset mappings::
+None
+
+==== Alternative FLAT AQL
+
+This flattened form of the AQL avoids use of DV_CODED_TEXT objects.
+
+[source, sql]
+----
+select
+    e/ehr_id/value as ehrId,
+    e/ehr_status/subject/external_ref/id/value as subjectId,
+    e/ehr_status/subject/external_ref/namespace as subjectNamespace,
+    a/composer/name as composerName,
+    a/composer/external_ref/id/value as composerId,
+    a/composer/external_ref/namespace as composerNamespace,
+    a/uid/value as compositionId,
+    a/context/start_time/value as compositionStartTime,
+    b_a/uid/value as entryId,
+    b_a/data[at0001]/items[at0002]/value/value as Causative_agent_value,
+    b_a/data[at0001]/items[at0002]/value/defining_code/code_string as Causative_agent_code,
+    b_a/data[at0001]/items[at0002]/value/defining_code/terminology_id/value as Causative_agent_terminology,
+    b_a/data[at0001]/items[at0063]/value/defining_code/code_string as Status_code,
+    b_a/data[at0001]/items[at0101]/value/defining_code/code_string as Criticality_code,
+    b_a/data[at0001]/items[at0120]/value/defining_code/code_string as Category_code,
+    b_a/data[at0001]/items[at0117]/value/value as Onset_of_last_reaction,
+    b_a/data[at0001]/items[at0058]/value/defining_code/code_string as Reaction_mechanism_code,
+    b_a/data[at0001]/items[at0006]/value/value as Comment,
+    b_a/protocol[at0042]/items[at0062]/value/value as Adverse_reaction_risk_Last_updated,
+    b_a/data[at0001]/items[at0009]/items[at0010]/value/value as Specific_substance_value,
+    b_a/data[at0001]/items[at0009]/items[at0010]/value/defining_code/code_string as Specific_substance_code,
+    b_a/data[at0001]/items[at0009]/items[at0010]/value/defining_code/terminology_id/value as Specific_substance_terminology,
+    b_a/data[at0001]/items[at0009]/items[at0021]/value/defining_code/code_string as Certainty_code,
+    b_a/data[at0001]/items[at0009]/items[at0011]/value/value as Manifestation_value,
+    b_a/data[at0001]/items[at0009]/items[at0011]/value/defining_code/code_string as Manifestation_code,
+    b_a/data[at0001]/items[at0009]/items[at0011]/value/defining_code/terminology_id/value as Manifestation_terminology,
+    b_a/data[at0001]/items[at0009]/items[at0012]/value/value as Reaction_description,
+    b_a/data[at0001]/items[at0009]/items[at0027]/value/value as Onset_of_reaction,
+    b_a/data[at0001]/items[at0009]/items[at0089]/value/defining_code/code_string as Severity_code,
+    b_a/data[at0001]/items[at0009]/items[at0106]/value/value as Route_of_exposure_value,
+      b_a/data[at0001]/items[at0009]/items[at0106]/value/defining_code/code_string as Route_of_exposure_code,
+        b_a/data[at0001]/items[at0009]/items[at0106]/value/defining_code/terminology_id/value as Route_of_exposure_terminology,
+    b_a/data[at0001]/items[at0009]/items[at0032]/value/value as Adverse_reaction_risk_Comment
+from EHR e
+
+contains COMPOSITION a[openEHR-EHR-COMPOSITION.adverse_reaction_list.v1]
+contains EVALUATION b_a[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1]
+
+where a/name/value='Adverse reaction list'
+-- Optional parameters, depending on FHIR search criteria
+and e/ehr_id/value = '{{fhir.patient.id_param}}'
+and e/ehr_status/subject/external_ref/id/value = '{{fhir.patient.identifier.value.param}}'
+and e/ehr_status/subject/external_ref/namespace =  '{{fhir.patient.identifier.system.param}}'
+and b_a/data[at0001]/items[at0120]/value/defining_code_string = '{{fhir_category_params}}'
+and b_a/protocol[at0042]/items[at0062]/value/value >= '{{fhir_date_param_min}}'
+and b_a/protocol[at0042]/items[at0062]/value/value <= '{{fhir_date_param_max}}'
+
+----
+
+==== FHIR Narrative block
+
+This is optional in Care-Connect but is good practice.
+
+NOTE:: TBD

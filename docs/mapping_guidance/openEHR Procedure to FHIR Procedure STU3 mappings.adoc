@@ -1,0 +1,240 @@
+== openEHR Procedure to FHIR Procedure STU3 mappings
+Ian McNicoll <ian@inidus.com>
+v1.1.0, 12-Feb-2018
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+== Target openEHR template
+http://ckm.apperta.org/ckm/#showTemplate_1051.57.140[IDCR - Procedure list .v1| Procedure list]
+
+== FHIR resource operation Requirements
+
+=== Operation : `read`
+
+1. Expose any MedicationStatement records held in the underlying openEHR CDR 'Medication Statement list' as a bundle of FHIR MedicationStatement resources, profiled to meet NHS Care-Connect Profile STU3.
+2. Deleted records, those entered in error, should not be sent.
+3. Individual MedicationStatement negations, handled in openEHR as `Specific Exclusions` such as 'No history of penicillin allergy' should not be exposed.
+4. Support the `read`, `search` and `conformance` FHIR resource operations.
+5. The following FHIR MedicationStatement data elements should be exposed where corresponding openEHR data is available.
+
+- `id` (logical resource identifier)
+- `text` (This will be generated narrative from concatenated structured data below)
+
+- `status`
+
+- `code` - Mandatory
+
+- `subject.reference` - Mandatory
+- `subject.identifier`- Mandatory
+- `subject.id`- Mandatory
+
+- `outcome`
+- `category`
+- `complication`
+- `bodySite`
+- `reason`
+- `performer`
+- `datePerformed`
+
+- `note` - Multiple
+
+===  Operation: `search`
+
+The following Search criteria must be supported
+
+- `datePerformed` (including date ranges)
+- `subject.id` (via logicalID)
+- `subject.identifier` (via NHS Number)
+- `status` (To be Confirmed after review by Care-Connect)
+
+Implementation will require appropriate AQL construction and or AQL resultSet filtering, for which guidance will be provided.
+
+see http://hapifhir.io/doc_rest_operations.html (Search)
+
+=== Operation: `conformance`
+
+The AllergyIntolerance profile should emit a conformance statement on request via the
+/metadata resource - it is expected that the default handling provided by the HAPI-FHIR stack should be sufficient for this purpose.
+
+see http://hapifhir.io/doc_rest_operations.html (Conformance)
+
+==== Ignored FHIR Care-connect extension nodes
+
+None
+
+==== Approach
+1. Retrieve candidate openEHR Procedure data via a an openEHR /query POST call, using AQL.
+2. Where the openEHR data is held as DV_TEXT/DV_CODED_TEXT ELEMENT, return the whole ELEMENT value as an object.
+3. Create handlers for Excluded/Absent information items when Care-Connect guidance emerges. Assume making use of FHIR List resource for now.
+
+
+==== AQL (includes search parameters and dv_text/dv_coded_text as objects)
+[source, sql]
+----
+select
+   e/ehr_id/value as ehrId,
+   e/ehr_status/subject/external_ref/id/value as subjectId,
+   e/ehr_status/subject/external_ref/namespace as subjectNamespace,
+   a/context/start_time/value as compositionStartTime,
+   a/uid/value as compositionId,
+   a/composer/name as composerName,
+   a/composer/external_ref/id/value as composerId,
+   a/composer/external_ref/namespace as composerNamespace,
+   b_a/uid/value as entryId,
+   b_a/description[at0001]/items[at0002] as Procedure_name,
+   b_a/description[at0001]/items[at0048] as Outcome,
+   b_a/description[at0001]/items[at0006] as Complication,
+   b_a/description[at0001]/items[at0067] as Procedure_type,
+   b_a/description[at0001]/items[at0063] as Body_site,
+   b_a/description[at0001]/items[at0014] as Reason,
+   b_a/description[at0001]/items[at0005]/value/value as Comment,
+   b_a/other_participations as OtherParticipations,
+   b_a/time/value as Procedure_time,
+   b_a/ism_transition/current_state/defining_code/code_string as Status_code,
+   b_a/ism_transition/careflow_step/defining_code/code_string as Careflow_step_code,
+   b_a/description[at0001]/items[at0049]/value/value as Description
+from EHR e
+contains COMPOSITION a[openEHR-EHR-COMPOSITION.health_summary.v1]
+contains ACTION b_a[openEHR-EHR-ACTION.procedure.v1]
+where a/name/value='Procedures list'
+-- Optional parameters, depending on FHIR search criteria
+and e/ehr_id/value = '{{fhir.patient.id_param}}'
+and e/ehr_status/subject/external_ref/id/value = '{{fhir.patient.identifier.value.param}}'
+and e/ehr_status/subject/external_ref/namespace =  '{{fhir.patient.identifier.system.param}}'
+and b_a/time/value >= '{{fhir.procedure.performed_date_param_min}}'
+and b_a/time/value <= '{{fhir.procedire.performed_date_param_max}}'
+and b_a/ism_transition/current_state/defining_code/code_string = '{{fhir_status_param}}',
+----
+
+=== Node mappings
+
+==== FHIR node:: `procedure.id`
+
+openEHR AQL node::
+if `entryId` is not null
+  `compositionId` + `|` +  `entryId`
+else
+  `compositionId`
+
+Valueset mappings:: None
+NOTE: The FHIR id is constructed by a concatenation of the openEHR `compositionId` and `entryId` as above.
+If `entryID` is null, simply send the `compositionID`.
+
+==== FHIR node:: `procedure.status`
+
+openEHR AQL node::
+- `Status_code` => `procedure.status`
+
+Datatype Mapping style::
+DV_CODED_TEXT => Code
+
+Valueset Mappings::
+FHIR Valueset::
+`local::at0021::Active` => `active` (default)
+`local::at0024::Completed` => `completed`
+`local::at0022::Never active` => `stopped`
+`local::at0023::Stopped` => `stopped`
+`local::at0025::Obsolete` => `stopped`
+`local::at0026::Suspended` => `on-hold`
+`local::at0027::Draft` => `intended`
+
+==== FHIR node:: `procedure.code`
+
+openEHR AQL node::
+- `procedure.name` => `procedure..code`
+
+Datatype mapping::
+DV_TEXT => CodeableConcept +
+see link:openEHR-to-FHIR-Datatype-Mappings.adoc[Datatype mapping guidance]
+
+==== FHIR name: `procedure.subject`
+
+openEHR AQL node::
+`ehrId` => `procedure.subject.reference`
+`subjectId` => `procedure.subject.identifier.value`
+`subjectNamespace` => `procedure.subject.identifier.system`
+
+Valueset mappings::
+. For `subjectNamespace` => `procedure.subject.identifier.system`
+.. `uk.nhs.nhs_number` => `https://fhir.nhs.uk/Id/nhs-number`
+
+NOTE: We are using the patient's openEHR `ehrId` as the `id` of the FHIR `subject` resource,
+ and using the patient's NHS Number, carried in the openEHR 'ehr' object as `subjectId` as the patient identifier.
+If the subjectNamespace is not `uk.nhs.nhs_number`, it should not be mapped to `https://fhir.nhs.uk/Id/nhs-number` but simply passed through unchanged.
+
+==== FHIR name `procedure.performer`
+
+openEHR AQL nodes::
+`OtherParticipations.role` => `procedure.perfomer.role`
+`OtherParticipations.performer.name` => `procedure.perfomer.actor.name`
+
+Datatype mapping::
+DV_PARTICIPATION => Performer
+
+==== FHIR node: `procedure.performedDate`
+
+openEHR AQL node::
+`Procedure_time` => `procedure.performedDate`
+
+Datatype mapping::
+DV_DATE_TIME => dateTime
+
+==== FHIR node: `procedure.outcome`
+
+openEHR AQL node::
+- `Outcome` => `procedure.outcome`
+
+Datatype mapping::
+DV_TEXT => CodeableConcept +
+see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
+
+==== FHIR node: `procedure.category`
+
+openEHR AQL node::
+- `Procedure_type` => `procedure.category`
+
+Datatype mapping::
+DV_TEXT => CodeableConcept +
+see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
+
+
+==== FHIR node: `procedure.bodySite`
+
+openEHR AQL node::
+- `Body_site` => `procedure.bodySite`
+
+Datatype mapping::
+DV_TEXT => CodeableConcept +
+see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
+
+==== FHIR node: `procedure.complication`
+
+openEHR AQL node::
+- `Complication` => `procedure.complication`
+
+Datatype mapping::
+DV_TEXT => CodeableConcept +
+see link:"openEHR-to-FHIR-Datatype-Mappings.adoc"[Datatype mapping guidance]
+
+==== FHIR node: `procedure.note`
+
+openEHR AQL node::
+`Comment` => `procedure.note.text`
+`Description` => `procedure.note.text`
+
+NOTE:: FHIR does not distinguish `Description` from `Comment`.
+Consider pre-pending `Comment:` or `Description:` to signify the distinction.
+
+Datatype mapping::
+DV_TEXT => Annotation.
+
+==== FHIR node: `procedure.text`
+FHIR Narrative block::
+This is optional in Care-Connect but is good practice.
+NOTE:: TBD

@@ -1,0 +1,329 @@
+== openEHR Procedure (as MedicationStatement) to FHIR MedicationStatement STU3 mappings
+Ian McNicoll <ian@inidus.com>
+v1.0.0, 06-Feb-2018
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+== Target openEHR template
+
+IDCR -  .v1| Medication Statement list (In preparation)
+
+This template assumes that a static list of medication orders is being maintained in the underlying CDR. A different AQL approach may be need to pull data from a live prescribing system.
+
+== FHIR resource operation Requirements
+
+=== Operation : `read`
+
+1. Expose any MedicationStatement records held in the underlying openEHR CDR 'Medication Statement list' as a bundle of FHIR MedicationStatement resources, profiled to meet NHS Care-Connect Profile STU3.
+2. Deleted records, those entered in error, should not be sent.
+3. Individual MedicationStatement negations, handled in openEHR as `Specific Exclusions` such as 'No history of penicillin allergy' should not be exposed.
+4. Support the `read`, `search` and `conformance` FHIR resource operations.
+5. The following FHIR MedicationStatement data elements should be exposed where corresponding openEHR data is available.
+
+- `id` (logical resource identifier)
+- `text` (This will be generated narrative from concatenated structured data below)
+
+- `status` active | completed | entered-in-error | intended | stopped | on-hold
+
+- `medicationReference.code` - Mandatory
+
+- `subject.reference` - Mandatory
+- `subject.identifier`- Mandatory
+- `subject.id`- Mandatory
+
+- `informationSource`
+- `assertedDate`
+
+- `effective.effectiveDate`
+
+- `taken` - Mandatory  y | n | unk | na
+
+- `note` - Multiple
+
+- `reasonCode`
+
+- `dosage.text`
+- `dosage.additionalInstruction`
+- `dosage.patientInstruction`
+- `dosage.site`
+- `dosage.route`
+- `dosage.method`
+
+
+===  Operation: `search`
+
+The following Search criteria must be supported
+
+- `effectiveDate` (including date ranges)
+- `subject.id` (via logicalID)
+- `subject.identifier` (via NHS Number)
+- `status` (To be Confirmed after review by Care-Connect)
+
+Implementation will require appropriate AQL construction and or AQL resultSet filtering, for which guidance will be provided.
+
+see http://hapifhir.io/doc_rest_operations.html (Search)
+
+=== Operation: `conformance`
+
+The AllergyIntolerance profile should emit a conformance statement on request via the
+/metadata resource - it is expected that the default handling provided by the HAPI-FHIR stack should be sufficient for this purpose.
+
+see http://hapifhir.io/doc_rest_operations.html (Conformance)
+
+==== Ignored FHIR Care-connect extension nodes
+
+None
+
+==== Approach
+
+1. Retrieve candidate openEHR Medication Order data via a an openEHR /query POST call, using AQL.
+2. openEHR data is held as DV_TEXT/DV_CODED_TEXT ELEMENT, return the whole ELEMENT value as an object.
+3. Create handlers for Excluded/Absent information items when Care-Connect guidance emerges. Assume making use of FHIR List resource for now.
+
+
+==== AQL (includes search parameters and dv_text/dv_coded_text as objects)
+
+[source, sql]
+----
+select
+    e/ehr_id/value as ehrId,
+    e/ehr_status/subject/external_ref/id/value as subjectId,
+    e/ehr_status/subject/external_ref/namespace as subjectNamespace,
+    a/context/start_time/value as compositionStartTime,
+    a/uid/value as compositionId,
+    a/composer/name as composerName,
+    b_a/uid/value as entryId,
+    b_a/activities[at0001]/description[at0002]/items[at0070]/value/value as Medication_item_value,
+    b_a/activities[at0001]/description[at0002]/items[at0070]/value/defining_code/code_string as Medication_item_code,
+    b_a/activities[at0001]/description[at0002]/items[at0070]/value/defining_code/terminology_id/value as Medication_item_terminology,
+    b_a/activities[at0001]/description[at0002]/items[at0009]/value/value as Overall_directions_description,
+    b_a/activities[at0001]/description[at0002]/items[at0173, 'Dose amount description']/value/value as Dose_amount_description,
+    b_a/activities[at0001]/description[at0002]/items[at0173, 'Dose timing description']/value/value as Dose_timing_description,
+    b_a/activities[at0001]/description[at0002]/items[at0044]/value/value as Additional_instruction_value,
+    b_a/activities[at0001]/description[at0002]/items[at0044]/value/defining_code/code_string as Additional_instruction_code,
+    b_a/activities[at0001]/description[at0002]/items[at0044]/value/defining_code/terminology_id/value as Additional_instruction_terminology,
+    b_a/activities[at0001]/description[at0002]/items[at0105]/value/value as Patient_information_value,
+    b_a/activities[at0001]/description[at0002]/items[at0107]/value/value as Monitoring_instruction_value,
+    b_a/activities[at0001]/description[at0002]/items[at0018]/value/value as Clinical_indication_value,
+    b_a/activities[at0001]/description[at0002]/items[at0018]/value/defining_code/code_string as Clinical_indication_code,
+    b_a/activities[at0001]/description[at0002]/items[at0018]/value/terminology_id/value as Clinical_indication_terminology,
+    b_a/activities[at0001]/description[at0002]/items[at0091]/value/value as Route_value,
+    b_a/activities[at0001]/description[at0002]/items[at0091]/value/defining_code/code_string as Route_code,
+    b_a/activities[at0001]/description[at0002]/items[at0091]/value/defining_code/terminology_id/value as Route_terminology,
+    b_a/activities[at0001]/description[at0002]/items[openEHR-EHR-CLUSTER.medication_substance.v0]/items[at0071]/value/value as Form_value,
+    b_a/activities[at0001]/description[at0002]/items[openEHR-EHR-CLUSTER.medication_substance.v0]/items[at0071]/value/defining_code/code_string as Form_code,
+    b_a/activities[at0001]/description[at0002]/items[openEHR-EHR-CLUSTER.medication_substance.v0]/items[at0071]/value/defining_code/terminology_id/value as Form_terminology,
+    b_a/activities[at0001]/description[at0002]/items[at0113]/items[openEHR-EHR-CLUSTER.medication_course_summary.v0]/items[at0001]/value/defining_code/code_string as Status_code,
+    b_a/activities[at0001]/description[at0002]/items[at0113]/items[openEHR-EHR-CLUSTER.medication_course_summary.v0]/items[at0028]/value/value as AssertedDate,
+    b_a/activities[at0001]/description[at0002]/items[at0113]/items[at0012]/value/value as Order_start_date_time,
+    b_a/activities[at0001]/description[at0002]/items[at0113]/items[at0013]/value/value as Order_stop_date_time
+   from EHR e
+   contains COMPOSITION a[openEHR-EHR-COMPOSITION.medication_list.v0]
+   contains
+      INSTRUCTION b_a[openEHR-EHR-INSTRUCTION.medication_order.v1]
+   WHERE a/name/value = 'Medication statement list';
+-- Optional parameters, depending on FHIR search criteria
+and e/ehr_id/value = '{{fhir.patient.id_param}}'
+and e/ehr_status/subject/external_ref/id/value = '{{fhir.patient.identifier.value.param}}'
+and e/ehr_status/subject/external_ref/namespace =  '{{fhir.patient.identifier.system.param}}'
+and b_a/activities[at0001]/description[at0002]/items[at0113]/items[at0012]/value/value >= '{{fhir.medication_statement.effective_date_param_min}}'
+and b_a/activities[at0001]/description[at0002]/items[at0113]/items[at0012]/value/value <= '{{fhir.medication_statement.effective_date_param_max}}'
+and b_a/activities[at0001]/description[at0002]/items[at0113]/items[openEHR-EHR-CLUSTER.medication_course_summary.v0]/items[at0001]/value/defining_code/code_string = '{{fhir_status_param}}',
+----
+
+=== Node mappings
+
+==== FHIR node:: `medicationStatement.id`
+
+openEHR AQL node::
+if `entryId` is not null
+  `compositionId` + `|` +  `entryId`
+else
+  `compositionId`
+
+Valueset mappings:: None
+NOTE: The FHIR id is constructed by a concatenation of the openEHR `compositionId` and `entryId` as above.
+If `entryID` is null, simply send the `compositionID`.
+
+==== FHIR node:: `medicationStatement.status`
+
+openEHR AQL node::
+- `Status_code` => `medicationStatement.status`
+
+Datatype Mapping style::
+DV_CODED_TEXT => Code
+
+Valueset Mappings::
+FHIR Valueset:: active | completed | entered-in-error | intended | stopped | on-hold
+
+`local::at0021::Active` => `active` (default)
+`local::at0024::Completed` => `completed`
+`local::at0022::Never active` => `stopped`
+`local::at0023::Stopped` => `stopped`
+`local::at0025::Obsolete` => `stopped`
+`local::at0026::Suspended` => `on-hold`
+`local::at0027::Draft` => `intended`
+
+
+==== FHIR node:: `medicationStatement.medicationReference.code`
+
+openEHR AQL node::
+- `MedicationName` => `medicationStatement.medicationReference.code`
+
+Datatype Mapping style::
+DV_TEXT => CodeableConcept
+
+
+==== FHIR name: `medicationStatement.subject`
+
+openEHR AQL node::
+`ehrId` => `medicationStatement.subject.reference`
+`subjectId` => `medicationStatement.subject.identifier.value`
+`subjectNamespace` => `medicationStatement.subject.identifier.system`
+
+Valueset mappings::
+. For `subjectNamespace` => `medicationStatement.subject.identifier.system`
+.. `uk.nhs.nhs_number` => `https://fhir.nhs.uk/Id/nhs-number`
+
+NOTE: We are using the patient's openEHR `ehrId` as the `id` of the FHIR `subject` resource,
+ and using the patient's NHS Number, carried in the openEHR 'ehr' object as `subjectId` as the patient identifier.
+If the subjectNamespace is not `uk.nhs.nhs_number`, it should not be mapped to `https://fhir.nhs.uk/Id/nhs-number` but simply passed through unchanged.
+
+
+==== FHIR name `medicationStatement.asserter`
+
+openEHR AQL nodes::
+`composerIdentifier` => `medicationStatement.asserter.identifier.value`
+`composerNamespace`  => `medicationStatement.asserter.identifier.system`
+`composerName`       => `medicationStatement.asserter.name`
+
+Datatype mapping::
+DV_TEXT => Identifier
+
+
+==== FHIR node: `medicationStatement.assertedDate`
+
+openEHR AQL node::
+`Last_updated` => `medicationStatement.assertedDate`
+
+Datatype mapping::
+DV_DATE_TIME => dateTime
+
+==== FHIR node: `medicationStatement.effective.effectiveDate`
+
+openEHR AQL node::
+`Order_start_date` => `medicationStatement.effective.effectiveDate`
+
+Datatype mapping::
+DV_DATE_TIME => dateTime
+
+==== FHIR node:: `medicationStatus.taken`
+
+openEHR AQL node::
+None - hardwire  value to `unk` as this a mandatory field.
+
+
+==== FHIR node: `medicationStatement.note`
+
+openEHR AQL node::
+`Comment` => `medicationStatement.note.text`
+
+Datatype mapping::
+DV_TEXT => Annotation.
+
+- `dosage.site`
+- `dosage.route`
+- `dosage.method`
+
+==== FHIR node: `medicationStatement.reasonCode`
+
+openEHR AQL node::
+- `Reason` => `medicationStatement.reasonCode`
+
+Datatype mapping::
+DV_TEXT => CodeableConcept
+
+Valueset mappings::
+See dfText.jar for code example
+
+
+
+==== FHIR node: `medicationStatement.dosage.text`
+
+openEHR AQL node::
+- `Reason` => `medicationStatement.dosage.text`
+
+Datatype mapping::
+DV_TEXT => CodeableConcept
+
+Valueset mappings::
+See dfText.jar for code example
+
+
+==== FHIR node: `medicationStatement.dosage.additionalInstruction`
+
+openEHR AQL node::
+- `Reason` => `medicationStatement.dosage.additionalInstruction`
+
+Datatype mapping::
+DV_TEXT => CodeableConcept
+
+Valueset mappings::
+See dfText.jar for code example
+
+==== FHIR node: `medicationStatement.dosage.patientInstruction`
+
+openEHR AQL node::
+- `Reason` => `medicationStatement.dosage.patientInstruction`
+
+Datatype mapping::
+DV_TEXT => CodeableConcept
+
+Valueset mappings::
+See dfText.jar for code example
+
+
+==== FHIR node: `medicationStatement.dosage.method`
+
+openEHR AQL node::
+- `Reason` => `medicationStatement.dosage.method`
+
+Datatype mapping::
+DV_TEXT => CodeableConcept
+
+Valueset mappings::
+See dfText.jar for code example
+
+==== FHIR node: `medicationStatement.dosage.site`
+
+openEHR AQL node::
+- `Reason` => `medicationStatement.dosage.site`
+
+Datatype mapping::
+DV_TEXT => CodeableConcept
+
+Valueset mappings::
+See dfText.jar for code example
+
+==== FHIR node: `medicationStatement.dosage.route`
+
+openEHR AQL node::
+- `Reason` => `medicationStatement.dosage.route`
+
+Datatype mapping::
+DV_TEXT => CodeableConcept
+
+Valueset mappings::
+See dfText.jar for code example
+
+
+==== FHIR node: `medicationStatement.text`
+FHIR Narrative block::
+This is optional in Care-Connect but is good practice.
+NOTE:: TBD
