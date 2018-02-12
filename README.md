@@ -62,10 +62,11 @@ TBD
 
 #### Mapping Guidance documents
 
-- [openEHR AdverseReactionRisk to FHIR allergyIntolerance STU3 mappings](docs/mapping_guidance/openEHR-MedicationOrder-to-FHIR-MedicationStatement-STU3-mappings.adoc)
+- [openEHR AdverseReactionRisk to FHIR allergyIntolerance STU3 mappings](docs/mapping_guidance/openEHR-AdverseReactionRisk-to-FHIR-AllergyIntolerance-STU3-mappings.adoc)
 - [openEHR Medication Order (as MedicationStatement) to FHIR MedicationStatement STU3 mappings](docs/mapping_guidance/openEHR-MedicationOrder-to-FHIR-MedicationStatement-STU3-mappings.adoc)
 - [openEHR ProblemDiagnosis to FHIR condition STU3 mappings](docs/mapping_guidance/openEHR-ProblemDiagnosis-to-FHIR-Condition-STU3-mappings.adoc)
-- [openEHR Procedure to FHIR Procedure STU3 mappings](docs/mapping_guidance/openEHR-Procedure-to FHIR-Procedure-STU3=mappings.adoc)
+- [openEHR Procedure to FHIR Procedure STU3 mappings](docs/mapping_guidance/openEHR-Procedure-to FHIR-Procedure-STU3-mappings.adoc)
+
 
 #### General Approach
 
