@@ -109,7 +109,7 @@ and e/ehr_id/value = '{{fhir.patient.id_param}}'
 and e/ehr_status/subject/external_ref/id/value = '{{fhir.patient.identifier.value.param}}'
 and e/ehr_status/subject/external_ref/namespace =  '{{fhir.patient.identifier.system.param}}'
 and b_a/time/value >= '{{fhir.procedure.performed_date_param_min}}'
-and b_a/time/value <= '{{fhir.procedire.performed_date_param_max}}'
+and b_a/time/value <= '{{fhir.procedure.performed_date_param_max}}'
 and b_a/ism_transition/current_state/defining_code/code_string = '{{fhir_status_param}}',
 ----
 
