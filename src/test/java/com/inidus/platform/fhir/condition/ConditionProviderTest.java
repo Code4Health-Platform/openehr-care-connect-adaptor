@@ -27,8 +27,8 @@ public class ConditionProviderTest {
 
     @Before
     public void setUp() throws Exception {
-        //     configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
-        configureCdrConnector("https://test.operon.systems", "oprn_hcbox", "XioTAJoO479", true);
+             configureCdrConnector("http://178.62.71.220:8080", "guest", "guest", true);
+       // configureCdrConnector("https://test.operon.systems", "oprn_hcbox", "XioTAJoO479", true);
     }
 
     @Test
@@ -98,7 +98,8 @@ public class ConditionProviderTest {
 
         List<ConditionCC> result = testProvider.getFilteredResources(null, null, category, null, null);
 
-        Assert.assertNull(result);
+        //Check for isEmtpoy as EtherCis returns an empty array rather than a 204 error
+        Assert.assertTrue((null == result) || result.isEmpty());
     }
 
     @Test
