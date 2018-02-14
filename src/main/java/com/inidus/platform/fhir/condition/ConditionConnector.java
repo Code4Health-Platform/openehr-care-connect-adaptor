@@ -93,13 +93,13 @@ public class ConditionConnector extends OpenEhrConnector {
         Date fromDate = conditionAsserted.getLowerBoundAsInstant();
         if (null != fromDate) {
             String from = ISO_DATE.format(fromDate);
-            filter += String.format(" and a/context/start_time/value >= '%s'", from);
+            filter += String.format(" and b_a/protocol[at0032]/items[at0070]/value/value >= '%s'", from);
         }
 
         Date toDate = conditionAsserted.getUpperBoundAsInstant();
         if (null != toDate) {
             String to = ISO_DATE.format(toDate);
-            filter += String.format(" and a/context/start_time/value <= '%s'", to);
+            filter += String.format(" and b_a/protocol[at0032]/items[at0070]/value/value <= '%s'", to);
         }
         return filter;
     }
