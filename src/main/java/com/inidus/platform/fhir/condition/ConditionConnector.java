@@ -50,7 +50,6 @@ public class ConditionConnector extends OpenEhrConnector {
     }
 
     public JsonNode getFilteredConditions(
-            //   StringParam listParam,
             StringParam patientId,
             TokenParam patientIdentifier,
             StringParam category,
@@ -131,10 +130,10 @@ public class ConditionConnector extends OpenEhrConnector {
                 break;
         }
 
-        if (!code.isEmpty() && !element.isEmpty()
-                )
+        if (!code.isEmpty() && !element.isEmpty()) {
             return String.format(" and b_a/data[at0001]/items[openEHR-EHR-CLUSTER.problem_status.v0]/items[%s]/value/defining_code/code_string matches {%s}", element, code);
-        else
+        } else {
             return "";
+        }
     }
 }

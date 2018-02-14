@@ -1,16 +1,5 @@
 package com.inidus.platform.fhir.openehr;
 
-import org.hl7.fhir.dstu3.model.Coding;
-import org.hl7.fhir.dstu3.model.Procedure;
-import org.hl7.fhir.exceptions.FHIRException;
-import org.openehr.rm.datatypes.text.CodePhrase;
-import org.openehr.rm.datatypes.text.DvCodedText;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
-
 // openEHR currentState Codes
 //• 524: initial
 //• 526: planned
@@ -80,33 +69,55 @@ public class DfIsmTransition {
 
         public static String toCode(OpenEhrCurrentStateEnum enumCurrentState) {
             switch (enumCurrentState) {
-                case INITIAL: return "524";
-                case PLANNED: return "526";
-                case POSTPONED: return "527";
-                case CANCELLED: return "528";
-                case SCHEDULED: return "529";
-                case ACTIVE: return "245";
-                case SUSPENDED: return "530";
-                case ABORTED : return "531";
-                case COMPLETED: return "532";
-                case EXPIRED: return "533";
-                default: return "?";
+                case INITIAL:
+                    return "524";
+                case PLANNED:
+                    return "526";
+                case POSTPONED:
+                    return "527";
+                case CANCELLED:
+                    return "528";
+                case SCHEDULED:
+                    return "529";
+                case ACTIVE:
+                    return "245";
+                case SUSPENDED:
+                    return "530";
+                case ABORTED:
+                    return "531";
+                case COMPLETED:
+                    return "532";
+                case EXPIRED:
+                    return "533";
+                default:
+                    return "?";
             }
         }
 
         public static String getDisplay(OpenEhrCurrentStateEnum enumCurrentState) {
             switch (enumCurrentState) {
-                case INITIAL: return "initial";
-                case PLANNED: return "planned";
-                case POSTPONED: return "postponed";
-                case CANCELLED: return "cancelled";
-                case SCHEDULED: return "scheduled";
-                case ACTIVE: return "active";
-                case SUSPENDED: return "suspended";
-                case ABORTED : return "aborted";
-                case COMPLETED: return "completed";
-                case EXPIRED: return "expired";
-                default: return "?";
+                case INITIAL:
+                    return "initial";
+                case PLANNED:
+                    return "planned";
+                case POSTPONED:
+                    return "postponed";
+                case CANCELLED:
+                    return "cancelled";
+                case SCHEDULED:
+                    return "scheduled";
+                case ACTIVE:
+                    return "active";
+                case SUSPENDED:
+                    return "suspended";
+                case ABORTED:
+                    return "aborted";
+                case COMPLETED:
+                    return "completed";
+                case EXPIRED:
+                    return "expired";
+                default:
+                    return "?";
             }
         }
     }

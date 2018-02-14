@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class AllergyConverter extends OpenEHRConverter{
+public class AllergyConverter extends OpenEHRConverter {
 
     /**
      * Converts the given json coming from openEHR into 1 {@link AllergyIntolerance} resource.
@@ -96,7 +96,6 @@ public class AllergyConverter extends OpenEHRConverter{
 
         reaction.setSubstance(convertCodeableConcept(ehrJson, "Specific_substance"));
 
-    //    reaction.setManifestation(convertCodeableConceptList(ehrJson, "Manifestation"));
         reaction.addManifestation(convertCodeableConcept(ehrJson, "Manifestation"));
 
         reaction.setDescription(ehrJson.get("Reaction_description").textValue());

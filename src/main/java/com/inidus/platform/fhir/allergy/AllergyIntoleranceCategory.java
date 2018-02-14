@@ -32,7 +32,7 @@ public class AllergyIntoleranceCategory {
                     throw new IllegalArgumentException("Unhandled case");
             }
         } catch (FHIRException e) {
+            return null;
         }
-        return null;
     }
 }
