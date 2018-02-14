@@ -1,0 +1,14 @@
+{
+  "Manifestation": {
+    "@class": "ELEMENT",
+    "name": {
+      "@class": "DV_TEXT",
+      "value": "Manifestation"
+    },
+    "archetype_node_id": "at0011",
+    "value": {
+      "@class": "DV_TEXT",
+      "value": "Vomiting"
+    }
+  }
+}
