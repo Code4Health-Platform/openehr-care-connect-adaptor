@@ -1,7 +1,7 @@
 
 # openEHR-FHIR INTEROpen Care Connect STU3 Adaptor
 
-This is a proof-of-concept Web service that exposes [HL7 FHIR](https://www.hl7.org/fhir) operations (`read`, `search`, `conformance`) from a choice of [openEHR CDRs](https://docs.code4health.org/ES0-overview-openehr-ehrscape.html) (Ehrscape compliant e.g. Marand Think!Ehr or EtherCis) for a small range of [INTEROpen Care-Connect](https://nhsconnect.github.io/CareConnectAPI/) profiles, using the [HAPI FHIR](http://hapifhir.io) stack.
+This is a proof-of-concept Web service that exposes [HL7 FHIR](https://www.hl7.org/fhir) operations (`read`, `search`, `conformance`) from a choice of [openEHR CDRs](https://docs.code4health.org/ES0-overview-openehr-ehrscape.html) (Ehrscape compliant e.g. Marand Think!Ehr or Ripple EtherCis) for a small range of [INTEROpen Care-Connect](https://nhsconnect.github.io/CareConnectAPI/) profiles, using the [HAPI FHIR](http://hapifhir.io) stack.
 
 ## Build the project
 `./mvnw clean package` (inside the project folder)
@@ -17,6 +17,51 @@ Copy `fhir-adaptor.jar` from `target` folder to your server
 
 ### Docker
 TBD
+
+
+### Code4Health Demo endpoints
+
+These are temporarily hosted by inidus.
+
+#### Using Marand ThinkEHR openEHR CDR
+
+`read` (all)
+
+- [AllergyIntolerance](http://platform.inidus.io/marand/fhir/AllergyIntolerance)
+- [Condition](http://platform.inidus.io/marand/fhir/Condition)
+- [Procedure](http://platform.inidus.io/marand/fhir/Procedure)
+- [MedicationStatement](http://platform.inidus.io/marand/fhir/MedicationStatement)
+
+`search by NHS Number`
+
+- [AllergyIntolerance](http://platform.inidus.io/marand/fhir/AllergyIntolerance?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
+- [Condition](http://platform.inidus.io/marand/fhir/Condition?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
+- [Procedure](http://platform.inidus.io/marand/fhir/Procedure?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
+- [MedicationStatement](http://platform.inidus.io/marand/fhir/MedicationStatement?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
+
+`conformance`
+- [Conformance](http://platform.inidus.io/marand/fhir/Conformance)
+
+
+#### Using Ripple EtherCis openEHR CDR
+
+`read` (all)
+
+- [AllergyIntolerance](http://platform.inidus.io/ethercis/fhir/AllergyIntolerance)
+- [Condition](http://platform.inidus.io/ethercis/fhir/Condition)
+- [Procedure](http://platform.inidus.io/ethercis/fhir/Procedure)
+- [MedicationStatement](http://platform.inidus.io/ethercis/fhir/MedicationStatement)
+
+`search by NHS Number`
+
+- [AllergyIntolerance](http://platform.inidus.io/ethercis/fhir/AllergyIntolerance?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
+- [Condition](http://platform.inidus.io/ethercis/fhir/Condition?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
+- [Procedure](http://platform.inidus.io/ethercis/fhir/Procedure?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
+- [MedicationStatement](http://platform.inidus.io/ethercis/fhir/MedicationStatement?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
+
+`conformance`
+- [Conformance](http://platform.inidus.io/ethercis/fhir/Conformance)
+
 
 ## Background
 
@@ -42,10 +87,7 @@ The [Apperta 5-Nation CKM group](http://ckm.apperta.org/ckm/#showProject_1051.61
 
 The scope of this project was therefore limited to the essential data points in the profiles stable enough to allow clinically useful mappings and for which clear Search specifications are available:
 
-#### Code4Health Demo endpoints
-TBD
-
-#### Care-Connect FHIR Profiles
+## Care-Connect FHIR Profiles
 
 - [AllergyIntolerance](https://nhsconnect.github.io/CareConnectAPI/api_clinical_allergyintolerance.html)
 - [Condition](https://nhsconnect.github.io/CareConnectAPI/api_clinical_condition.html)
@@ -56,7 +98,7 @@ TBD
 #### openEHR Apperta CKM Templates
 
 - [IDCR -  Adverse Reaction List.v1| Adverse reaction list](http://ckm.apperta.org/ckm/#showTemplate_1051.57.71)
-- [IDCR -  Medication Statement List.v1| Medication Statement list] (In preparation)
+- [IDCR -  Medication Statement List.v1| Medication Statement list] (http://ckm.apperta.org/ckm/#showTemplate_1051.57.143)
 - [IDCR -  Problem List.v1| Problem list](http://ckm.apperta.org/ckm/#showTemplate_1051.57.134)
 - [IDCR - Procedure list .v1| Procedure list](http://ckm.apperta.org/ckm/#showTemplate_1051.57.140)
 
@@ -71,11 +113,61 @@ TBD
 
 The general approach has been to construct openEHR Archetype Language (AQL) statements to retrieve appropriate data from target openEHR templates. The mappings have been built in java, with considerable use made of generic mapping functions, facilitated by the close alignment of many openEHR and FHIR datatypes.
 
+For more on AQL see:
+
+- [Querying EHR Data with Archetype Query Language](Querying EHR Data with Archetype Query Language)
+- [openEHR in Context](https://www.slideshare.net/freshehr/1-7-openehr-in-context)
+
+or the examples given in the guidance documents.
+
+##### AQL example for AllergyIntolerance
+```sql
+select
+    e/ehr_id/value as ehrId,
+    e/ehr_status/subject/external_ref/id/value as subjectId,
+    e/ehr_status/subject/external_ref/namespace as subjectNamespace,
+    a/uid/value as compositionId,
+    a/composer/name as composerName,
+    a/composer/external_ref/id/value as composerIdentifier,
+    a/composer/external_ref/namespace as composerNamespace,
+    a/context/start_time/value as compositionStartTime,
+    b_a/uid/value as entryId,
+    b_a/data[at0001]/items[at0002]/value as Causative_agent,
+    b_a/data[at0001]/items[at0063]/value/defining_code/code_string as Status_code,
+    b_a/data[at0001]/items[at0101]/value/defining_code/code_string as Criticality_code,
+    b_a/data[at0001]/items[at0120]/value/defining_code/code_string as Category_code,
+    b_a/data[at0001]/items[at0117]/value/value as Onset_of_last_reaction,
+    b_a/data[at0001]/items[at0058]/value/defining_code/code_string as Reaction_mechanism_code,
+    b_a/data[at0001]/items[at0006]/value/value as Comment,
+    b_a/protocol[at0042]/items[at0062]/value/value as Adverse_reaction_risk_Last_updated,
+    b_a/data[at0001]/items[at0009]/items[at0010]/value as Specific_substance,
+    b_a/data[at0001]/items[at0009]/items[at0021]/value/defining_code/code_string as Certainty_code,
+    b_a/data[at0001]/items[at0009]/items[at0011]/value as Manifestation,
+    b_a/data[at0001]/items[at0009]/items[at0012]/value/value as Reaction_description,
+    b_a/data[at0001]/items[at0009]/items[at0027]/value/value as Onset_of_reaction,
+    b_a/data[at0001]/items[at0009]/items[at0089]/value/defining_code/code_string as Severity_code,
+    b_a/data[at0001]/items[at0009]/items[at0106]/value as Route_of_exposure,
+    b_a/data[at0001]/items[at0009]/items[at0032]/value/value as Adverse_reaction_risk_Comment
+from EHR e
+
+contains COMPOSITION a[openEHR-EHR-COMPOSITION.adverse_reaction_list.v1]
+contains EVALUATION b_a[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1]
+
+where a/name/value='Adverse reaction list'
+-- Optional parameters, depending on FHIR search criteria
+and e/ehr_id/value = '{{fhir.patient.id_param}}'
+and e/ehr_status/subject/external_ref/id/value = '{{fhir.patient.identifier.value.param}}'
+and e/ehr_status/subject/external_ref/namespace =  '{{fhir.patient.identifier.system.param}}'
+and b_a/data[at0001]/items[at0120]/value/defining_code_string = '{{fhir_category_params}}'
+and b_a/protocol[at0042]/items[at0062]/value/value >= '{{fhir_date_param_min}}'
+and b_a/protocol[at0042]/items[at0062]/value/value <= '{{fhir_date_param_max}}'
+
+```
 ### Limitations
 
-1. Multiple occurrences on codeableConcepts not supported.
+1. Multiple occurrences on codeableConcept not supported.
 2. Update mappings as INTEROPen curations are published.
-3. Update mappings as APPERTA 5N-CKM reviews progress.
+3. Update mappings as Apperta 5N-CKM reviews progress.
 
 ### Future work
 
@@ -83,4 +175,4 @@ The general approach has been to construct openEHR Archetype Language (AQL) stat
 2. Add further operations (write).
 3. Improve low-level datatype mapping.
 3. Improve and extend search criteria.
-4. Adapt to replace the Ehrscape API with imminent openEHR REST API.
+4. Adapt to replace the Ehrscape API with formal openEHR REST API.
