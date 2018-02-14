@@ -41,7 +41,9 @@ public class AllergyConnector extends OpenEhrConnector {
                 " b_a/data[at0001]/items[at0006]/value/value as Comment," +
                 " b_a/data[at0001]/items[at0009]/items[at0010] as Specific_substance," +
                 " b_a/data[at0001]/items[at0009]/items[at0021]/value/defining_code/code_string as Certainty_code," +
-                " b_a/data[at0001]/items[at0009]/items[at0011] as Manifestation,    " +
+                " b_a/data[at0001]/items[at0009]/items[at0011]/value/value as Manifestation_value,    " +
+                " b_a/data[at0001]/items[at0009]/items[at0011]/value/defining_code/code_string as Manifestation_code, " +
+                " b_a/data[at0001]/items[at0009]/items[at0011]/value/defining_code/terminology_id/value as Manifestation_terminology, " +
                 " b_a/data[at0001]/items[at0009]/items[at0012]/value/value as Reaction_description," +
                 " b_a/data[at0001]/items[at0009]/items[at0027]/value/value as Onset_of_reaction," +
                 " b_a/data[at0001]/items[at0009]/items[at0089]/value/defining_code/code_string as Severity_code," +
