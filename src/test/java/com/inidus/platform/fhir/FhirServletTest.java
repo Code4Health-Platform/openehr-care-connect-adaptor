@@ -12,10 +12,12 @@ import com.inidus.platform.fhir.procedure.ProcedureConnector;
 import com.inidus.platform.fhir.procedure.ProcedureConverter;
 import com.inidus.platform.fhir.procedure.ProcedureProvider;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletConfig;
@@ -30,7 +32,7 @@ import org.springframework.test.context.junit4.SpringRunner;
         ConditionProvider.class, ConditionConnector.class,
         MedicationStatementProvider.class, MedicationStatementConnector.class,
         ProcedureProvider.class, ProcedureConnector.class, ProcedureConverter.class
-    })
+})
 
 public class FhirServletTest {
     private MockHttpServletRequest request;
@@ -40,16 +42,29 @@ public class FhirServletTest {
     private FhirServlet testImpl;
 
     @Autowired
-    private AllergyConnector ehrService;
+    private AllergyConnector allergyConnector;
+
+    @Autowired
+    private ConditionConnector conditionConnector;
 
     @Before
     public void setUp() throws Exception {
+        configureCdrConnector(allergyConnector, "https://test.operon.systems", "oprn_hcbox", "XioTAJoO479", false);
+        configureCdrConnector(conditionConnector, "https://test.operon.systems", "oprn_hcbox", "XioTAJoO479", false);
+
         if (testImpl.getResourceProviders().isEmpty()) {
             testImpl.init(new MockServletConfig());
             testImpl.initialize();
         }
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
+    }
+
+    private void configureCdrConnector(OpenEhrConnector connector, String url, String user, String pass, boolean token) {
+        connector.setUrl(url);
+        connector.setUsername(user);
+        connector.setPassword(pass);
+        connector.setIsTokenAuth(token);
     }
 
     @After
@@ -59,25 +74,25 @@ public class FhirServletTest {
 
     @Test
     public void allergyIntolerance_HttpOk_JSON() throws Exception {
-//        request.setMethod("GET");
-//        request.addHeader("Content-Type", "application/json");
-//        request.setRequestURI("/AllergyIntolerance");
-//
-//        testImpl.service(request, response);
-//
-//        Assert.assertEquals(response.getContentAsString(), HttpStatus.OK.value(), response.getStatus());
-//        Assert.assertEquals("application/json+fhir", response.getContentType());
+        request.setMethod("GET");
+        request.addHeader("Content-Type", "application/json");
+        request.setRequestURI("/AllergyIntolerance");
+
+        testImpl.service(request, response);
+
+        Assert.assertEquals(response.getContentAsString(), HttpStatus.OK.value(), response.getStatus());
+        Assert.assertEquals("application/json+fhir", response.getContentType());
     }
 
     @Test
     public void condition_HttpOk_JSON() throws Exception {
-//        request.setMethod("GET");
-//        request.addHeader("Content-Type", "application/json");
-//        request.setRequestURI("/AllergyIntolerance");
-//
-//        testImpl.service(request, response);
-//
-//        Assert.assertEquals(response.getContentAsString(), HttpStatus.OK.value(), response.getStatus());
-//        Assert.assertEquals("application/json+fhir", response.getContentType());
+        request.setMethod("GET");
+        request.addHeader("Content-Type", "application/json");
+        request.setRequestURI("/Condition");
+
+        testImpl.service(request, response);
+
+        Assert.assertEquals(response.getContentAsString(), HttpStatus.OK.value(), response.getStatus());
+        Assert.assertEquals("application/json+fhir", response.getContentType());
     }
 }

@@ -8,35 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.DatatypeConverter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public class OpenEHRConverter {
 
-    public OpenEHRConverter() {
-        try {
-            SetupResourcesPath();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private String resourcesRootPath;
 
-    protected void SetupResourcesPath() throws Exception{
-
-        resourcesRootPath = getClass()
-                .getClassLoader()
-                .getResource(".")
-                .toURI() // to deal with spaces in path
-                .getPath();
-    }
     protected Date convertAssertedDate(JsonNode ehrJson) {
-
         //Test explicitly for 'AssertedDAte as it may not always exist in the resultset
         JsonNode dateElement = ehrJson.get("AssertedDate");
         String dateString = null;
@@ -50,9 +28,7 @@ public class OpenEHRConverter {
     }
 
 
-
     protected Practitioner convertAsserter(JsonNode ehrJson) {
-
         // Convert Composer name and ID.
         Practitioner asserter = new Practitioner();
         asserter.setId("Practitioner/#composer");
@@ -113,11 +89,9 @@ public class OpenEHRConverter {
     }
 
     protected CodeableConcept convertScalarCodableConcept(JsonNode ehrJson, String scalarElementName) {
-
         String value = getResultsetString(ehrJson, scalarElementName + "_value");
         String terminology = getResultsetString(ehrJson, scalarElementName + "_terminology");
         String code = getResultsetString(ehrJson, scalarElementName + "_code");
-
 
         if (null != terminology && null != code) {
             DvCodedText openEHRCodeable = new DvCodedText(value, terminology, code);
@@ -128,47 +102,22 @@ public class OpenEHRConverter {
             return null;
     }
 
-
-    protected List<CodeableConcept> convertCodeableConceptList(JsonNode ehrJson, String nodeName) {
-
-        List<CodeableConcept> resultList = new ArrayList<>();
-        JsonNode codeables;
-
-        codeables = ehrJson.get(nodeName);
-
-        if (codeables != null && codeables.isContainerNode()) {
-            logger.info("codeAblesList : "+ codeables.toString());
-            for (JsonNode codeableItem: codeables) {
-                resultList.add(getCodeableConceptObject(codeableItem));
-            }
-        }
-        else
-            resultList.add(convertScalarCodableConcept(ehrJson, nodeName));
-
-        return resultList;
-    }
-
     protected CodeableConcept convertCodeableConcept(JsonNode ehrJson, String nodeName) {
- //       logger.debug("ehrJson : !!!!!!");
         JsonNode codeables = ehrJson.get(nodeName);
- //      logger.info("codeables : "+ codeables.toString());
         if (codeables != null && codeables.isContainerNode()) {
             return getCodeableConceptObject(codeables.get("value"));
-        }
-        else
-        {
-            return (convertScalarCodableConcept(ehrJson,nodeName));
+        } else {
+            return (convertScalarCodableConcept(ehrJson, nodeName));
         }
     }
 
     private CodeableConcept getCodeableConceptObject(JsonNode codeableItem) {
-        String terminology = null; String code = null;
+        String terminology = null;
+        String code = null;
         String value;
 
-  //      logger.info("codeabelItem : "+ codeableItem.toString());
         String datatype = codeableItem.get("@class").textValue();
         value = codeableItem.get("value").textValue();
-
 
         if (datatype.equals("DV_CODED_TEXT")) {
             terminology = codeableItem.get("defining_code").get("terminology_id").get("value").textValue();
@@ -176,16 +125,17 @@ public class OpenEHRConverter {
         }
 
         if (null != terminology && null != code)
-            return DfText.convertToCodeableConcept(new DvCodedText(value, terminology,code));
+            return DfText.convertToCodeableConcept(new DvCodedText(value, terminology, code));
         else
             return DfText.convertToCodeableConcept(new DvText(value));
     }
 
     /**
-     Converts the value of an openEHR Resultset node into a string,
-     ensuring that a null is returned if the value or the node itself is null.
-     This ensures that HAPI-FHIR will ignore attempts to set a value.
-     * @param ehrJson Resultset Tree
+     * Converts the value of an openEHR Resultset node into a string,
+     * ensuring that a null is returned if the value or the node itself is null.
+     * This ensures that HAPI-FHIR will ignore attempts to set a value.
+     *
+     * @param ehrJson  Resultset Tree
      * @param nodeName
      * @return
      */
@@ -202,19 +152,17 @@ public class OpenEHRConverter {
         return nodeString;
     }
 
-
     /**
-     Converts an openEHR ISO Date String into a FHIR DateTimeType, used where the DateTime is a choice
+     * Converts an openEHR ISO Date String into a FHIR DateTimeType, used where the DateTime is a choice
+     *
      * @param ehrJson
      * @param nodeName
      * @return
      */
-    protected DateTimeType convertChoiceDate(JsonNode ehrJson, String nodeName){
+    protected DateTimeType convertChoiceDate(JsonNode ehrJson, String nodeName) {
         String onsetDate = getResultsetString(ehrJson, nodeName);
         if (null != onsetDate) {
             return new DateTimeType(onsetDate);
-        }
-        else return null;
+        } else return null;
     }
-
 }

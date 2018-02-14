@@ -50,7 +50,6 @@ public class ConditionConnector extends OpenEhrConnector {
     }
 
     public JsonNode getFilteredConditions(
-            //   StringParam listParam,
             StringParam patientId,
             TokenParam patientIdentifier,
             StringParam category,

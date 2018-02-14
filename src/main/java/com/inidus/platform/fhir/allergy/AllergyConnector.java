@@ -20,6 +20,7 @@ import java.util.Date;
 @Service()
 public class AllergyConnector extends OpenEhrConnector {
     private final Logger logger = LoggerFactory.getLogger(getClass());
+
     protected String getAQL() {
         String aql = "select" +
                 " e/ehr_id/value as ehrId," +
@@ -51,7 +52,7 @@ public class AllergyConnector extends OpenEhrConnector {
                 " contains COMPOSITION a[openEHR-EHR-COMPOSITION.adverse_reaction_list.v1]" +
                 " contains EVALUATION b_a[openEHR-EHR-EVALUATION.adverse_reaction_risk.v1]" +
                 " where a/name/value='Adverse reaction list'";
-    //       logger.info("getAQL():  "+ aql);
+        //       logger.info("getAQL():  "+ aql);
         return aql;
     }
 
@@ -77,7 +78,7 @@ public class AllergyConnector extends OpenEhrConnector {
         }
 
         String aql = getAQL() + filter;
-     //   logger.debug("Filtered AQL:  "+ aql);
+        //   logger.debug("Filtered AQL:  "+ aql);
         return getEhrJson(aql);
 
     }

@@ -7,6 +7,6 @@ import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 /**
  * Subclass that represents the Care Conect Profile
  */
-@ResourceDef(name="AllergyIntolerance", profile="https://fhir.hl7.org.uk/STU3/StructureDefinition/CareConnect-AllergyIntolerance-1")
+@ResourceDef(name = "AllergyIntolerance", profile = "https://fhir.hl7.org.uk/STU3/StructureDefinition/CareConnect-AllergyIntolerance-1")
 public class AllergyIntoleranceCC extends AllergyIntolerance {
 }
