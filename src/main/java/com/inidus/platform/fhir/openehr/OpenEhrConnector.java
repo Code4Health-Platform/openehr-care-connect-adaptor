@@ -23,7 +23,7 @@ import java.util.TimeZone;
 @ConfigurationProperties(prefix = "cdr-connector", ignoreUnknownFields = false)
 @Service
 public abstract class OpenEhrConnector {
-    protected static final DateFormat ISO_DATE = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+    protected static final DateFormat ISO_DATE = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
     private String url;
     private String username;
     private String password;
