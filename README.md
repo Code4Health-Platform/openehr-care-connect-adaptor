@@ -97,9 +97,9 @@ The scope of this project was therefore limited to the essential data points in 
 
 #### openEHR Apperta CKM Templates
 
-- [IDCR -  Adverse Reaction List.v1| Adverse reaction list](http://ckm.apperta.org/ckm/#showTemplate_1051.57.71)
-- [IDCR -  Medication Statement List.v1| Medication Statement list](http://ckm.apperta.org/ckm/#showTemplate_1051.57.143)
-- [IDCR -  Problem List.v1| Problem list](http://ckm.apperta.org/ckm/#showTemplate_1051.57.134)
+- [IDCR - Adverse Reaction List.v1| Adverse reaction list](http://ckm.apperta.org/ckm/#showTemplate_1051.57.71)
+- [IDCR - Medication Statement List.v1| Medication Statement list](http://ckm.apperta.org/ckm/#showTemplate_1051.57.143)
+- [IDCR - Problem List.v1| Problem list](http://ckm.apperta.org/ckm/#showTemplate_1051.57.134)
 - [IDCR - Procedure list .v1| Procedure list](http://ckm.apperta.org/ckm/#showTemplate_1051.57.140)
 
 #### Mapping Guidance documents
