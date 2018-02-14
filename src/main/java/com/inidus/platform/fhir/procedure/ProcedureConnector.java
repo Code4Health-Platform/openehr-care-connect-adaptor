@@ -78,7 +78,6 @@ public class ProcedureConnector extends OpenEhrConnector {
             filter += getDatePerformed(datePerformed);
         }
 
-        //       logger.debug("AQL... =" + getAQL() + filter);
         return getEhrJson(getAQL() + filter);
     }
 
@@ -88,14 +87,12 @@ public class ProcedureConnector extends OpenEhrConnector {
 
         if (null != fromDate) {
             String from = ISO_DATE.format(fromDate);
-            //       logger.debug("fromDate: " + from);
             filter += String.format(" and b_a/time/value >= '%s'", from);
         }
 
         Date toDate = datePerformed.getUpperBoundAsInstant();
         if (null != toDate) {
             String to = ISO_DATE.format(toDate);
-            //       logger.debug("fromDate: " + to);
             filter += String.format(" and b_a/time/value <= '%s'", to);
         }
 
@@ -103,9 +100,7 @@ public class ProcedureConnector extends OpenEhrConnector {
     }
 
     private String getProcedureStatusFilterAql(StringParam statusParam) {
-
         String openEHRCode = "";
-
 
         String statusCodeParam = statusParam.getValue();
 
@@ -120,7 +115,6 @@ public class ProcedureConnector extends OpenEhrConnector {
         } else if (statusCodeParam.equals(Procedure.ProcedureStatus.COMPLETED.toCode())) {
             openEHRCode = "'532'";
         }
-
 
         if (!openEHRCode.isEmpty())
             return String.format("and b_a/ism_transition/current_state/defining_code/code_string matches {%s}", openEHRCode);

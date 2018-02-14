@@ -4,15 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.hl7.fhir.dstu3.model.*;
 import org.openehr.rm.datatypes.text.DvCodedText;
 import org.openehr.rm.datatypes.text.DvText;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.DatatypeConverter;
 import java.util.Date;
 
 public class OpenEHRConverter {
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected Date convertAssertedDate(JsonNode ehrJson) {
         //Test explicitly for 'AssertedDAte as it may not always exist in the resultset
@@ -37,20 +33,6 @@ public class OpenEHRConverter {
         if (null != asserterName) {
             asserter.addName().setText(asserterName);
         }
-
-        // Not supported by EtherCis - causes exception
-        //        String asserterID = ehrJson.get("composerId").textValue();
-        //        if (null != asserterID) {
-        //
-        //            Identifier id = asserter.addIdentifier();
-        //            id.setValue(asserterID);
-        //
-        //            String asserterNamespace = ehrJson.get("composerNamespace").textValue();
-        //            if (null != asserterNamespace) {
-        //                id.setSystem(asserterNamespace);
-        //
-        //            }
-        //        }
 
         return asserter;
     }
