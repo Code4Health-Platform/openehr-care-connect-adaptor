@@ -21,46 +21,45 @@ TBD
 
 ### Code4Health Demo endpoints
 
-These are temporarily hosted by inidus.
 
 #### Using Marand ThinkEHR openEHR CDR
 
 `read` (all)
 
-- [AllergyIntolerance](http://platform.inidus.io/marand/fhir/AllergyIntolerance)
-- [Condition](http://platform.inidus.io/marand/fhir/Condition)
-- [Procedure](http://platform.inidus.io/marand/fhir/Procedure)
-- [MedicationStatement](http://platform.inidus.io/marand/fhir/MedicationStatement)
+- [AllergyIntolerance](https://platform.code4health.org/marand/fhir/AllergyIntolerance)
+- [Condition](https://platform.code4health.org/marand/fhir/Condition)
+- [Procedure](https://platform.code4health.org/marand/fhir/Procedure)
+- [MedicationStatement](https://platform.code4health.org/marand/fhir/MedicationStatement)
 
 `search by NHS Number`
 
-- [AllergyIntolerance](http://platform.inidus.io/marand/fhir/AllergyIntolerance?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
-- [Condition](http://platform.inidus.io/marand/fhir/Condition?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
-- [Procedure](http://platform.inidus.io/marand/fhir/Procedure?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
-- [MedicationStatement](http://platform.inidus.io/marand/fhir/MedicationStatement?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
+- [AllergyIntolerance](https://platform.code4health.org/marand/fhir/AllergyIntolerance?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
+- [Condition](https://platform.code4health.org/marand/fhir/Condition?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
+- [Procedure](https://platform.code4health.org/marand/fhir/Procedure?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
+- [MedicationStatement](https://platform.code4health.org/marand/fhir/MedicationStatement?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
 
 `conformance`
-- [Conformance](http://platform.inidus.io/marand/fhir/Conformance)
+- [Conformance](https://platform.code4health.org/marand/fhir/Conformance)
 
 
 #### Using Ripple EtherCis openEHR CDR
 
 `read` (all)
 
-- [AllergyIntolerance](http://platform.inidus.io/ethercis/fhir/AllergyIntolerance)
-- [Condition](http://platform.inidus.io/ethercis/fhir/Condition)
-- [Procedure](http://platform.inidus.io/ethercis/fhir/Procedure)
-- [MedicationStatement](http://platform.inidus.io/ethercis/fhir/MedicationStatement)
+- [AllergyIntolerance](https://platform.code4health.org/ethercis/fhir/AllergyIntolerance)
+- [Condition](https://platform.code4health.org/ethercis/fhir/Condition)
+- [Procedure](https://platform.code4health.org/ethercis/fhir/Procedure)
+- [MedicationStatement](https://platform.code4health.org/ethercis/fhir/MedicationStatement)
 
 `search by NHS Number`
 
-- [AllergyIntolerance](http://platform.inidus.io/ethercis/fhir/AllergyIntolerance?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
-- [Condition](http://platform.inidus.io/ethercis/fhir/Condition?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
-- [Procedure](http://platform.inidus.io/ethercis/fhir/Procedure?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
-- [MedicationStatement](http://platform.inidus.io/ethercis/fhir/MedicationStatement?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
+- [AllergyIntolerance](https://platform.code4health.org/ethercis/fhir/AllergyIntolerance?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
+- [Condition](https://platform.code4health.org/ethercis/fhir/Condition?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
+- [Procedure](https://platform.code4health.org/ethercis/fhir/Procedure?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
+- [MedicationStatement](https://platform.code4health.org/ethercis/fhir/MedicationStatement?patient.identifier=https%3A%2F%2Ffhir.nhs.uk%2FId%2Fnhs-number%7C9999999000)
 
 `conformance`
-- [Conformance](http://platform.inidus.io/ethercis/fhir/Conformance)
+- [Conformance](https://platform.code4health.org/ethercis/fhir/Conformance)
 
 
 ## Background
