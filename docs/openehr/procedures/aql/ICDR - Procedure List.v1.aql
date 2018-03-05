@@ -1,0 +1,26 @@
+select
+   e/ehr_id/value as ehrId,
+   e/ehr_status/subject/external_ref/id/value as subjectId,
+   e/ehr_status/subject/external_ref/namespace as subjectNamespace,
+   a/context/start_time/value as compositionStartTime,
+   a/uid/value as compositionId,
+   a/composer/name as composerName,
+   a/composer/external_ref/id/value as composerId,
+   a/composer/external_ref/namespace as composerNamespace,
+   b_a/uid/value as entryId,
+   b_a/description[at0001]/items[at0002] as Procedure_name,
+   b_a/description[at0001]/items[at0048] as Outcome,
+   b_a/description[at0001]/items[at0006] as Complication,
+   b_a/description[at0001]/items[at0067] as Procedure_type,
+   b_a/description[at0001]/items[at0063] as Body_site,
+   b_a/description[at0001]/items[at0014] as Reason,
+   b_a/description[at0001]/items[at0005]/value/value as Comment,
+   b_a/other_participations as OtherParticipations,
+   b_a/time/value as Procedure_time,
+   b_a/ism_transition/current_state/defining_code/code_string as Status_code,
+   b_a/ism_transition/careflow_step/defining_code/code_string as Careflow_step_code,
+   b_a/description[at0001]/items[at0049]/value/value as Description
+from EHR e
+contains COMPOSITION a[openEHR-EHR-COMPOSITION.health_summary.v1]
+contains ACTION b_a[openEHR-EHR-ACTION.procedure.v1]
+where a/name/value='Procedures list'

@@ -1,0 +1,1027 @@
+{
+  "webTemplate": {
+    "templateId": "IDCR - Procedures List.v1",
+    "version": "2.3",
+    "defaultLanguage": "en",
+    "languages": [
+      "en"
+    ],
+    "tree": {
+      "id": "procedures_list",
+      "name": "Procedures list",
+      "localizedName": "Procedures list",
+      "rmType": "COMPOSITION",
+      "nodeId": "openEHR-EHR-COMPOSITION.health_summary.v1",
+      "min": 1,
+      "max": 1,
+      "localizedNames": {
+        "en": "Procedures list"
+      },
+      "localizedDescriptions": {
+        "en": "Generic document containing a summary of health information about an individual."
+      },
+      "aqlPath": "",
+      "children": [
+        {
+          "id": "context",
+          "rmType": "EVENT_CONTEXT",
+          "nodeId": "",
+          "min": 1,
+          "max": 1,
+          "aqlPath": "/context",
+          "children": [
+            {
+              "id": "xds_metadata",
+              "name": "XDS Metadata",
+              "localizedName": "XDS Metadata",
+              "rmType": "CLUSTER",
+              "nodeId": "openEHR-EHR-CLUSTER.xds_metadata.v0",
+              "min": 0,
+              "max": -1,
+              "localizedNames": {
+                "en": "XDS Metadata"
+              },
+              "localizedDescriptions": {
+                "en": "Addtional composition metadata aligned with IHE-XDS which is not already available from the Reference Model COMPOSITION class."
+              },
+              "aqlPath": "/context/other_context[at0001]/items[openEHR-EHR-CLUSTER.xds_metadata.v0]",
+              "children": [
+                {
+                  "id": "author_specialty",
+                  "name": "Author specialty",
+                  "localizedName": "Author specialty",
+                  "rmType": "DV_TEXT",
+                  "nodeId": "at0001",
+                  "min": 0,
+                  "max": 1,
+                  "localizedNames": {
+                    "en": "Author specialty"
+                  },
+                  "localizedDescriptions": {
+                    "en": "The speciality of the author/composer of the document."
+                  },
+                  "aqlPath": "/context/other_context[at0001]/items[openEHR-EHR-CLUSTER.xds_metadata.v0]/items[at0001]/value",
+                  "inputs": [
+                    {
+                      "type": "TEXT"
+                    }
+                  ]
+                },
+                {
+                  "id": "class_code",
+                  "name": "Class code",
+                  "localizedName": "Class code",
+                  "rmType": "DV_TEXT",
+                  "nodeId": "at0002",
+                  "min": 0,
+                  "max": 1,
+                  "localizedNames": {
+                    "en": "Class code"
+                  },
+                  "localizedDescriptions": {
+                    "en": "A high-level document class code, normally selected from a valueset provided by the IHE-XDS Affinity Domain."
+                  },
+                  "annotations": {
+                    "comment": "For example: Report, Summary, Images, Plan, Patient Preferences, Workflow.\nThese codes are specific to an XDS Affinity Domain."
+                  },
+                  "aqlPath": "/context/other_context[at0001]/items[openEHR-EHR-CLUSTER.xds_metadata.v0]/items[at0002]/value",
+                  "inputs": [
+                    {
+                      "type": "TEXT"
+                    }
+                  ]
+                },
+                {
+                  "id": "document_type",
+                  "name": "Document type",
+                  "localizedName": "Document type",
+                  "rmType": "DV_TEXT",
+                  "nodeId": "at0003",
+                  "min": 0,
+                  "max": 1,
+                  "localizedNames": {
+                    "en": "Document type"
+                  },
+                  "localizedDescriptions": {
+                    "en": "The code specifying the precise type of document from the user perspective. Normally selected from a valueset provided by the local IHE-XDS Affinity Domain or national standard."
+                  },
+                  "annotations": {
+                    "comment": "for example:  Pulmonary History and Physical, Discharge Summary, Ultrasound Report.\nThese codes are specific to an XDS Affinity Domain."
+                  },
+                  "aqlPath": "/context/other_context[at0001]/items[openEHR-EHR-CLUSTER.xds_metadata.v0]/items[at0003]/value",
+                  "inputs": [
+                    {
+                      "type": "TEXT",
+                      "defaultValue": "SNOMED-CT::163061000000104::Procedures"
+                    }
+                  ]
+                },
+                {
+                  "id": "confidentiality_code",
+                  "name": "Confidentiality code",
+                  "localizedName": "Confidentiality code",
+                  "rmType": "DV_TEXT",
+                  "nodeId": "at0004",
+                  "min": 0,
+                  "max": 1,
+                  "localizedNames": {
+                    "en": "Confidentiality code"
+                  },
+                  "localizedDescriptions": {
+                    "en": "A term specifying the level of confidentiality of the XDS Document."
+                  },
+                  "annotations": {
+                    "comment": "Coded text is preferred, normally specific to an XDS Affinity Domain."
+                  },
+                  "aqlPath": "/context/other_context[at0001]/items[openEHR-EHR-CLUSTER.xds_metadata.v0]/items[at0004]/value",
+                  "inputs": [
+                    {
+                      "type": "TEXT"
+                    }
+                  ]
+                },
+                {
+                  "id": "health_care_facility_type",
+                  "name": "Health care facility type",
+                  "localizedName": "Health care facility type",
+                  "rmType": "DV_TEXT",
+                  "nodeId": "at0007",
+                  "min": 0,
+                  "max": 1,
+                  "localizedNames": {
+                    "en": "Health care facility type"
+                  },
+                  "localizedDescriptions": {
+                    "en": "A term defining the healthcare facility type."
+                  },
+                  "annotations": {
+                    "comment": "Coded text is preferred. The codes are specific to an XDS Affinity Domain."
+                  },
+                  "aqlPath": "/context/other_context[at0001]/items[openEHR-EHR-CLUSTER.xds_metadata.v0]/items[at0007]/value",
+                  "inputs": [
+                    {
+                      "type": "TEXT"
+                    }
+                  ]
+                },
+                {
+                  "id": "practice_setting_code",
+                  "name": "Practice setting code",
+                  "localizedName": "Practice setting code",
+                  "rmType": "DV_TEXT",
+                  "nodeId": "at0009",
+                  "min": 0,
+                  "max": 1,
+                  "localizedNames": {
+                    "en": "Practice setting code"
+                  },
+                  "localizedDescriptions": {
+                    "en": "The code specifying the clinical specialty where the act that resulted in the document was performed."
+                  },
+                  "annotations": {
+                    "comment": "For example: Family Practice, Laboratory, Radiology.\nCoded text is preferred, normally specific to an XDS Affinity Domain."
+                  },
+                  "aqlPath": "/context/other_context[at0001]/items[openEHR-EHR-CLUSTER.xds_metadata.v0]/items[at0009]/value",
+                  "inputs": [
+                    {
+                      "type": "TEXT"
+                    }
+                  ]
+                },
+                {
+                  "id": "event_code",
+                  "name": "Event code",
+                  "localizedName": "Event code",
+                  "rmType": "DV_TEXT",
+                  "nodeId": "at0011",
+                  "min": 0,
+                  "max": -1,
+                  "localizedNames": {
+                    "en": "Event code"
+                  },
+                  "localizedDescriptions": {
+                    "en": "This list of codes represents the main clinical acts."
+                  },
+                  "annotations": {
+                    "comment": "For example: Colonoscopy or appendicectomy."
+                  },
+                  "aqlPath": "/context/other_context[at0001]/items[openEHR-EHR-CLUSTER.xds_metadata.v0]/items[at0011]/value",
+                  "inputs": [
+                    {
+                      "type": "TEXT"
+                    }
+                  ]
+                },
+                {
+                  "id": "document_media",
+                  "name": "Document_media",
+                  "localizedName": "Document_media",
+                  "rmType": "DV_MULTIMEDIA",
+                  "nodeId": "at0010",
+                  "min": 0,
+                  "max": 1,
+                  "localizedNames": {
+                    "en": "Document_media"
+                  },
+                  "localizedDescriptions": {
+                    "en": "Additonal metadata about the document itself, inclusding size, url."
+                  },
+                  "aqlPath": "/context/other_context[at0001]/items[openEHR-EHR-CLUSTER.xds_metadata.v0]/items[at0010]/value",
+                  "inputs": [
+                    {
+                      "type": "TEXT"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "start_time",
+              "name": "Start_time",
+              "rmType": "DV_DATE_TIME",
+              "min": 1,
+              "max": 1,
+              "aqlPath": "/context/start_time",
+              "inputs": [
+                {
+                  "type": "DATETIME"
+                }
+              ],
+              "inContext": true
+            },
+            {
+              "id": "setting",
+              "name": "Setting",
+              "rmType": "DV_CODED_TEXT",
+              "min": 1,
+              "max": 1,
+              "aqlPath": "/context/setting",
+              "inputs": [
+                {
+                  "suffix": "code",
+                  "type": "TEXT"
+                },
+                {
+                  "suffix": "value",
+                  "type": "TEXT"
+                }
+              ],
+              "inContext": true
+            }
+          ]
+        },
+        {
+          "id": "procedures",
+          "name": "Procedures",
+          "localizedName": "Procedures",
+          "rmType": "SECTION",
+          "nodeId": "openEHR-EHR-SECTION.procedures_rcp.v1",
+          "min": 0,
+          "max": 1,
+          "localizedNames": {
+            "en": "Procedures"
+          },
+          "localizedDescriptions": {
+            "en": "Procedures heading (AoMRC)."
+          },
+          "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]",
+          "children": [
+            {
+              "id": "procedure",
+              "name": "Procedure",
+              "localizedName": "Procedure",
+              "rmType": "ACTION",
+              "nodeId": "openEHR-EHR-ACTION.procedure.v1",
+              "min": 0,
+              "max": -1,
+              "localizedNames": {
+                "en": "Procedure"
+              },
+              "localizedDescriptions": {
+                "en": "A clinical activity carried out for screening, investigative, diagnostic, curative, therapeutic, evaluative or palliative purposes."
+              },
+              "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-ACTION.procedure.v1]",
+              "children": [
+                {
+                  "id": "ism_transition",
+                  "name": "Ism_transition",
+                  "rmType": "ISM_TRANSITION",
+                  "min": 1,
+                  "max": 1,
+                  "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-ACTION.procedure.v1]/ism_transition",
+                  "children": [
+                    {
+                      "id": "current_state",
+                      "name": "Current_state",
+                      "rmType": "DV_CODED_TEXT",
+                      "min": 1,
+                      "max": 1,
+                      "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-ACTION.procedure.v1]/ism_transition/current_state",
+                      "inputs": [
+                        {
+                          "suffix": "code",
+                          "type": "CODED_TEXT",
+                          "list": [
+                            {
+                              "value": "524",
+                              "label": "initial"
+                            },
+                            {
+                              "value": "526",
+                              "label": "planned"
+                            },
+                            {
+                              "value": "527",
+                              "label": "postponed"
+                            },
+                            {
+                              "value": "528",
+                              "label": "cancelled"
+                            },
+                            {
+                              "value": "529",
+                              "label": "scheduled"
+                            },
+                            {
+                              "value": "530",
+                              "label": "suspended"
+                            },
+                            {
+                              "value": "245",
+                              "label": "active"
+                            },
+                            {
+                              "value": "531",
+                              "label": "aborted"
+                            },
+                            {
+                              "value": "532",
+                              "label": "completed"
+                            },
+                            {
+                              "value": "533",
+                              "label": "expired"
+                            }
+                          ]
+                        }
+                      ],
+                      "inContext": true
+                    },
+                    {
+                      "id": "transition",
+                      "name": "Transition",
+                      "rmType": "DV_CODED_TEXT",
+                      "min": 0,
+                      "max": 1,
+                      "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-ACTION.procedure.v1]/ism_transition/transition",
+                      "inputs": [
+                        {
+                          "suffix": "code",
+                          "type": "TEXT"
+                        },
+                        {
+                          "suffix": "value",
+                          "type": "TEXT"
+                        }
+                      ],
+                      "inContext": true
+                    },
+                    {
+                      "id": "careflow_step",
+                      "name": "Careflow_step",
+                      "rmType": "DV_CODED_TEXT",
+                      "min": 0,
+                      "max": 1,
+                      "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-ACTION.procedure.v1]/ism_transition/careflow_step",
+                      "inputs": [
+                        {
+                          "suffix": "code",
+                          "type": "CODED_TEXT",
+                          "list": [
+                            {
+                              "value": "at0004",
+                              "label": "Procedure planned",
+                              "localizedLabels": {
+                                "en": "Procedure planned"
+                              },
+                              "currentStates": [
+                                "526"
+                              ]
+                            },
+                            {
+                              "value": "at0034",
+                              "label": "X - Procedure planned",
+                              "localizedLabels": {
+                                "en": "X - Procedure planned"
+                              },
+                              "currentStates": [
+                                "524"
+                              ]
+                            },
+                            {
+                              "value": "at0007",
+                              "label": "Procedure request sent",
+                              "localizedLabels": {
+                                "en": "Procedure request sent"
+                              },
+                              "currentStates": [
+                                "526"
+                              ]
+                            },
+                            {
+                              "value": "at0035",
+                              "label": "X - Procedure request sent",
+                              "localizedLabels": {
+                                "en": "X - Procedure request sent"
+                              },
+                              "currentStates": [
+                                "524"
+                              ]
+                            },
+                            {
+                              "value": "at0038",
+                              "label": "Procedure postponed",
+                              "localizedLabels": {
+                                "en": "Procedure postponed"
+                              },
+                              "currentStates": [
+                                "527"
+                              ]
+                            },
+                            {
+                              "value": "at0039",
+                              "label": "Procedure cancelled",
+                              "localizedLabels": {
+                                "en": "Procedure cancelled"
+                              },
+                              "currentStates": [
+                                "528"
+                              ]
+                            },
+                            {
+                              "value": "at0036",
+                              "label": "Procedure scheduled",
+                              "localizedLabels": {
+                                "en": "Procedure scheduled"
+                              },
+                              "currentStates": [
+                                "529"
+                              ]
+                            },
+                            {
+                              "value": "at0068",
+                              "label": "Procedure commenced",
+                              "localizedLabels": {
+                                "en": "Procedure commenced"
+                              },
+                              "currentStates": [
+                                "245"
+                              ]
+                            },
+                            {
+                              "value": "at0047",
+                              "label": "Procedure performed",
+                              "localizedLabels": {
+                                "en": "Procedure performed"
+                              },
+                              "currentStates": [
+                                "245"
+                              ]
+                            },
+                            {
+                              "value": "at0040",
+                              "label": "Procedure suspended",
+                              "localizedLabels": {
+                                "en": "Procedure suspended"
+                              },
+                              "currentStates": [
+                                "530"
+                              ]
+                            },
+                            {
+                              "value": "at0041",
+                              "label": "Procedure aborted",
+                              "localizedLabels": {
+                                "en": "Procedure aborted"
+                              },
+                              "currentStates": [
+                                "531"
+                              ]
+                            },
+                            {
+                              "value": "at0043",
+                              "label": "Procedure completed",
+                              "localizedLabels": {
+                                "en": "Procedure completed"
+                              },
+                              "currentStates": [
+                                "532"
+                              ]
+                            }
+                          ]
+                        }
+                      ],
+                      "inContext": true
+                    }
+                  ],
+                  "inContext": true
+                },
+                {
+                  "id": "procedure_name",
+                  "name": "Procedure name",
+                  "localizedName": "Procedure name",
+                  "rmType": "DV_TEXT",
+                  "nodeId": "at0002",
+                  "min": 1,
+                  "max": 1,
+                  "localizedNames": {
+                    "en": "Procedure name"
+                  },
+                  "localizedDescriptions": {
+                    "en": "Identification of the procedure by name."
+                  },
+                  "annotations": {
+                    "comment": "Coding of the specific procedure with a terminology is preferred, where possible."
+                  },
+                  "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-ACTION.procedure.v1]/description[at0001]/items[at0002]/value",
+                  "inputs": [
+                    {
+                      "type": "TEXT"
+                    }
+                  ]
+                },
+                {
+                  "id": "description",
+                  "name": "Description",
+                  "localizedName": "Description",
+                  "rmType": "DV_TEXT",
+                  "nodeId": "at0049",
+                  "min": 0,
+                  "max": 1,
+                  "localizedNames": {
+                    "en": "Description"
+                  },
+                  "localizedDescriptions": {
+                    "en": "Narrative description about the procedure, as appropriate for the pathway step."
+                  },
+                  "annotations": {
+                    "comment": "For example: description about the performance and findings from the the procedure, the aborted attempt or the cancellation of the procedure."
+                  },
+                  "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-ACTION.procedure.v1]/description[at0001]/items[at0049]/value",
+                  "inputs": [
+                    {
+                      "type": "TEXT"
+                    }
+                  ]
+                },
+                {
+                  "id": "body_site",
+                  "name": "Body site",
+                  "localizedName": "Body site",
+                  "rmType": "DV_TEXT",
+                  "nodeId": "at0063",
+                  "min": 0,
+                  "max": 1,
+                  "localizedNames": {
+                    "en": "Body site"
+                  },
+                  "localizedDescriptions": {
+                    "en": "Identification of the body site for the procedure."
+                  },
+                  "annotations": {
+                    "comment": "Occurrences for this data element are unbounded to allow for clinical scenarios such as removing multiple skin lesions in different places, but where all of the other attributes are identical. Use this data element to record simple terms or precoordinated anatomical locations. If the requirements for recording the anatomical location are determined at run-time by the application or require more complex modelling such as relative locations then use the CLUSTER.anatomical_location or CLUSTER.relative_location within the 'Procedure detail' SLOT in this archetype. If the anatomical location is included in the 'Procedure name' via precoordinated codes, this data element becomes redundant."
+                  },
+                  "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-ACTION.procedure.v1]/description[at0001]/items[at0063]/value",
+                  "inputs": [
+                    {
+                      "type": "TEXT"
+                    }
+                  ]
+                },
+                {
+                  "id": "outcome",
+                  "name": "Outcome",
+                  "localizedName": "Outcome",
+                  "rmType": "DV_TEXT",
+                  "nodeId": "at0048",
+                  "min": 0,
+                  "max": 1,
+                  "localizedNames": {
+                    "en": "Outcome"
+                  },
+                  "localizedDescriptions": {
+                    "en": "Outcome of procedure performed."
+                  },
+                  "annotations": {
+                    "comment": "Coding with a terminology is preferred, where possible."
+                  },
+                  "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-ACTION.procedure.v1]/description[at0001]/items[at0048]/value",
+                  "inputs": [
+                    {
+                      "type": "TEXT"
+                    }
+                  ]
+                },
+                {
+                  "id": "procedural_difficulty",
+                  "name": "Procedural difficulty",
+                  "localizedName": "Procedural difficulty",
+                  "rmType": "DV_TEXT",
+                  "nodeId": "at0069",
+                  "min": 0,
+                  "max": -1,
+                  "localizedNames": {
+                    "en": "Procedural difficulty"
+                  },
+                  "localizedDescriptions": {
+                    "en": "Difficulties or issues encountered during performance of the procedure."
+                  },
+                  "annotations": {
+                    "comment": "Examples: The patient was agitated, insufficient emptying of the stomach before gastroscopy, a tumour in the bile ducts made it impossible to pass the scope through."
+                  },
+                  "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-ACTION.procedure.v1]/description[at0001]/items[at0069]/value",
+                  "inputs": [
+                    {
+                      "type": "TEXT"
+                    }
+                  ]
+                },
+                {
+                  "id": "complication",
+                  "name": "Complication",
+                  "localizedName": "Complication",
+                  "rmType": "DV_TEXT",
+                  "nodeId": "at0006",
+                  "min": 0,
+                  "max": -1,
+                  "localizedNames": {
+                    "en": "Complication"
+                  },
+                  "localizedDescriptions": {
+                    "en": "Details about any complication arising from the procedure."
+                  },
+                  "annotations": {
+                    "comment": "Use this data element to record simple terms or precoordinated complications. If the requirements for recording complication are more complex then use of a specific CLUSTER archetype within the 'Procedure detail' SLOT in this archetype is advised and this data element becomes redundant. Examples: Hematuria after a kidney biopsy, tissue irritation after insertion of intravenous catheter."
+                  },
+                  "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-ACTION.procedure.v1]/description[at0001]/items[at0006]/value",
+                  "inputs": [
+                    {
+                      "type": "TEXT"
+                    }
+                  ]
+                },
+                {
+                  "id": "procedure_type",
+                  "name": "Procedure type",
+                  "localizedName": "Procedure type",
+                  "rmType": "DV_TEXT",
+                  "nodeId": "at0067",
+                  "min": 0,
+                  "max": 1,
+                  "localizedNames": {
+                    "en": "Procedure type"
+                  },
+                  "localizedDescriptions": {
+                    "en": "The type of procedure."
+                  },
+                  "annotations": {
+                    "comment": "This pragmatic data element may be used to support organisation within the user interface."
+                  },
+                  "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-ACTION.procedure.v1]/description[at0001]/items[at0067]/value",
+                  "inputs": [
+                    {
+                      "type": "TEXT"
+                    }
+                  ]
+                },
+                {
+                  "id": "reason",
+                  "name": "Reason",
+                  "localizedName": "Reason",
+                  "rmType": "DV_TEXT",
+                  "nodeId": "at0014",
+                  "min": 0,
+                  "max": 1,
+                  "localizedNames": {
+                    "en": "Reason"
+                  },
+                  "localizedDescriptions": {
+                    "en": "Reason that the activity or care pathway step for the identified procedure was carried out."
+                  },
+                  "annotations": {
+                    "comment": "For example: the reason for the cancellation or suspension of the procedure."
+                  },
+                  "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-ACTION.procedure.v1]/description[at0001]/items[at0014]/value",
+                  "inputs": [
+                    {
+                      "type": "TEXT"
+                    }
+                  ]
+                },
+                {
+                  "id": "comment",
+                  "name": "Comment",
+                  "localizedName": "Comment",
+                  "rmType": "DV_TEXT",
+                  "nodeId": "at0005",
+                  "min": 0,
+                  "max": 1,
+                  "localizedNames": {
+                    "en": "Comment"
+                  },
+                  "localizedDescriptions": {
+                    "en": "Additional narrative about the activity or care pathway step not captured in other fields."
+                  },
+                  "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-ACTION.procedure.v1]/description[at0001]/items[at0005]/value",
+                  "inputs": [
+                    {
+                      "type": "TEXT"
+                    }
+                  ]
+                },
+                {
+                  "id": "time",
+                  "name": "Time",
+                  "rmType": "DV_DATE_TIME",
+                  "min": 1,
+                  "max": 1,
+                  "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-ACTION.procedure.v1]/time",
+                  "inputs": [
+                    {
+                      "type": "DATETIME"
+                    }
+                  ],
+                  "inContext": true
+                },
+                {
+                  "id": "language",
+                  "name": "Language",
+                  "rmType": "CODE_PHRASE",
+                  "min": 1,
+                  "max": 1,
+                  "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-ACTION.procedure.v1]/language",
+                  "inContext": true
+                },
+                {
+                  "id": "encoding",
+                  "name": "Encoding",
+                  "rmType": "CODE_PHRASE",
+                  "min": 1,
+                  "max": 1,
+                  "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-ACTION.procedure.v1]/encoding",
+                  "inContext": true
+                },
+                {
+                  "id": "subject",
+                  "name": "Subject",
+                  "rmType": "PARTY_PROXY",
+                  "min": 1,
+                  "max": 1,
+                  "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-ACTION.procedure.v1]/subject",
+                  "inContext": true
+                }
+              ]
+            },
+            {
+              "id": "empty_list_info",
+              "name": "Empty list info",
+              "localizedName": "Empty list info",
+              "rmType": "SECTION",
+              "nodeId": "openEHR-EHR-SECTION.adhoc.v1",
+              "min": 0,
+              "max": 1,
+              "localizedNames": {
+                "en": "Empty list info"
+              },
+              "localizedDescriptions": {
+                "en": "A generic section header which should be renamed in a template to suit a specific clinical context."
+              },
+              "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-SECTION.adhoc.v1,'Empty list info']",
+              "children": [
+                {
+                  "id": "exclusion_-_global",
+                  "name": "Exclusion - global",
+                  "localizedName": "Exclusion - global",
+                  "rmType": "EVALUATION",
+                  "nodeId": "openEHR-EHR-EVALUATION.exclusion_global.v1",
+                  "min": 0,
+                  "max": -1,
+                  "localizedNames": {
+                    "en": "Exclusion - global"
+                  },
+                  "localizedDescriptions": {
+                    "en": "An overall statement of exclusion about all Problems/diagnoses, Family history, Medications, Procedures, Adverse reactions or other clinical items that are either not currently present, or have not been present in the past."
+                  },
+                  "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-SECTION.adhoc.v1,'Empty list info']/items[openEHR-EHR-EVALUATION.exclusion_global.v1]",
+                  "children": [
+                    {
+                      "id": "global_exclusion_of_procedures",
+                      "name": "Global exclusion of procedures",
+                      "localizedName": "Global exclusion of procedures",
+                      "rmType": "DV_TEXT",
+                      "nodeId": "at0002",
+                      "min": 1,
+                      "max": 1,
+                      "localizedNames": {
+                        "en": "Global exclusion of procedures"
+                      },
+                      "localizedDescriptions": {
+                        "en": "Overall statement of exclusion about all procedures at the time of recording."
+                      },
+                      "annotations": {
+                        "comment": "For example: 'No previous diagnoses', 'No known family history', 'No known history of adverse reactions', 'Never taken any medications' or 'No known operations or significant procedures'."
+                      },
+                      "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-SECTION.adhoc.v1,'Empty list info']/items[openEHR-EHR-EVALUATION.exclusion_global.v1]/data[at0001]/items[at0002,'Global exclusion of procedures']/value",
+                      "inputs": [
+                        {
+                          "type": "TEXT",
+                          "defaultValue": "No known procedures"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "comment",
+                      "name": "Comment",
+                      "localizedName": "Comment",
+                      "rmType": "DV_TEXT",
+                      "nodeId": "at0011",
+                      "min": 0,
+                      "max": 1,
+                      "localizedNames": {
+                        "en": "Comment"
+                      },
+                      "localizedDescriptions": {
+                        "en": "Additional comment not covered in other fields."
+                      },
+                      "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-SECTION.adhoc.v1,'Empty list info']/items[openEHR-EHR-EVALUATION.exclusion_global.v1]/data[at0001]/items[at0011]/value",
+                      "inputs": [
+                        {
+                          "type": "TEXT"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "language",
+                      "name": "Language",
+                      "rmType": "CODE_PHRASE",
+                      "min": 1,
+                      "max": 1,
+                      "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-SECTION.adhoc.v1,'Empty list info']/items[openEHR-EHR-EVALUATION.exclusion_global.v1]/language",
+                      "inContext": true
+                    },
+                    {
+                      "id": "encoding",
+                      "name": "Encoding",
+                      "rmType": "CODE_PHRASE",
+                      "min": 1,
+                      "max": 1,
+                      "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-SECTION.adhoc.v1,'Empty list info']/items[openEHR-EHR-EVALUATION.exclusion_global.v1]/encoding",
+                      "inContext": true
+                    },
+                    {
+                      "id": "subject",
+                      "name": "Subject",
+                      "rmType": "PARTY_PROXY",
+                      "min": 1,
+                      "max": 1,
+                      "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-SECTION.adhoc.v1,'Empty list info']/items[openEHR-EHR-EVALUATION.exclusion_global.v1]/subject",
+                      "inContext": true
+                    }
+                  ]
+                },
+                {
+                  "id": "absence_of_information",
+                  "name": "Absence of Information",
+                  "localizedName": "Absence of Information",
+                  "rmType": "EVALUATION",
+                  "nodeId": "openEHR-EHR-EVALUATION.absence.v1",
+                  "min": 0,
+                  "max": -1,
+                  "localizedNames": {
+                    "en": "Absence of Information"
+                  },
+                  "localizedDescriptions": {
+                    "en": "Statement that specified health information is not available for inclusion in the health record or extract at the time of recording."
+                  },
+                  "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-SECTION.adhoc.v1,'Empty list info']/items[openEHR-EHR-EVALUATION.absence.v1]",
+                  "children": [
+                    {
+                      "id": "absence_statement",
+                      "name": "Absence statement",
+                      "localizedName": "Absence statement",
+                      "rmType": "DV_TEXT",
+                      "nodeId": "at0002",
+                      "min": 0,
+                      "max": 1,
+                      "localizedNames": {
+                        "en": "Absence statement"
+                      },
+                      "localizedDescriptions": {
+                        "en": "Positive statement that no information is available."
+                      },
+                      "annotations": {
+                        "comment": "For example: \"No information available about adverse reactions\"; No information available about problems or diagnoses\"; \"No information available about previous procedures performed\"; or \"No information available about medications used\"."
+                      },
+                      "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-SECTION.adhoc.v1,'Empty list info']/items[openEHR-EHR-EVALUATION.absence.v1]/data[at0001]/items[at0002]/value",
+                      "inputs": [
+                        {
+                          "type": "TEXT",
+                          "defaultValue": "No information for known procedures"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "reason_for_absence",
+                      "name": "Reason for absence",
+                      "localizedName": "Reason for absence",
+                      "rmType": "DV_TEXT",
+                      "nodeId": "at0005",
+                      "min": 0,
+                      "max": 1,
+                      "localizedNames": {
+                        "en": "Reason for absence"
+                      },
+                      "localizedDescriptions": {
+                        "en": "Narrative description of the reason why there is no information available."
+                      },
+                      "annotations": {
+                        "comment": "For example: patient is unconscious or refuses to provide information."
+                      },
+                      "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-SECTION.adhoc.v1,'Empty list info']/items[openEHR-EHR-EVALUATION.absence.v1]/data[at0001]/items[at0005]/value",
+                      "inputs": [
+                        {
+                          "type": "TEXT"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "last_updated",
+                      "name": "Last updated",
+                      "localizedName": "Last updated",
+                      "rmType": "DV_DATE_TIME",
+                      "nodeId": "at0004",
+                      "min": 0,
+                      "max": 1,
+                      "dependsOn": [
+                        "absence_statement",
+                        "reason_for_absence"
+                      ],
+                      "localizedNames": {
+                        "en": "Last updated"
+                      },
+                      "localizedDescriptions": {
+                        "en": "The date at which the absence was last updated."
+                      },
+                      "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-SECTION.adhoc.v1,'Empty list info']/items[openEHR-EHR-EVALUATION.absence.v1]/protocol[at0003]/items[at0004]/value",
+                      "inputs": [
+                        {
+                          "type": "DATETIME"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "language",
+                      "name": "Language",
+                      "rmType": "CODE_PHRASE",
+                      "min": 1,
+                      "max": 1,
+                      "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-SECTION.adhoc.v1,'Empty list info']/items[openEHR-EHR-EVALUATION.absence.v1]/language",
+                      "inContext": true
+                    },
+                    {
+                      "id": "encoding",
+                      "name": "Encoding",
+                      "rmType": "CODE_PHRASE",
+                      "min": 1,
+                      "max": 1,
+                      "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-SECTION.adhoc.v1,'Empty list info']/items[openEHR-EHR-EVALUATION.absence.v1]/encoding",
+                      "inContext": true
+                    },
+                    {
+                      "id": "subject",
+                      "name": "Subject",
+                      "rmType": "PARTY_PROXY",
+                      "min": 1,
+                      "max": 1,
+                      "aqlPath": "/content[openEHR-EHR-SECTION.procedures_rcp.v1]/items[openEHR-EHR-SECTION.adhoc.v1,'Empty list info']/items[openEHR-EHR-EVALUATION.absence.v1]/subject",
+                      "inContext": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "composer",
+          "name": "Composer",
+          "rmType": "PARTY_PROXY",
+          "min": 1,
+          "max": 1,
+          "aqlPath": "/composer",
+          "inContext": true
+        }
+      ]
+    }
+  }
+}
