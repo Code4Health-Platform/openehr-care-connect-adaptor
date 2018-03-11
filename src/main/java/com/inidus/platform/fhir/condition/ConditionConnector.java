@@ -29,8 +29,12 @@ public class ConditionConnector extends OpenEhrConnector {
                 " a/composer/external_ref/id/value as composerId," +
                 " a/composer/external_ref/namespace as composerNamespace," +
                 " b_a/uid/value as entryId," +
-                " b_a/data[at0001]/items[at0002] as Problem_Diagnosis," +
-                " b_a/data[at0001]/items[at0012] as Body_site," +
+                " b_a/data[at0001]/items[at0002]/value/value as Problem_Diagnosis_value," +
+                " b_a/data[at0001]/items[at0002]/value/defining_code/code_string as Problem_Diagnosis_code," +
+                " b_a/data[at0001]/items[at0002]/value/defining_code/terminology_id/value as Problem_Diagnosis_terminology," +
+                " b_a/data[at0001]/items[at0012]/value/value as Body_site_value," +
+                " b_a/data[at0001]/items[at0012]/value/defining_code/code_string as Body_site_code," +
+                " b_a/data[at0001]/items[at0012]/value/defining_code/terminology_id/value as Body_site_terminology," +
                 " b_a/data[at0001]/items[at0077]/value/value as Date_time_of_onset," +
                 " b_a/data[at0001]/items[at0030]/value/value as Date_time_of_resolution," +
                 " b_a/data[at0001]/items[at0005]/value/defining_code/code_string as Severity_code," +
