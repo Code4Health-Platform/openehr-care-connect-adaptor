@@ -31,7 +31,9 @@ public class MedicationStatementConnector extends OpenEhrConnector {
                 "  a/composer/external_ref/id/value as composerId," +
                 "  a/composer/external_ref/namespace as composerNamespace," +
                 "  b_a/uid/value as entryId," +
-                "  b_a/activities[at0001]/description[at0002]/items[at0070] as Medication_item," +
+                "  b_a/activities[at0001]/description[at0002]/items[at0070]/value/value as Medication_item_value," +
+                "  b_a/activities[at0001]/description[at0002]/items[at0070]/value/defining_code/code_string as Medication_item_code," +
+                "  b_a/activities[at0001]/description[at0002]/items[at0070]/value/defining_code/terminology_id/value as Medication_item_terminology," +
                 "  b_a/activities[at0001]/description[at0002]/items[at0009]/value/value as Overall_directions_description," +
                 "  b_a/activities[at0001]/description[at0002]/items[at0173, 'Dose amount description']/value/value as Dose_amount_description," +
                 "  b_a/activities[at0001]/description[at0002]/items[at0173, 'Dose timing description']/value/value as Dose_timing_description," +
