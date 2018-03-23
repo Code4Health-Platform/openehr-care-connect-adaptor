@@ -108,7 +108,7 @@ The scope of this project was therefore limited to the essential data points in 
 - [openEHR AdverseReactionRisk to FHIR allergyIntolerance STU3 mappings](docs/mapping_guidance/openEHR-AdverseReactionRisk-to-FHIR-AllergyIntolerance-STU3-mappings.adoc)
 - [openEHR Medication Order (as MedicationStatement) to FHIR MedicationStatement STU3 mappings](docs/mapping_guidance/openEHR-MedicationOrder-to-FHIR-MedicationStatement-STU3-mappings.adoc)
 - [openEHR ProblemDiagnosis to FHIR condition STU3 mappings](docs/mapping_guidance/openEHR-ProblemDiagnosis-to-FHIR-Condition-STU3-mappings.adoc)
-- [openEHR Procedure to FHIR Procedure STU3 mappings](docs/mapping_guidance/openEHR-Procedure-to FHIR-Procedure-STU3-mappings.adoc)
+- [openEHR Procedure to FHIR Procedure STU3 mappings](docs/mapping_guidance/openEHR-Procedure-to-FHIR-Procedure-STU3-mappings.adoc)
 
 #### General Approach
 
@@ -116,7 +116,7 @@ The general approach has been to construct openEHR Archetype Language (AQL) stat
 
 For more on AQL see:
 
-- [Querying EHR Data with Archetype Query Language](Querying EHR Data with Archetype Query Language)
+- [Querying EHR Data with Archetype Query Language](https://www.slideshare.net/borutf/querying-ehr-data-with-archetype-query-language)
 - [openEHR in Context](https://www.slideshare.net/freshehr/1-7-openehr-in-context)
 
 or the examples given in the guidance documents.
