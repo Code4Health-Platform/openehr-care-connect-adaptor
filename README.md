@@ -1,4 +1,6 @@
 
+![Logos](docs/images/combined.png)
+
 # openEHR-FHIR INTEROpen Care Connect STU3 Adaptor
 
 This is a proof-of-concept Web service that exposes [HL7 FHIR](https://www.hl7.org/fhir) operations (`read`, `search`, `conformance`) from a choice of [openEHR CDRs](https://docs.code4health.org/ES0-overview-openehr-ehrscape.html) (Ehrscape compliant e.g. Marand Think!Ehr or Ripple EtherCis) for a small range of [INTEROpen Care-Connect](https://nhsconnect.github.io/CareConnectAPI/) profiles, using the [HAPI FHIR](http://hapifhir.io) stack.
