@@ -30,12 +30,22 @@ public class ProcedureConnector extends OpenEhrConnector {
                 "   a/composer/external_ref/id/value as composerId,\n" +
                 "   a/composer/external_ref/namespace as composerNamespace,\n" +
                 "   b_a/uid/value as entryId,\n" +
-                "   b_a/description[at0001]/items[at0002] as Procedure_name,\n" +
-                "   b_a/description[at0001]/items[at0048] as Outcome,\n" +
-                "   b_a/description[at0001]/items[at0006] as Complication,\n" +
+                "   b_a/description[at0001]/items[at0002]/value/value as Procedure_name_value,\n" +
+                "   b_a/description[at0001]/items[at0002]/value/defining_code/code_string as Procedure_name_code,\n" +
+                "   b_a/description[at0001]/items[at0002]/value/defining_code/terminology_id/value as Procedure_name_terminology,\n" +
+                "   b_a/description[at0001]/items[at0048]/value/value as Outcome_value,\n" +
+                "   b_a/description[at0001]/items[at0048]/value/defining_code/code_string as Outcome_code,\n" +
+                "   b_a/description[at0001]/items[at0048]/value/defining_code/terminology_id/value as Outcome_terminology,\n" +
+                "   b_a/description[at0001]/items[at0006]/value/value as Complication_value,\n" +
+                "   b_a/description[at0001]/items[at0006]/value/defining_code/code_string as Complication_code,\n" +
+                "   b_a/description[at0001]/items[at0006]/value/defining_code/terminology_id/value as Complication_terminology,\n" +
                 "   b_a/description[at0001]/items[at0067] as Procedure_type,\n" +
-                "   b_a/description[at0001]/items[at0063] as Body_site,\n" +
-                "   b_a/description[at0001]/items[at0014] as Reason,\n" +
+                "   b_a/description[at0001]/items[at0063]/value/value as Body_site_value,\n" +
+                "   b_a/description[at0001]/items[at0063]/value/defining_code/code_string as Body_site_code,\n" +
+                "   b_a/description[at0001]/items[at0063]/value/defining_code/terminology_id/value as Body_site_terminology,\n" +
+                "   b_a/description[at0001]/items[at0014]/value/value as Reason_value,\n" +
+                "   b_a/description[at0001]/items[at0014]/value/defining_code/code_string as Reason_code,\n" +
+                "   b_a/description[at0001]/items[at0014]/value/defining_code/terminology_id/value as Reason_terminology,\n" +
                 "   b_a/description[at0001]/items[at0005]/value/value as Comment,\n" +
                 "   b_a/other_participations as OtherParticipations,\n" +
                 "   b_a/time/value as Procedure_time,\n" +
